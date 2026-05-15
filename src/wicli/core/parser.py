@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
+import re
 from typing import Any, Dict
 
 
@@ -41,3 +42,29 @@ def parse_summary(response: Dict[str, Any]) -> Dict[str, Any]:
 
     extract = pages[0].get("extract", "")
     return {"status": "found", "summary": extract}
+
+
+def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
+    wikitext = response.get("parse", {}).get("wikitext", "")
+
+    if not wikitext:
+        return {"status": "missing"}
+
+    lines = [
+        line
+        for line in wikitext.strip().split("\n")
+        if line.strip().startswith(("*", "'''"))
+    ]
+
+    links = []
+    for line in lines:
+        clean = re.sub(r"('{2,5}|\*|{{.*?}})", "", line).strip()
+        match = re.search(r"\[\[(.*?)(?:\|.*?)?\]\]", clean)
+        if match:
+            title = match.group(1).strip()
+            desc = re.sub(r"\[\[(?:.*?\|)?(.*?)\]\]", r"\1", clean)
+            desc = re.sub(r"\[\[(.*?)\]\]", r"\1", desc)
+            desc = desc.replace(title, "").strip(" –-,")
+            links.append({"page": title, "desc": desc})
+
+    return {"status": "found", "options": links}

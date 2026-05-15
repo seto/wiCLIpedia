@@ -53,6 +53,19 @@ def fetch_summary(title: str, lang: str = "it") -> Dict[str, Any]:
     return _get(url)
 
 
+def fetch_disambiguation(title: str, lang: str = "it") -> Dict[str, Any]:
+    params = {
+        "action": "parse",
+        "format": "json",
+        "page": title,
+        "prop": "wikitext",
+        "formatversion": 2,
+    }
+    url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"
+
+    return _get(url)
+
+
 def fetch_section(title: str, section: int, lang: str = "it") -> Dict[str, Any]:
     params = {
         "action": "parse",
