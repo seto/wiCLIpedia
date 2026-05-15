@@ -19,7 +19,7 @@ import re
 from typing import Any, Dict
 
 
-def parse_page_props(response: Dict[str, Any]) -> Dict[str, Any]:
+def parse_props(response: Dict[str, Any]) -> Dict[str, Any]:
     pages = response.get("query", {}).get("pages", [])
 
     if not pages or "missing" in pages[0]:

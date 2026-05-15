@@ -25,7 +25,7 @@ USER_AGENT = "wiclipedia/0.0.1 (https://github.com/seto/wiCLIpedia; seto@adversu
 BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 
 
-def fetch_page_props(title: str, lang: str = "it") -> Dict[str, Any]:
+def fetch_props(title: str, lang: str = "it") -> Dict[str, Any]:
     params = {
         "action": "query",
         "format": "json",
