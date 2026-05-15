@@ -21,7 +21,7 @@ from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-USER_AGENT = "wiclipedia/0.0.1 (https://github.com/seto/wiCLIpedia; seto@adversum.net)"
+USER_AGENT = "wiclipedia/0.0.1 (https://pypi.org/project/wiclipedia/; seto@adversum.net)"
 BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 
 
