@@ -18,11 +18,12 @@ pip install wiclipedia
 ## Usage
 
 ```bash
-wcli "Page Title"
+wicli "Page Title"
 ```
 
-By default, it fetches the English Wikipedia. To specify a different language, use the `-l` or `--lang` option:
+By default, it fetches the English Wikipedia.  
+To specify a different language, use the `-l` or `--lang` option:
 
 ```bash
-wcli "Titolo della pagina" -l it
+wicli "Titolo della pagina" -l it
 ```
