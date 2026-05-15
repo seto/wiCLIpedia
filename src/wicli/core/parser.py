@@ -31,3 +31,13 @@ def parse_page_props(response: Dict[str, Any]) -> Dict[str, Any]:
         return {"status": "unknown"}
 
     return {"status": "found"}
+
+
+def parse_summary(response: Dict[str, Any]) -> Dict[str, Any]:
+    pages = response.get("query", {}).get("pages", [])
+
+    if not pages or "missing" in pages[0]:
+        return {"status": "missing"}
+
+    extract = pages[0].get("extract", "")
+    return {"status": "found", "summary": extract}

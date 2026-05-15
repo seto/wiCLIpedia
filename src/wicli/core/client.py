@@ -40,11 +40,12 @@ def fetch_page_props(title: str, lang: str = "it") -> Dict[str, Any]:
 
 def fetch_summary(title: str, lang: str = "it") -> Dict[str, Any]:
     params = {
-        "action": "parse",
+        "action": "query",
         "format": "json",
-        "page": title,
-        "prop": "wikitext|tocdata",
-        "section": 0,
+        "titles": title,
+        "prop": "extracts",
+        "exintro": True,
+        "explaintext": True,
         "formatversion": 2,
     }
     url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"
