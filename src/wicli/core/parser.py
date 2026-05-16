@@ -22,10 +22,8 @@ from typing import Any, Dict
 def parse_props(response: Dict[str, Any]) -> Dict[str, Any]:
     redirects = response.get("query", {}).get("redirects", [])
 
-    if redirects:
-        target_page = redirects[0].get("to", "")
-        if target_page:
-            return {"status": "redirect", "redirects": target_page}
+    if redirects and (target_page := redirects[0].get("to")):
+        return {"status": "redirect", "redirects": target_page}
 
     pages = response.get("query", {}).get("pages", [])
 
@@ -78,15 +76,13 @@ def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def parse_toc(response: Dict[str, Any]) -> Dict[str, Any]:
-    tocdata = response.get("parse", {}).get("tocdata", [])
+    sections_data = response.get("parse", {}).get("tocdata", {}).get("sections", [])
 
-    if not tocdata:
+    if not sections_data:
         return {"status": "missing"}
 
-    raw_sections = tocdata.get("sections", [])
-
     sections = []
-    for section in raw_sections:
+    for section in sections_data:
         sections.append(
             {
                 "index": section.get("index", 0),
