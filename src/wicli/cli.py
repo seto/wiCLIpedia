@@ -37,17 +37,23 @@ def main(argv=None):
         response = fetch_props(args.title, lang=args.lang)
         parsed_response = parse_props(response)
 
+        if parsed_response.get("redirects"):
+            target_page = parsed_response["redirects"]
+            print(f"\nRedirected to '{target_page}'.")
+        else:
+            target_page = args.title
+
         if parsed_response["status"] == "found":
-            raw_summary = fetch_summary(args.title, lang=args.lang)
+            raw_summary = fetch_summary(target_page, lang=args.lang)
             parsed_summary = parse_summary(raw_summary)
 
             if not parsed_summary.get("summary"):
                 raise RuntimeError("Summary not found for the given page.")
 
-            print(render_summary(args.title, parsed_summary.get("summary")))
+            print(render_summary(target_page, parsed_summary.get("summary")))
 
         elif parsed_response["status"] == "disambiguation":
-            raw_disambiguation = fetch_disambiguation(args.title, lang=args.lang)
+            raw_disambiguation = fetch_disambiguation(target_page, lang=args.lang)
             parsed_disambiguation = parse_disambiguation(raw_disambiguation)
 
             if not parsed_disambiguation.get("options"):
@@ -60,7 +66,7 @@ def main(argv=None):
             or parsed_response["status"] == "unknown"
         ):
             print(
-                f"Page '{args.title}' not found in {args.lang} Wikipedia.",
+                f"Page '{target_page}' not found in {args.lang} Wikipedia.",
                 file=sys.stderr,
             )
             return 1

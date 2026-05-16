@@ -31,6 +31,7 @@ def fetch_props(title: str, lang: str = "it") -> Dict[str, Any]:
         "format": "json",
         "titles": title,
         "prop": "pageprops",
+        "redirects": True,
         "formatversion": 2,
     }
     url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"

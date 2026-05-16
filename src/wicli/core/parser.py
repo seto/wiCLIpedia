@@ -20,6 +20,13 @@ from typing import Any, Dict
 
 
 def parse_props(response: Dict[str, Any]) -> Dict[str, Any]:
+    redirects = response.get("query", {}).get("redirects", [])
+
+    if redirects:
+        target_page = redirects[0].get("to", "")
+        if target_page:
+            return {"status": "found", "redirects": target_page}
+
     pages = response.get("query", {}).get("pages", [])
 
     if not pages or "missing" in pages[0]:
