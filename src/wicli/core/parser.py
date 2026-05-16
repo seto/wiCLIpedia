@@ -68,3 +68,25 @@ def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
             links.append({"page": title, "desc": desc})
 
     return {"status": "found", "options": links}
+
+
+def parse_toc(response: Dict[str, Any]) -> Dict[str, Any]:
+    tocdata = response.get("parse", {}).get("tocdata", [])
+
+    if not tocdata:
+        return {"status": "missing"}
+
+    raw_sections = tocdata.get("sections", [])
+
+    sections = []
+    for section in raw_sections:
+        sections.append(
+            {
+                "index": section.get("index", 0),
+                "line": re.sub(r"<.*?>", "", section.get("line", "")),
+                "number": section.get("number", ""),
+                "tocLevel": section.get("tocLevel", ""),
+            }
+        )
+
+    return {"status": "found", "sections": sections}
