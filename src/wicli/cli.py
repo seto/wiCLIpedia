@@ -67,7 +67,7 @@ def main(argv=None):
                 while True:
                     choice = input().strip()
 
-                    if int(choice) == 0:
+                    if choice == "0":
                         print("Exiting.")
                         return 0
 
