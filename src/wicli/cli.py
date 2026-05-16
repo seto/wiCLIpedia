@@ -37,31 +37,31 @@ def main(argv=None):
 
     try:
         while True:
-            response = fetch_props(target_page, lang=args.lang)
-            parsed_response = parse_props(response)
+            api_props = fetch_props(target_page, lang=args.lang)
+            props = parse_props(api_props)
 
-            if parsed_response.get("redirects"):
-                target_page = parsed_response.get("redirects")
+            if props.get("redirects"):
+                target_page = props.get("redirects")
                 print(f"\nRedirected to '{target_page}'.")
 
-            if parsed_response["status"] == "found":
-                raw_summary = fetch_summary(target_page, lang=args.lang)
-                parsed_summary = parse_summary(raw_summary)
+            if props["status"] == "found":
+                api_summary = fetch_summary(target_page, lang=args.lang)
+                summary = parse_summary(api_summary)
 
-                if not parsed_summary.get("summary"):
+                if not summary.get("summary"):
                     raise RuntimeError("Summary not found for the given page.")
 
-                print(render_summary(target_page, parsed_summary.get("summary")))
+                print(render_summary(target_page, summary.get("summary")))
                 break
 
-            elif parsed_response["status"] == "disambiguation":
-                raw_disambiguation = fetch_disambiguation(target_page, lang=args.lang)
-                parsed_disambiguation = parse_disambiguation(raw_disambiguation)
+            elif props["status"] == "disambiguation":
+                api_disambiguation = fetch_disambiguation(target_page, lang=args.lang)
+                disambiguation = parse_disambiguation(api_disambiguation)
 
-                if not parsed_disambiguation.get("options"):
+                if not disambiguation.get("options"):
                     raise RuntimeError("Disambiguation options not found for the given page.")
 
-                print(render_disambiguation(parsed_disambiguation.get("options")))
+                print(render_disambiguation(disambiguation.get("options")))
                 print("Enter the number of the page you want to view: ", end="")
 
                 while True:
@@ -71,14 +71,14 @@ def main(argv=None):
                         print("Exiting.")
                         return 0
 
-                    if choice.isdigit() and (1 <= int(choice) <= len(parsed_disambiguation["options"])):
-                        target_page = parsed_disambiguation["options"][int(choice) - 1]["page"]
+                    if choice.isdigit() and (1 <= int(choice) <= len(disambiguation["options"])):
+                        target_page = disambiguation["options"][int(choice) - 1]["page"]
                         break
 
                     print("Invalid choice. Enter a valid number or '0' to exit: ", end="")
                     continue
 
-            elif parsed_response["status"] == "missing" or parsed_response["status"] == "unknown":
+            elif props["status"] == "missing" or props["status"] == "unknown":
                 print(
                     f"Page '{target_page}' not found in {args.lang} Wikipedia.",
                     file=sys.stderr,
