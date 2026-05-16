@@ -25,7 +25,7 @@ USER_AGENT = "wiclipedia/0.0.1 (https://pypi.org/project/wiclipedia/; seto@adver
 BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 
 
-def fetch_props(title: str, lang: str = "it") -> Dict[str, Any]:
+def fetch_props(title: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "query",
         "format": "json",
@@ -39,7 +39,7 @@ def fetch_props(title: str, lang: str = "it") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_summary(title: str, lang: str = "it") -> Dict[str, Any]:
+def fetch_summary(title: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "query",
         "format": "json",
@@ -54,7 +54,7 @@ def fetch_summary(title: str, lang: str = "it") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_disambiguation(title: str, lang: str = "it") -> Dict[str, Any]:
+def fetch_disambiguation(title: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
@@ -67,7 +67,7 @@ def fetch_disambiguation(title: str, lang: str = "it") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_toc(title: str, lang: str = "it") -> Dict[str, Any]:
+def fetch_toc(title: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
@@ -80,7 +80,7 @@ def fetch_toc(title: str, lang: str = "it") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_section(title: str, section: int, lang: str = "it") -> Dict[str, Any]:
+def fetch_section(title: str, section: int, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
