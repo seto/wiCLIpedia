@@ -40,9 +40,10 @@ def main(argv=None):
             api_props = fetch_props(target_page, lang=args.lang)
             props = parse_props(api_props)
 
-            if props.get("redirects"):
+            if props["status"] == "redirect":
                 target_page = props.get("redirects")
                 print(f"\nRedirected to '{target_page}'.")
+                continue
 
             if props["status"] == "found":
                 api_summary = fetch_summary(target_page, lang=args.lang)

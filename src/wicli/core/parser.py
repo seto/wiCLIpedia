@@ -25,7 +25,7 @@ def parse_props(response: Dict[str, Any]) -> Dict[str, Any]:
     if redirects:
         target_page = redirects[0].get("to", "")
         if target_page:
-            return {"status": "found", "redirects": target_page}
+            return {"status": "redirect", "redirects": target_page}
 
     pages = response.get("query", {}).get("pages", [])
 
