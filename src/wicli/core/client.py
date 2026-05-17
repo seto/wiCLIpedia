@@ -34,7 +34,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-USER_AGENT = "wiclipedia/0.0.1 (https://pypi.org/project/wiclipedia/; seto@adversum.net)"
+USER_AGENT = "wiclipedia/0.1.0b0 (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
 BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 
 
