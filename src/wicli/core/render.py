@@ -20,6 +20,8 @@ import textwrap
 
 ITALIC = "\033[3m"
 BOLD = "\033[1m"
+INFO = "\033[34m"
+ERROR = "\033[31m"
 RESET = "\033[0m"
 
 
@@ -40,6 +42,30 @@ def render_summary(page_title: str, summary: str) -> str:
 {BOLD}{page_title}{RESET}
 
 {ITALIC}{wrapped}{RESET}
+"""
+
+    return output
+
+
+def render_toc(sections: list) -> str:
+    toc = []
+    for section in sections:
+        indent = "  " * (section["tocLevel"] - 1)
+        num = f"{section['number']}." if section["tocLevel"] == 1 else section["number"]
+        num_padded = f"{num:<5}"
+        line = f"{indent}{BOLD}{num_padded}{RESET} {section['line']}"
+        toc.append(line)
+
+    toc_str = "\n".join(toc)
+
+    output = f"""
+─────────────────────────────────────────────
+   © Wikipedia contributors | CC BY-SA 4.0
+─────────────────────────────────────────────
+
+{BOLD}Available content for this page:{RESET}
+
+{toc_str}
 """
 
     return output
@@ -70,25 +96,17 @@ def render_disambiguation(options: list) -> str:
     return output
 
 
-def render_toc(sections: list) -> str:
-    toc = []
-    for section in sections:
-        indent = "  " * (section["tocLevel"] - 1)
-        num = f"{section['number']}." if section["tocLevel"] == 1 else section["number"]
-        num_padded = f"{num:<5}"
-        line = f"{indent}{BOLD}{num_padded}{RESET} {section['line']}"
-        toc.append(line)
+def render_disambiguation_prompt() -> str:
+    return "Enter the number of the page you want to view: "
 
-    toc_str = "\n".join(toc)
 
-    output = f"""
-─────────────────────────────────────────────
-   © Wikipedia contributors | CC BY-SA 4.0
-─────────────────────────────────────────────
+def render_invalid_choice() -> str:
+    return f"{ERROR}{BOLD}Invalid choice. Enter a valid number or '0' to exit: {RESET}"
 
-{BOLD}Available content for this page:{RESET}
 
-{toc_str}
-"""
+def render_redirect(page: str) -> str:
+    return f"\n{INFO}{BOLD}Redirected to '{page}'.{RESET}"
 
-    return output
+
+def render_not_found(page: str, lang: str) -> str:
+    return f"{ERROR}{BOLD}Page '{page}' not found in {lang} Wikipedia.{RESET}"

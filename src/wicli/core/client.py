@@ -17,7 +17,7 @@
 
 import json
 from typing import Any, Dict
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -99,10 +99,19 @@ def _get(url: str) -> Dict[str, Any]:
 
     try:
         with urlopen(req, timeout=5) as response:
-            return json.loads(response.read().decode("utf-8"))
+            data = response.read().decode("utf-8")
 
     except HTTPError as e:
         raise RuntimeError(f"HTTP error: {e.code} {e.reason}") from e
 
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error: {e}") from e
+    except URLError as e:
+        raise RuntimeError(f"Network error: {e.reason}") from e
+
+    except TimeoutError as e:
+        raise RuntimeError("Request timed out.") from e
+
+    try:
+        return json.loads(data)
+
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"Invalid JSON response: {e}") from e

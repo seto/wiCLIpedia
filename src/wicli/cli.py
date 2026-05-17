@@ -20,50 +20,48 @@
 import argparse
 import sys
 
-from .core.client import fetch_disambiguation, fetch_props, fetch_summary
-from .core.parser import parse_disambiguation, parse_props, parse_summary
-from .core.render import render_disambiguation, render_summary
+from .core import client, parser, render
 
 
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
 
-    parser = argparse.ArgumentParser(prog="wcli", description="WiCLIpedia CLI")
-    parser.add_argument("title", help="page title")
-    parser.add_argument("-l", "--lang", default="en", help="language code (default: en)")
+    ap = argparse.ArgumentParser(prog="wcli", description="WiCLIpedia CLI")
+    ap.add_argument("title", help="page title")
+    ap.add_argument("-l", "--lang", default="en", help="language code (default: en)")
 
-    args = parser.parse_args(argv)
+    args = ap.parse_args(argv)
     target_page = args.title
 
     try:
         while True:
-            api_props = fetch_props(target_page, lang=args.lang)
-            props = parse_props(api_props)
+            api_props = client.fetch_props(target_page, lang=args.lang)
+            props = parser.parse_props(api_props)
 
             if props["status"] == "redirect":
                 target_page = props.get("redirects")
-                print(f"\nRedirected to '{target_page}'.")
+                print(render.render_redirect(target_page))
                 continue
 
             if props["status"] == "found":
-                api_summary = fetch_summary(target_page, lang=args.lang)
-                summary = parse_summary(api_summary)
+                api_summary = client.fetch_summary(target_page, lang=args.lang)
+                summary = parser.parse_summary(api_summary)
 
                 if not summary.get("summary"):
                     raise RuntimeError("Summary not found for the given page.")
 
-                print(render_summary(target_page, summary.get("summary")))
+                print(render.render_summary(target_page, summary.get("summary")))
                 break
 
-            elif props["status"] == "disambiguation":
-                api_disambiguation = fetch_disambiguation(target_page, lang=args.lang)
-                disambiguation = parse_disambiguation(api_disambiguation)
+            if props["status"] == "disambiguation":
+                api_disambiguation = client.fetch_disambiguation(target_page, lang=args.lang)
+                disambiguation = parser.parse_disambiguation(api_disambiguation)
 
                 if not disambiguation.get("options"):
                     raise RuntimeError("Disambiguation options not found for the given page.")
 
-                print(render_disambiguation(disambiguation.get("options")))
-                print("Enter the number of the page you want to view: ", end="")
+                print(render.render_disambiguation(disambiguation.get("options")))
+                print(render.render_disambiguation_prompt(), end="")
 
                 while True:
                     choice = input().strip()
@@ -76,15 +74,16 @@ def main(argv=None):
                         target_page = disambiguation["options"][int(choice) - 1]["page"]
                         break
 
-                    print("Invalid choice. Enter a valid number or '0' to exit: ", end="")
-                    continue
+                    print(render.render_invalid_choice(), end="")
 
-            elif props["status"] == "missing" or props["status"] == "unknown":
-                print(
-                    f"Page '{target_page}' not found in {args.lang} Wikipedia.",
-                    file=sys.stderr,
-                )
+                continue
+
+            if props["status"] in ("missing", "unknown"):
+                print(render.render_not_found(target_page, args.lang), file=sys.stderr)
                 return 1
+
+            else:
+                raise RuntimeError(f"Unexpected page status: {props['status']}")
 
     except RuntimeError as e:
         print(f"Unexpected error: {e}", file=sys.stderr)

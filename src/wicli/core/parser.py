@@ -63,11 +63,11 @@ def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
 
     links = []
     for line in lines:
-        clean = re.sub(r"('{2,5}|\*|{{.*?}})", "", line).strip()
-        match = re.search(r"\[\[(.*?)(?:\|.*?)?\]\]", clean)
+        stripped = re.sub(r"('{2,5}|\*|{{.*?}})", "", line).strip()
+        match = re.search(r"\[\[(.*?)(?:\|.*?)?\]\]", stripped)
         if match:
             title = match.group(1).strip()
-            desc = re.sub(r"\[\[(?:.*?\|)?(.*?)\]\]", r"\1", clean)
+            desc = re.sub(r"\[\[(?:.*?\|)?(.*?)\]\]", r"\1", stripped)
             desc = re.sub(r"\[\[(.*?)\]\]", r"\1", desc)
             desc = desc.replace(title, "").strip(" –-,")
             links.append({"page": title, "desc": desc})
