@@ -51,6 +51,58 @@ def main(argv=None):
                     raise RuntimeError("Summary not found for the given page.")
 
                 print(render.render_summary(target_page, summary.get("summary")))
+                print(render.render_toc_prompt(), end="")
+
+                choice = input().strip().lower()
+                if choice == "y":
+                    raw_toc = client.fetch_toc(target_page, lang=args.lang)
+                    parsed_tocdata = parser.parse_toc(raw_toc)
+
+                    if not parsed_tocdata.get("sections"):
+                        raise RuntimeError(
+                            "Table of contents not found for the given page."
+                        )
+
+                    print(render.render_toc(parsed_tocdata.get("sections")))
+                    print(render.render_toc_navigation_prompt(), end="")
+
+                    toc_map = {
+                        s["number"]: {"index": s["index"], "line": s["line"]}
+                        for s in parsed_tocdata["sections"]
+                    }
+                    while True:
+                        section_choice = input().strip()
+
+                        if section_choice == "0":
+                            print("Exiting.")
+                            return 0
+
+                        if section_choice in toc_map:
+                            section_index = toc_map[section_choice]["index"]
+                            section_title = toc_map[section_choice]["line"]
+                            api_section = client.fetch_section(
+                                target_page, section_index, lang=args.lang
+                            )
+                            section = parser.parse_section(api_section)
+
+                            if not section.get("section"):
+                                raise RuntimeError(
+                                    "Content not found for the given section."
+                                )
+
+                            print(
+                                render.render_section(
+                                    title=section_title, section=section.get("section")
+                                )
+                            )
+                            print(render.render_toc_navigation_prompt(), end="")
+                            continue
+
+                        print(render.render_invalid_choice(), end="")
+
+                elif choice != "n":
+                    print(render.render_toc_skip())
+
                 break
 
             if props["status"] == "disambiguation":
