@@ -71,6 +71,40 @@ def render_toc(sections: list) -> str:
     return output
 
 
+def render_toc_prompt() -> str:
+    return "Do you want to see the table of contents? (y/n): "
+
+
+def render_toc_skip() -> str:
+    return f"{ERROR}{BOLD}Invalid choice. Skipping table of contents.{RESET}"
+
+
+def render_toc_navigation_prompt() -> str:
+    return "Enter the section number that you want to view, or '0' to exit: "
+
+
+def render_section(title: str, section: str) -> str:
+    try:
+        columns = os.get_terminal_size().columns
+    except OSError:
+        columns = 88
+
+    width = min(columns, 88)
+    wrapped = textwrap.fill(section, width=width)
+
+    output = f"""
+─────────────────────────────────────────────
+   © Wikipedia contributors | CC BY-SA 4.0
+─────────────────────────────────────────────
+
+{BOLD}{title}{RESET}
+
+{ITALIC}{wrapped}{RESET}
+"""
+
+    return output
+
+
 def render_disambiguation(options: list) -> str:
     links = []
     for i, option in enumerate(options, start=1):
