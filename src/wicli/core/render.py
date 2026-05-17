@@ -28,30 +28,24 @@ import os
 import textwrap
 
 # ANSI escape codes to style terminal output
-ITALIC = "\033[3m"
-BOLD = "\033[1m"
-INFO = "\033[34m"
-ERROR = "\033[31m"
-RESET = "\033[0m"
+_ITALIC = "\033[3m"
+_BOLD = "\033[1m"
+_INFO = "\033[34m"
+_WARNING = "\033[33m"
+_SUCCESS = "\033[32m"
+_ERROR = "\033[31m"
+_RESET = "\033[0m"
 
 
 def render_summary(page_title: str, summary: str) -> str:
-    try:
-        columns = os.get_terminal_size().columns
-    except OSError:
-        columns = 88
-
-    width = min(columns, 88)
-    wrapped = textwrap.fill(summary, width=width)
+    wrapped = textwrap.fill(summary, width=_get_width())
 
     output = f"""
-─────────────────────────────────────────────
-   © Wikipedia contributors | CC BY-SA 4.0
-─────────────────────────────────────────────
+{_render_content_banner()}
 
-{BOLD}{page_title}{RESET}
+{_BOLD}{page_title}{_RESET}
 
-{ITALIC}{wrapped}{RESET}
+{_ITALIC}{wrapped}{_RESET}
 """
 
     return output
@@ -63,17 +57,15 @@ def render_toc(sections: list) -> str:
         indent = "  " * (section["tocLevel"] - 1)
         num = f"{section['number']}." if section["tocLevel"] == 1 else section["number"]
         num_padded = f"{num:<5}"
-        line = f"{indent}{BOLD}{num_padded}{RESET} {section['line']}"
+        line = f"{indent}{_BOLD}{num_padded}{_RESET} {section['line']}"
         toc.append(line)
 
     toc_str = "\n".join(toc)
 
     output = f"""
-─────────────────────────────────────────────
-   © Wikipedia contributors | CC BY-SA 4.0
-─────────────────────────────────────────────
+{_render_content_banner()}
 
-{BOLD}Available content for this page:{RESET}
+{_BOLD}Available content for this page:{_RESET}
 
 {toc_str}
 """
@@ -82,34 +74,26 @@ def render_toc(sections: list) -> str:
 
 
 def render_toc_prompt() -> str:
-    return "Do you want to see the table of contents? (y/n): "
+    return f"{_INFO}Do you want to see the table of contents? (y/n): {_RESET}"
 
 
 def render_toc_skip() -> str:
-    return f"{ERROR}{BOLD}Invalid choice. Skipping table of contents.{RESET}"
+    return f"{_WARNING}Invalid choice. Skipping table of contents.{_RESET}"
 
 
 def render_toc_navigation_prompt() -> str:
-    return "Enter the section number that you want to view, or '0' to exit: "
+    return f"{_INFO}Enter the section number, or 'q' to exit: {_RESET}"
 
 
 def render_section(title: str, section: str) -> str:
-    try:
-        columns = os.get_terminal_size().columns
-    except OSError:
-        columns = 88
-
-    width = min(columns, 88)
-    wrapped = textwrap.fill(section, width=width)
+    wrapped = textwrap.fill(section, width=_get_width())
 
     output = f"""
-─────────────────────────────────────────────
-   © Wikipedia contributors | CC BY-SA 4.0
-─────────────────────────────────────────────
+{_render_content_banner()}
 
-{BOLD}{title}{RESET}
+{_BOLD}{title}{_RESET}
 
-{ITALIC}{wrapped}{RESET}
+{_ITALIC}{wrapped}{_RESET}
 """
 
     return output
@@ -119,20 +103,18 @@ def render_disambiguation(options: list) -> str:
     links = []
     for i, option in enumerate(options, start=1):
         entry = (
-            f"{ITALIC}{option['page']}{RESET} - {option['desc']}"
+            f"{_ITALIC}{option['page']}{_RESET} - {option['desc']}"
             if option["desc"]
-            else f"{ITALIC}{option['page']}{RESET}"
+            else f"{_ITALIC}{option['page']}{_RESET}"
         )
         links.append(f"{i}. {entry}")
 
     links_str = "\n".join(links)
 
     output = f"""
-─────────────────────────────────────────────
-   © Wikipedia contributors | CC BY-SA 4.0
-─────────────────────────────────────────────
+{_render_content_banner()}
 
-{BOLD}This page is a disambiguation for the following options:{RESET}
+{_BOLD}This page is a disambiguation for the following options:{_RESET}
 
 {links_str}
 """
@@ -141,16 +123,39 @@ def render_disambiguation(options: list) -> str:
 
 
 def render_disambiguation_prompt() -> str:
-    return "Enter the number of the page you want to view: "
+    return f"{_INFO}Enter the page number, or 'q' to exit: {_RESET}"
 
 
 def render_invalid_choice() -> str:
-    return f"{ERROR}{BOLD}Invalid choice. Enter a valid number or '0' to exit: {RESET}"
+    return f"{_WARNING}Invalid choice. Enter a valid number or 'q' to exit: {_RESET}"
 
 
 def render_redirect(page: str) -> str:
-    return f"\n{INFO}{BOLD}Redirected to '{page}'.{RESET}"
+    return f"\n{_INFO}{_BOLD}Redirected to '{page}'.{_RESET}"
 
 
 def render_not_found(page: str, lang: str) -> str:
-    return f"{ERROR}{BOLD}Page '{page}' not found in {lang} Wikipedia.{RESET}"
+    return f"{_ERROR}Page '{page}' not found in {lang} Wikipedia.{_RESET}"
+
+
+def render_exit() -> str:
+    return f"{_SUCCESS}{_BOLD}Goodbye!{_RESET}"
+
+
+def _get_width() -> int:
+    try:
+        column = os.get_terminal_size().columns
+    except OSError:
+        column = 88
+
+    width = min(column, 88)
+    return width
+
+
+def _render_content_banner() -> str:
+    width = _get_width()
+    separator = "─" * width
+
+    banner = f"""{separator}\n© Wikipedia contributors | CC BY-SA 4.0\n{separator}"""
+
+    return banner

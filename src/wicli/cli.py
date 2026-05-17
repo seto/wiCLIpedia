@@ -89,8 +89,8 @@ def main(argv=None):
                     while True:
                         section_choice = input().strip()
 
-                        if section_choice == "0":
-                            print("Exiting.")
+                        if section_choice == "q":
+                            print(render.render_exit())
                             return 0
 
                         if section_choice in toc_map:
@@ -119,6 +119,7 @@ def main(argv=None):
                 elif choice != "n":
                     print(render.render_toc_skip())
 
+                print(render.render_exit())
                 break
 
             if props["status"] == "disambiguation":
@@ -134,8 +135,8 @@ def main(argv=None):
                 while True:
                     choice = input().strip()
 
-                    if choice == "0":
-                        print("Exiting.")
+                    if choice == "q":
+                        print(render.render_exit())
                         return 0
 
                     if choice.isdigit() and (1 <= int(choice) <= len(disambiguation["options"])):
