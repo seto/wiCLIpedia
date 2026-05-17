@@ -26,7 +26,7 @@ from .core import client, parser, render
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
 
-    ap = argparse.ArgumentParser(prog="wcli", description="WiCLIpedia CLI")
+    ap = argparse.ArgumentParser(prog="wicli", description="WiCLIpedia CLI")
     ap.add_argument("title", help="page title")
     ap.add_argument("-l", "--lang", default="en", help="language code (default: en)")
 
