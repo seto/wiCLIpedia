@@ -15,9 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module implementing the parsing of Wikipedia API responses.
+
+This module provides functions to parse the JSON responses from the Wikipedia API,
+extracting relevant information such as page properties, summaries, sections, and
+disambiguation options.
+
+It includes the cleaning of wikitext to produce readable plain text for better
+rendering in the command line interface.
+"""
+
 import re
 from typing import Any, Dict
 
+# File namespace aliases used to identify and remove file embeds,
+# supports EN, IT, FR, ES, DE languages
 _FILE_NAMESPACES = r"File|Image|Immagine|Fichier|Archivo|Datei"
 _RE_FILE_EMBED = re.compile(rf"\[\[(?:{_FILE_NAMESPACES}):[^\]]*\]\]", re.IGNORECASE)
 
@@ -58,6 +70,8 @@ def parse_section(response: Dict[str, Any]) -> Dict[str, Any]:
     if not wikitext:
         return {"status": "missing"}
 
+    # Replace {{' }} with an apostrophe before any other processing,
+    # as it's used in wikitext to avoid parsing issues with apostrophes
     clean = re.sub(r"\{\{'?\}\}", "'", wikitext)
 
     clean = _RE_FILE_EMBED.sub("", clean)
@@ -65,6 +79,8 @@ def parse_section(response: Dict[str, Any]) -> Dict[str, Any]:
     clean = re.sub(r"<ref[^>]*>.*?</ref>", "", clean, flags=re.DOTALL)
     clean = re.sub(r"<ref[^>]*/>", "", clean)
 
+    # Preserve block quotations, then remove remaining templates
+    # iteratively to handle nesting (e.g. {{a|{{b}}}})
     clean = re.sub(r"\{\{[Cc]itazione\|([^}]+)\}\}", r"\1", clean)
     while re.search(r"\{\{[^{}]*\}\}", clean):
         clean = re.sub(r"\{\{[^{}]*\}\}", "", clean)
@@ -91,6 +107,8 @@ def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
         if line.strip().startswith(("*", "'''"))
     ]
 
+    # Match [[Page Title|optional alias]] and extract title and description,
+    # two passes: first to extract the page title, then to clean the description
     links = []
     for line in lines:
         stripped = re.sub(r"('{2,5}|\*|{{.*?}})", "", line).strip()

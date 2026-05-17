@@ -15,9 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module implementing the rendering of Wikipedia content for the CLI.
+
+This module provides functions to format and style the output of Wikipedia content
+for display in the command line interface.
+
+It includes rendering of page summaries, table of contents, sections,
+disambiguation options, and user prompts and navigation.
+"""
+
 import os
 import textwrap
 
+# ANSI escape codes to style terminal output
 ITALIC = "\033[3m"
 BOLD = "\033[1m"
 INFO = "\033[34m"

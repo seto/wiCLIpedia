@@ -17,6 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module implementing the command line entry point of WiCLIpedia.
+
+This module can be executed from the command line using the following command
+from `src` directory:
+
+    python -m wicli <arguments>
+
+CLI arguments:
+- `title`: The title of the Wikipedia page to retrieve (required).
+- `-l` or `--lang`: The language code of the Wikipedia to query (defaults to "en").
+
+You can find more details about CLI usage by using the `-h` or `--help`.
+"""
+
 import argparse
 import sys
 
@@ -34,6 +48,8 @@ def main(argv=None):
     target_page = args.title
 
     try:
+        # Main loop to handle redirects, section navigation, and disambiguation choices,
+        # until a page and its content is successfully retrieved or the user exits
         while True:
             api_props = client.fetch_props(target_page, lang=args.lang)
             props = parser.parse_props(api_props)

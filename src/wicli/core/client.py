@@ -15,6 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module implementing the core API functionality of WiCLIpedia.
+
+This module provides functions to interact with the Wikipedia API, including
+fetching page properties, summaries, disambiguation pages, table of contents,
+and specific sections of a page.
+
+It uses the `MediaWiki web service API`, more information about those APIs can be
+found at the following docs page:
+    https://www.mediawiki.org/wiki/API:Main_page
+    https://en.wikipedia.org/w/api.php
+    https://en.wikipedia.org/wiki/Special:ApiSandbox
+"""
+
 import json
 from typing import Any, Dict
 from urllib.error import HTTPError, URLError
@@ -95,6 +108,8 @@ def fetch_section(title: str, section: int, lang: str = "en") -> Dict[str, Any]:
 
 
 def _get(url: str) -> Dict[str, Any]:
+    """Perform an HTTP GET request and return the parsed JSON response."""
+
     req = Request(url, headers={"User-Agent": USER_AGENT})
 
     try:
