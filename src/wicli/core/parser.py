@@ -18,6 +18,9 @@
 import re
 from typing import Any, Dict
 
+_FILE_NAMESPACES = r"File|Image|Immagine|Fichier|Archivo|Datei"
+_RE_FILE_EMBED = re.compile(rf"\[\[(?:{_FILE_NAMESPACES}):[^\]]*\]\]", re.IGNORECASE)
+
 
 def parse_props(response: Dict[str, Any]) -> Dict[str, Any]:
     redirects = response.get("query", {}).get("redirects", [])
@@ -47,6 +50,33 @@ def parse_summary(response: Dict[str, Any]) -> Dict[str, Any]:
 
     extract = pages[0].get("extract", "")
     return {"status": "found", "summary": extract}
+
+
+def parse_section(response: Dict[str, Any]) -> Dict[str, Any]:
+    wikitext = response.get("parse", {}).get("wikitext", "")
+
+    if not wikitext:
+        return {"status": "missing"}
+
+    clean = re.sub(r"\{\{'?\}\}", "'", wikitext)
+
+    clean = _RE_FILE_EMBED.sub("", clean)
+    clean = re.sub(r"^={2,6}\s*(.*?)\s*={2,6}$", "", clean, flags=re.MULTILINE)
+    clean = re.sub(r"<ref[^>]*>.*?</ref>", "", clean, flags=re.DOTALL)
+    clean = re.sub(r"<ref[^>]*/>", "", clean)
+
+    clean = re.sub(r"\{\{[Cc]itazione\|([^}]+)\}\}", r"\1", clean)
+    while re.search(r"\{\{[^{}]*\}\}", clean):
+        clean = re.sub(r"\{\{[^{}]*\}\}", "", clean)
+
+    clean = re.sub(r"\[\[[^|\]]+\|([^\]]+)\]\]", r"\1", clean)
+    clean = re.sub(r"\[\[([^\]]+)\]\]", r"\1", clean)
+    clean = re.sub(r"'{2,5}", "", clean)
+
+    lines = [line.strip() for line in clean.strip().split("\n")]
+    cleaned_section = "\n".join([line for line in lines if line])
+
+    return {"status": "found", "section": cleaned_section}
 
 
 def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
