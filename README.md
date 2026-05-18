@@ -5,9 +5,16 @@
 [![Supported Versions](https://img.shields.io/pypi/pyversions/wiclipedia.svg)](https://pypi.org/project/wiclipedia)
 [![Code Style: Black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/psf/black)
 
-This is a minimalistic command line interface (CLI) tool to fetch and display data from Wikipedia.
+This is a minimalist command line interface (CLI) program to fetch and display data from Wikipedia.
 
 _In an era where Artificial Intelligence answers everything and large language models shape our knowledge, this program is a small tribute to Wikipedia, the silent, human-curated backbone that feeds those very models. Never forget the source._
+
+## Features
+
+- Fetches and displays article summaries and table of contents
+- Navigates article sections interactively
+- Handles redirects and disambiguation pages automatically
+- Supports multiple languages (tested mainly English and Italian)
 
 ## Installation
 
@@ -21,7 +28,12 @@ pip install wiclipedia
 wicli "Blade Runner"
 ```
 
-User will be interactively prompted to navigate through the article's sections and subsections, or select a different page if the query is ambiguous.
+If no page title is provided, the program will prompt you to enter one interactively.
+
+You will be interactively prompted to navigate through the article summary sections.  
+To navigate, use the section numbers shown in the table of contents.
+
+If the query matches a disambiguation page, you will be prompted to select the intended article from a list of options.
 
 By default, it fetches the English Wikipedia.  
 To specify a different language, use the `-l` or `--lang` option:
@@ -30,11 +42,22 @@ To specify a different language, use the `-l` or `--lang` option:
 wicli "La classe operaia va in paradiso" --lang it
 ```
 
+Available commands at any prompt:
+
+- `:b` — Go back to the start prompt
+- `:q` — Exit the program
+
 ## API Respect & Fair Use Disclaimer
 
 WiCLIpedia interfaces directly with the official Wikipedia PHP/MediaWiki APIs without using any third-party scraping libraries.
-Please use this tool responsibly. If you need to perform massive automated data extraction, use official database dumps instead of hammering the live API.
+Please use this program responsibly. If you need to perform massive automated data extraction, use official database dumps instead of hammering the live API.
+
+More info on MediaWiki API and usage guidelines:
+
+- [API Documentation](https://www.mediawiki.org/wiki/API:Main_page)
+- [API Etiquette](https://www.mediawiki.org/wiki/API:Etiquette)
 
 ## License
 
-This program is licensed under the [GNU General Public License v3.0 or later](https://www.gnu.org/licenses/gpl-3.0.html) (GPL-3.0). See the [LICENSE](LICENSE) file for details.
+This program is licensed under the [GNU General Public License v3.0 or later](https://www.gnu.org/licenses/gpl-3.0.html) (GPL-3.0).  
+See the [LICENSE](LICENSE) file for details.
