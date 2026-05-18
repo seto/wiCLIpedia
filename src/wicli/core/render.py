@@ -37,6 +37,43 @@ _ERROR = "\033[31m"
 _RESET = "\033[0m"
 
 
+def render_welcome() -> str:
+    width = _get_width()
+    separator = "─" * width
+
+    logo = rf"""
+{_SUCCESS}{_BOLD}{separator}
+                     _       ___ ________    ____               ___      
+                    | |     / (_) ____/ /   /  _/___  ___  ____/ (_)___ _
+                    | | /| / / / /   / /    / // __ \/ _ \/ __  / / __ `/
+                    | |/ |/ / / /___/ /____/ // /_/ /  __/ /_/ / / /_/ / 
+                    |__/|__/_/\____/_____/___/ .___/\___/\__,_/_/\__,_/  
+                                            /_/                          
+{separator}{_RESET}
+"""
+
+    message = f"""
+{logo if width >= 72 else ""}
+{_BOLD}Welcome to WiCLIpedia! Your command-line gateway to Wikipedia content.{_RESET}
+
+To get started, enter a Wikipedia page title when prompted.
+You can specify the language at startup using -l or --lang (e.g., wicli --lang it).
+
+User navigation:
+    :b - Go back to the start prompt
+    :q - Quit the application
+
+{_ITALIC}Enjoy exploring Wikipedia from your terminal!{_RESET}
+{separator}
+"""
+
+    return message
+
+
+def render_start_prompt() -> str:
+    return f"{_INFO}Enter a page title: {_RESET}"
+
+
 def render_summary(page_title: str, summary: str) -> str:
     wrapped = textwrap.fill(summary, width=_get_width())
 
@@ -78,11 +115,11 @@ def render_toc_prompt() -> str:
 
 
 def render_toc_skip() -> str:
-    return f"{_WARNING}Invalid choice. Skipping table of contents.{_RESET}"
+    return f"{_WARNING}Invalid choice. Returning to start.{_RESET}"
 
 
 def render_toc_navigation_prompt() -> str:
-    return f"{_INFO}Enter the section number, or 'q' to exit: {_RESET}"
+    return f"{_INFO}Enter the section number: {_RESET}"
 
 
 def render_section(title: str, section: str) -> str:
@@ -123,11 +160,11 @@ def render_disambiguation(options: list) -> str:
 
 
 def render_disambiguation_prompt() -> str:
-    return f"{_INFO}Enter the page number, or 'q' to exit: {_RESET}"
+    return f"{_INFO}Enter the page number: {_RESET}"
 
 
 def render_invalid_choice() -> str:
-    return f"{_WARNING}Invalid choice. Enter a valid number or 'q' to exit: {_RESET}"
+    return f"{_WARNING}Invalid choice. Enter a valid number: {_RESET}"
 
 
 def render_redirect(page: str) -> str:
@@ -136,6 +173,10 @@ def render_redirect(page: str) -> str:
 
 def render_not_found(page: str, lang: str) -> str:
     return f"{_ERROR}Page '{page}' not found in {lang} Wikipedia.{_RESET}"
+
+
+def render_user_cancelled() -> str:
+    return f"\n{_WARNING}Operation cancelled by user.{_RESET}"
 
 
 def render_exit() -> str:

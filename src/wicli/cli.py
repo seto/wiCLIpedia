@@ -20,15 +20,15 @@
 """Module implementing the command line entry point of WiCLIpedia.
 
 This module can be executed from the command line using the following command
-from `src` directory:
+from the `src` directory:
 
-    python -m wicli <arguments>
+    python -m wicli [title] [-l LANG]
 
 CLI arguments:
-- `title`: The title of the Wikipedia page to retrieve (required).
+- `title`: The Wikipedia page title to retrieve (optional, prompted if not provided).
 - `-l` or `--lang`: The language code of the Wikipedia to query (defaults to "en").
 
-You can find more details about CLI usage by using the `-h` or `--help`.
+For more details, run with `-h` or `--help`.
 """
 
 import argparse
@@ -41,16 +41,35 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
 
     ap = argparse.ArgumentParser(prog="wicli", description="WiCLIpedia CLI")
-    ap.add_argument("title", help="page title")
+    ap.add_argument("title", nargs="?", default=None, help="page title")
     ap.add_argument("-l", "--lang", default="en", help="language code (default: en)")
 
     args = ap.parse_args(argv)
     target_page = args.title
+    user_choice = None
+
+    print(render.render_welcome())
 
     try:
         # Main loop to handle redirects, section navigation, and disambiguation choices,
         # until a page and its content is successfully retrieved or the user exits
         while True:
+            if user_choice and user_choice.lower() == ":q":
+                break
+
+            if not target_page:
+                print(render.render_start_prompt(), end="")
+                user_choice = input().strip()
+
+                if user_choice.lower() == ":q":
+                    break
+
+                if not user_choice or user_choice.lower() == ":b":
+                    continue
+
+                target_page = user_choice
+                continue
+
             api_props = client.fetch_props(target_page, lang=args.lang)
             props = parser.parse_props(api_props)
 
@@ -67,10 +86,10 @@ def main(argv=None):
                     raise RuntimeError("Summary not found for the given page.")
 
                 print(render.render_summary(target_page, summary.get("summary")))
-                print(render.render_toc_prompt(), end="")
 
-                choice = input().strip().lower()
-                if choice == "y":
+                print(render.render_toc_prompt(), end="")
+                user_choice = input().strip()
+                if user_choice.lower() == "y":
                     raw_toc = client.fetch_toc(target_page, lang=args.lang)
                     parsed_tocdata = parser.parse_toc(raw_toc)
 
@@ -87,15 +106,18 @@ def main(argv=None):
                         for s in parsed_tocdata["sections"]
                     }
                     while True:
-                        section_choice = input().strip()
+                        user_choice = input().strip()
 
-                        if section_choice == "q":
-                            print(render.render_exit())
-                            return 0
+                        if user_choice.lower() == ":q":
+                            break
 
-                        if section_choice in toc_map:
-                            section_index = toc_map[section_choice]["index"]
-                            section_title = toc_map[section_choice]["line"]
+                        if user_choice.lower() == ":b":
+                            target_page = None
+                            break
+
+                        if user_choice in toc_map:
+                            section_index = toc_map[user_choice]["index"]
+                            section_title = toc_map[user_choice]["line"]
                             api_section = client.fetch_section(
                                 target_page, section_index, lang=args.lang
                             )
@@ -116,11 +138,11 @@ def main(argv=None):
 
                         print(render.render_invalid_choice(), end="")
 
-                elif choice != "n":
+                elif user_choice.lower() not in (":b", ":q", "n"):
                     print(render.render_toc_skip())
 
-                print(render.render_exit())
-                break
+                target_page = None
+                continue
 
             if props["status"] == "disambiguation":
                 api_disambiguation = client.fetch_disambiguation(target_page, lang=args.lang)
@@ -133,14 +155,17 @@ def main(argv=None):
                 print(render.render_disambiguation_prompt(), end="")
 
                 while True:
-                    choice = input().strip()
+                    user_choice = input().strip()
 
-                    if choice == "q":
-                        print(render.render_exit())
-                        return 0
+                    if user_choice.lower() == ":q":
+                        break
 
-                    if choice.isdigit() and (1 <= int(choice) <= len(disambiguation["options"])):
-                        target_page = disambiguation["options"][int(choice) - 1]["page"]
+                    if user_choice.lower() == ":b":
+                        target_page = None
+                        break
+
+                    if user_choice.isdigit() and (1 <= int(user_choice) <= len(disambiguation["options"])):
+                        target_page = disambiguation["options"][int(user_choice) - 1]["page"]
                         break
 
                     print(render.render_invalid_choice(), end="")
@@ -158,6 +183,11 @@ def main(argv=None):
         print(f"Unexpected error: {e}", file=sys.stderr)
         return 2
 
+    except KeyboardInterrupt:
+        print(render.render_user_cancelled())
+        return 0
+
+    print(render.render_exit())
     return 0
 
 
