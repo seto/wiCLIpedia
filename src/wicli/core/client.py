@@ -34,75 +34,75 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-USER_AGENT = "wiclipedia/0.1.0b0 (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
-BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
+_USER_AGENT = "wiclipedia/0.1.0b0 (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
+_BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 
 
-def fetch_props(title: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_props(page: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "query",
         "format": "json",
-        "titles": title,
+        "titles": page,
         "prop": "pageprops",
         "redirects": True,
         "formatversion": 2,
     }
-    url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"
+    url = f"{_BASE_URL.format(lang=lang)}?{urlencode(params)}"
 
     return _get(url)
 
 
-def fetch_summary(title: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_summary(page: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "query",
         "format": "json",
-        "titles": title,
+        "titles": page,
         "prop": "extracts",
         "exintro": True,
         "explaintext": True,
         "formatversion": 2,
     }
-    url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"
+    url = f"{_BASE_URL.format(lang=lang)}?{urlencode(params)}"
 
     return _get(url)
 
 
-def fetch_disambiguation(title: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_disambiguation(page: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
-        "page": title,
+        "page": page,
         "prop": "wikitext",
         "formatversion": 2,
     }
-    url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"
+    url = f"{_BASE_URL.format(lang=lang)}?{urlencode(params)}"
 
     return _get(url)
 
 
-def fetch_toc(title: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_toc(page: str, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
-        "page": title,
+        "page": page,
         "prop": "tocdata",
         "formatversion": 2,
     }
-    url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"
+    url = f"{_BASE_URL.format(lang=lang)}?{urlencode(params)}"
 
     return _get(url)
 
 
-def fetch_section(title: str, section: int, lang: str = "en") -> Dict[str, Any]:
+def fetch_section(page: str, section: int, lang: str = "en") -> Dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
-        "page": title,
+        "page": page,
         "prop": "wikitext",
         "section": section,
         "formatversion": 2,
     }
-    url = f"{BASE_URL.format(lang=lang)}?{urlencode(params)}"
+    url = f"{_BASE_URL.format(lang=lang)}?{urlencode(params)}"
 
     return _get(url)
 
@@ -110,7 +110,7 @@ def fetch_section(title: str, section: int, lang: str = "en") -> Dict[str, Any]:
 def _get(url: str) -> Dict[str, Any]:
     """Perform an HTTP GET request and return the parsed JSON response."""
 
-    req = Request(url, headers={"User-Agent": USER_AGENT})
+    req = Request(url, headers={"User-Agent": _USER_AGENT})
 
     try:
         with urlopen(req, timeout=5) as response:

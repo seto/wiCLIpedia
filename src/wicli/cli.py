@@ -22,10 +22,10 @@
 This module can be executed from the command line using the following command
 from the `src` directory:
 
-    python -m wicli [title] [-l LANG]
+    python -m wicli [page] [-l LANG]
 
 CLI arguments:
-- `title`: The Wikipedia page title to retrieve (optional, prompted if not provided).
+- `page`: The Wikipedia page title to retrieve (optional, prompted if not provided).
 - `-l` or `--lang`: The language code of the Wikipedia to query (defaults to "en").
 
 For more details, run with `-h` or `--help`.
@@ -41,12 +41,12 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
 
     ap = argparse.ArgumentParser(prog="wicli", description="WiCLIpedia CLI")
-    ap.add_argument("title", nargs="?", default=None, help="page title")
+    ap.add_argument("page", nargs="?", default=None, help="page title")
     ap.add_argument("-l", "--lang", default="en", help="language code (default: en)")
 
     args = ap.parse_args(argv)
-    target_page = args.title
-    user_choice = None
+    target = args.page
+    choice = None
 
     print(render.render_welcome())
 
@@ -54,43 +54,43 @@ def main(argv=None):
         # Main loop to handle redirects, section navigation, and disambiguation choices,
         # until a page and its content is successfully retrieved or the user exits
         while True:
-            if user_choice and user_choice.lower() == ":q":
+            if choice and choice.lower() == ":q":
                 break
 
-            if not target_page:
+            if not target:
                 print(render.render_start_prompt(), end="")
-                user_choice = input().strip()
+                choice = input().strip()
 
-                if user_choice.lower() == ":q":
+                if choice.lower() == ":q":
                     break
 
-                if not user_choice or user_choice.lower() == ":b":
+                if not choice or choice.lower() == ":b":
                     continue
 
-                target_page = user_choice
+                target = choice
                 continue
 
-            api_props = client.fetch_props(target_page, lang=args.lang)
+            api_props = client.fetch_props(target, lang=args.lang)
             props = parser.parse_props(api_props)
 
             if props["status"] == "redirect":
-                target_page = props.get("redirects")
-                print(render.render_redirect(target_page))
+                target = props.get("redirects")
+                print(render.render_redirect(target))
                 continue
 
             if props["status"] == "found":
-                api_summary = client.fetch_summary(target_page, lang=args.lang)
+                api_summary = client.fetch_summary(target, lang=args.lang)
                 summary = parser.parse_summary(api_summary)
 
                 if not summary.get("summary"):
                     raise RuntimeError("Summary not found for the given page.")
 
-                print(render.render_summary(target_page, summary.get("summary")))
-
+                print(render.render_summary(target, summary.get("summary")))
                 print(render.render_toc_prompt(), end="")
-                user_choice = input().strip()
-                if user_choice.lower() == "y":
-                    raw_toc = client.fetch_toc(target_page, lang=args.lang)
+
+                choice = input().strip()
+                if choice.lower() == "y":
+                    raw_toc = client.fetch_toc(target, lang=args.lang)
                     parsed_tocdata = parser.parse_toc(raw_toc)
 
                     if not parsed_tocdata.get("sections"):
@@ -106,20 +106,20 @@ def main(argv=None):
                         for s in parsed_tocdata["sections"]
                     }
                     while True:
-                        user_choice = input().strip()
+                        choice = input().strip()
 
-                        if user_choice.lower() == ":q":
+                        if choice.lower() == ":q":
                             break
 
-                        if user_choice.lower() == ":b":
-                            target_page = None
+                        if choice.lower() == ":b":
+                            target = None
                             break
 
-                        if user_choice in toc_map:
-                            section_index = toc_map[user_choice]["index"]
-                            section_title = toc_map[user_choice]["line"]
+                        if choice in toc_map:
+                            index = toc_map[choice]["index"]
+                            title = toc_map[choice]["line"]
                             api_section = client.fetch_section(
-                                target_page, section_index, lang=args.lang
+                                target, index, lang=args.lang
                             )
                             section = parser.parse_section(api_section)
 
@@ -128,44 +128,46 @@ def main(argv=None):
                                     "Content not found for the given section."
                                 )
 
-                            print(
-                                render.render_section(
-                                    title=section_title, section=section.get("section")
-                                )
-                            )
+                            print(render.render_section(title, section.get("section")))
                             print(render.render_toc_navigation_prompt(), end="")
                             continue
 
                         print(render.render_invalid_choice(), end="")
 
-                elif user_choice.lower() not in (":b", ":q", "n"):
+                elif choice.lower() not in (":b", ":q", "n"):
                     print(render.render_toc_skip())
 
-                target_page = None
+                target = None
                 continue
 
             if props["status"] == "disambiguation":
-                api_disambiguation = client.fetch_disambiguation(target_page, lang=args.lang)
+                api_disambiguation = client.fetch_disambiguation(target, lang=args.lang)
                 disambiguation = parser.parse_disambiguation(api_disambiguation)
 
                 if not disambiguation.get("options"):
-                    raise RuntimeError("Disambiguation options not found for the given page.")
+                    raise RuntimeError(
+                        "Disambiguation options not found for the given page."
+                    )
 
                 print(render.render_disambiguation(disambiguation.get("options")))
                 print(render.render_disambiguation_prompt(), end="")
 
+                disambiguation_map = {
+                    str(i + 1): option["page"]
+                    for i, option in enumerate(disambiguation["options"])
+                }
                 while True:
-                    user_choice = input().strip()
+                    choice = input().strip()
 
-                    if user_choice.lower() == ":q":
+                    if choice.lower() == ":q":
                         break
 
-                    if user_choice.lower() == ":b":
-                        target_page = None
+                    if choice.lower() == ":b":
+                        target = None
                         break
 
-                    if user_choice.isdigit() and (1 <= int(user_choice) <= len(disambiguation["options"])):
-                        target_page = disambiguation["options"][int(user_choice) - 1]["page"]
+                    if choice in disambiguation_map:
+                        target = disambiguation_map[choice]
                         break
 
                     print(render.render_invalid_choice(), end="")
@@ -173,7 +175,7 @@ def main(argv=None):
                 continue
 
             if props["status"] in ("missing", "unknown"):
-                print(render.render_not_found(target_page, args.lang), file=sys.stderr)
+                print(render.render_not_found(target, args.lang), file=sys.stderr)
                 return 1
 
             else:

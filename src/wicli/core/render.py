@@ -74,13 +74,13 @@ def render_start_prompt() -> str:
     return f"{_INFO}Enter a page title: {_RESET}"
 
 
-def render_summary(page_title: str, summary: str) -> str:
+def render_summary(title: str, summary: str) -> str:
     wrapped = textwrap.fill(summary, width=_get_width())
 
     output = f"""
 {_render_content_banner()}
 
-{_BOLD}{page_title}{_RESET}
+{_BOLD}{title}{_RESET}
 
 {_ITALIC}{wrapped}{_RESET}
 """
