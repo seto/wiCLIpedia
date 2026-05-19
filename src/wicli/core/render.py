@@ -64,6 +64,7 @@ User navigation:
     :q - Quit the application
 
 {_ITALIC}Enjoy exploring Wikipedia from your terminal!{_RESET}
+
 {separator}
 """
 
