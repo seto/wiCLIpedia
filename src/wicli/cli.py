@@ -73,6 +73,26 @@ def main(argv=None):
             api_props = client.fetch_props(target, lang=args.lang)
             props = parser.parse_props(api_props)
 
+            if props["status"] in ("missing", "unknown"):
+                # Fallback: retry with title case to handle all-caps or mixed-case input
+                # e.g. "NINE INCH NAILS" -> "Nine Inch Nails"
+                if target != target.title():
+                    api_props = client.fetch_props(target.title(), lang=args.lang)
+                    props = parser.parse_props(api_props)
+
+                    if props["status"] in ("missing", "unknown"):
+                        print(render.render_not_found(target, args.lang))
+                        target = None
+                        continue
+
+                    print(render.render_title_fallback(target, target.title()))
+                    target = target.title()
+
+                else:
+                    print(render.render_not_found(target, args.lang))
+                    target = None
+                    continue
+
             if props["status"] == "redirect":
                 target = props.get("redirects")
                 print(render.render_redirect(target))
@@ -174,11 +194,6 @@ def main(argv=None):
 
                     print(render.render_invalid_choice())
 
-                continue
-
-            if props["status"] in ("missing", "unknown"):
-                print(render.render_not_found(target, args.lang))
-                target = None
                 continue
 
             else:
