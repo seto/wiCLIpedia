@@ -74,6 +74,30 @@ def render_start_prompt() -> str:
     return f"{_INFO}Enter a page title: {_RESET}"
 
 
+def render_redirect(page: str) -> str:
+    return f"\n{_INFO}{_BOLD}Redirected to '{page}'.{_RESET}"
+
+
+def render_title_fallback(original: str, fallback: str) -> str:
+    return f"\n{_INFO}{_BOLD}Page '{original}' not found. Redirecting to '{fallback}'.{_RESET}"
+
+
+def render_not_found(page: str, lang: str) -> str:
+    return f"{_ERROR}Page '{page}' not found in {lang} Wikipedia.{_RESET}"
+
+
+def render_invalid_choice() -> str:
+    return f"{_WARNING}Invalid choice. Enter a valid number.{_RESET}"
+
+
+def render_user_cancelled() -> str:
+    return f"\n{_WARNING}WiCLIpedia stopped by user.{_RESET}"
+
+
+def render_exit() -> str:
+    return f"{_SUCCESS}{_BOLD}Goodbye!{_RESET}"
+
+
 def render_summary(title: str, summary: str) -> str:
     wrapped = textwrap.fill(summary, width=_get_width())
 
@@ -181,30 +205,6 @@ def render_disambiguation_prompt() -> str:
 
 def render_disambiguation_not_found(page: str) -> str:
     return f"{_WARNING}Disambiguation options not found for page '{page}'.{_RESET}"
-
-
-def render_invalid_choice() -> str:
-    return f"{_WARNING}Invalid choice. Enter a valid number.{_RESET}"
-
-
-def render_redirect(page: str) -> str:
-    return f"\n{_INFO}{_BOLD}Redirected to '{page}'.{_RESET}"
-
-
-def render_title_fallback(original: str, fallback: str) -> str:
-    return f"\n{_INFO}{_BOLD}Page '{original}' not found. Redirecting to '{fallback}'.{_RESET}"
-
-
-def render_not_found(page: str, lang: str) -> str:
-    return f"{_ERROR}Page '{page}' not found in {lang} Wikipedia.{_RESET}"
-
-
-def render_user_cancelled() -> str:
-    return f"\n{_WARNING}WiCLIpedia stopped by user.{_RESET}"
-
-
-def render_exit() -> str:
-    return f"{_SUCCESS}{_BOLD}Goodbye!{_RESET}"
 
 
 def _get_width() -> int:
