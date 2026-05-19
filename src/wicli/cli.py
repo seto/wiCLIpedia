@@ -83,7 +83,9 @@ def main(argv=None):
                 summary = parser.parse_summary(api_summary)
 
                 if not summary.get("summary"):
-                    raise RuntimeError("Summary not found for the given page.")
+                    print(render.render_summary_not_found(target))
+                    target = None
+                    continue
 
                 print(render.render_summary(target, summary.get("summary")))
                 print(render.render_toc_prompt(), end="")
@@ -94,18 +96,18 @@ def main(argv=None):
                     parsed_tocdata = parser.parse_toc(raw_toc)
 
                     if not parsed_tocdata.get("sections"):
-                        raise RuntimeError(
-                            "Table of contents not found for the given page."
-                        )
+                        print(render.render_toc_not_found())
+                        target = None
+                        continue
 
                     print(render.render_toc(parsed_tocdata.get("sections")))
-                    print(render.render_toc_navigation_prompt(), end="")
 
                     toc_map = {
                         s["number"]: {"index": s["index"], "line": s["line"]}
                         for s in parsed_tocdata["sections"]
                     }
                     while True:
+                        print(render.render_toc_navigation_prompt(), end="")
                         choice = input().strip()
 
                         if choice.lower() == ":q":
@@ -124,15 +126,13 @@ def main(argv=None):
                             section = parser.parse_section(api_section)
 
                             if not section.get("section"):
-                                raise RuntimeError(
-                                    "Content not found for the given section."
-                                )
+                                print(render.render_section_not_found(title))
+                                continue
 
                             print(render.render_section(title, section.get("section")))
-                            print(render.render_toc_navigation_prompt(), end="")
                             continue
 
-                        print(render.render_invalid_choice(), end="")
+                        print(render.render_invalid_choice())
 
                 elif choice.lower() not in (":b", ":q", "n"):
                     print(render.render_toc_skip())
@@ -144,19 +144,21 @@ def main(argv=None):
                 api_disambiguation = client.fetch_disambiguation(target, lang=args.lang)
                 disambiguation = parser.parse_disambiguation(api_disambiguation)
 
+                print(render.render_disambiguation_redirect(target))
+
                 if not disambiguation.get("options"):
-                    raise RuntimeError(
-                        "Disambiguation options not found for the given page."
-                    )
+                    print(render.render_disambiguation_not_found(target))
+                    target = None
+                    continue
 
                 print(render.render_disambiguation(disambiguation.get("options")))
-                print(render.render_disambiguation_prompt(), end="")
 
                 disambiguation_map = {
                     str(i + 1): option["page"]
                     for i, option in enumerate(disambiguation["options"])
                 }
                 while True:
+                    print(render.render_disambiguation_prompt(), end="")
                     choice = input().strip()
 
                     if choice.lower() == ":q":
@@ -170,13 +172,14 @@ def main(argv=None):
                         target = disambiguation_map[choice]
                         break
 
-                    print(render.render_invalid_choice(), end="")
+                    print(render.render_invalid_choice())
 
                 continue
 
             if props["status"] in ("missing", "unknown"):
-                print(render.render_not_found(target, args.lang), file=sys.stderr)
-                return 1
+                print(render.render_not_found(target, args.lang))
+                target = None
+                continue
 
             else:
                 raise RuntimeError(f"Unexpected page status: {props['status']}")
@@ -187,7 +190,6 @@ def main(argv=None):
 
     except KeyboardInterrupt:
         print(render.render_user_cancelled())
-        return 0
 
     print(render.render_exit())
     return 0

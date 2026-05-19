@@ -88,6 +88,10 @@ def render_summary(title: str, summary: str) -> str:
     return output
 
 
+def render_summary_not_found(title: str) -> str:
+    return f"{_WARNING}Summary not found for page '{title}'.{_RESET}"
+
+
 def render_toc(sections: list) -> str:
     toc = []
     for section in sections:
@@ -122,6 +126,10 @@ def render_toc_navigation_prompt() -> str:
     return f"{_INFO}Enter the section number: {_RESET}"
 
 
+def render_toc_not_found() -> str:
+    return f"{_WARNING}Table of contents not found for this page.{_RESET}"
+
+
 def render_section(title: str, section: str) -> str:
     wrapped = textwrap.fill(section, width=_get_width())
 
@@ -134,6 +142,10 @@ def render_section(title: str, section: str) -> str:
 """
 
     return output
+
+
+def render_section_not_found(title: str) -> str:
+    return f"{_WARNING}Content not found for section '{title}'.{_RESET}"
 
 
 def render_disambiguation(options: list) -> str:
@@ -159,12 +171,20 @@ def render_disambiguation(options: list) -> str:
     return output
 
 
+def render_disambiguation_redirect(page: str) -> str:
+    return f"\n{_INFO}{_BOLD}Redirected to '{page} (disambiguation page)'.{_RESET}"
+
+
 def render_disambiguation_prompt() -> str:
     return f"{_INFO}Enter the page number: {_RESET}"
 
 
+def render_disambiguation_not_found(page: str) -> str:
+    return f"{_WARNING}Disambiguation options not found for page '{page}'.{_RESET}"
+
+
 def render_invalid_choice() -> str:
-    return f"{_WARNING}Invalid choice. Enter a valid number: {_RESET}"
+    return f"{_WARNING}Invalid choice. Enter a valid number.{_RESET}"
 
 
 def render_redirect(page: str) -> str:
@@ -176,7 +196,7 @@ def render_not_found(page: str, lang: str) -> str:
 
 
 def render_user_cancelled() -> str:
-    return f"\n{_WARNING}Operation cancelled by user.{_RESET}"
+    return f"\n{_WARNING}WiCLIpedia stopped by user.{_RESET}"
 
 
 def render_exit() -> str:
