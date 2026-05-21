@@ -30,6 +30,8 @@ import textwrap
 # ANSI escape codes to style terminal output
 _ITALIC = "\033[3m"
 _BOLD = "\033[1m"
+_CYAN = "\033[36m"
+_PURPLE = "\033[35m"
 _INFO = "\033[34m"
 _WARNING = "\033[33m"
 _SUCCESS = "\033[32m"
@@ -41,19 +43,18 @@ def render_welcome() -> str:
     width = _get_width()
     separator = "─" * width
 
-    logo = rf"""
-{_SUCCESS}{_BOLD}{separator}
+    logo = rf"""{_CYAN}{_BOLD}{separator}
                      _       ___ ________    ____               ___      
                     | |     / (_) ____/ /   /  _/___  ___  ____/ (_)___ _
                     | | /| / / / /   / /    / // __ \/ _ \/ __  / / __ `/
                     | |/ |/ / / /___/ /____/ // /_/ /  __/ /_/ / / /_/ / 
                     |__/|__/_/\____/_____/___/ .___/\___/\__,_/_/\__,_/  
                                             /_/                          
-{separator}{_RESET}
-"""
+{separator}{_RESET}"""
 
     message = f"""
 {logo if width >= 72 else ""}
+
 {_BOLD}Welcome to WiCLIpedia! Your command-line gateway to Wikipedia content.{_RESET}
 
 To get started, enter a Wikipedia page title when prompted.
@@ -222,6 +223,12 @@ def _render_content_banner() -> str:
     width = _get_width()
     separator = "─" * width
 
-    banner = f"""{separator}\n© Wikipedia contributors | CC BY-SA 4.0\n{separator}"""
+    attribution = "© Wikipedia contributors ─ Content licensed under CC BY-SA 4.0"
+
+    banner = f"""{_PURPLE}{separator}
+
+{attribution.center(width)}
+
+{separator}{_RESET}"""
 
     return banner
