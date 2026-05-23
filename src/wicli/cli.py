@@ -94,7 +94,7 @@ def main(argv=None):
                     continue
 
             if props["status"] == "redirect":
-                target = props.get("redirects")
+                target = props.get("target")
                 print(render.render_redirect(target))
                 continue
 
