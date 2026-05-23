@@ -30,7 +30,7 @@ found at the following docs page:
 
 import json
 from importlib.metadata import version
-from typing import Any, Dict
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -39,7 +39,7 @@ _USER_AGENT = f"wiclipedia/{version('wiclipedia')} (https://pypi.org/project/wic
 _BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 
 
-def fetch_props(page: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_props(page: str, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "query",
         "format": "json",
@@ -53,7 +53,7 @@ def fetch_props(page: str, lang: str = "en") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_summary(page: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_summary(page: str, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "query",
         "format": "json",
@@ -68,7 +68,7 @@ def fetch_summary(page: str, lang: str = "en") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_disambiguation(page: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_disambiguation(page: str, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
@@ -81,7 +81,7 @@ def fetch_disambiguation(page: str, lang: str = "en") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_toc(page: str, lang: str = "en") -> Dict[str, Any]:
+def fetch_toc(page: str, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
@@ -94,7 +94,7 @@ def fetch_toc(page: str, lang: str = "en") -> Dict[str, Any]:
     return _get(url)
 
 
-def fetch_section(page: str, section: int, lang: str = "en") -> Dict[str, Any]:
+def fetch_section(page: str, section: int, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "parse",
         "format": "json",
@@ -108,7 +108,7 @@ def fetch_section(page: str, section: int, lang: str = "en") -> Dict[str, Any]:
     return _get(url)
 
 
-def _get(url: str) -> Dict[str, Any]:
+def _get(url: str) -> dict[str, Any]:
     """Perform an HTTP GET request and return the parsed JSON response."""
 
     req = Request(url, headers={"User-Agent": _USER_AGENT})

@@ -26,7 +26,7 @@ rendering in the command line interface.
 """
 
 import re
-from typing import Any, Dict
+from typing import Any
 
 # File namespace aliases used to identify and remove file embeds,
 # supports EN, IT, FR, ES, DE languages
@@ -34,7 +34,7 @@ _FILE_NAMESPACES = r"File|Image|Immagine|Fichier|Archivo|Datei"
 _RE_FILE_EMBED = re.compile(rf"\[\[(?:{_FILE_NAMESPACES}):[^\]]*\]\]", re.IGNORECASE)
 
 
-def parse_props(response: Dict[str, Any]) -> Dict[str, Any]:
+def parse_props(response: dict[str, Any]) -> dict[str, Any]:
     redirects = response.get("query", {}).get("redirects", [])
 
     if redirects and (target_page := redirects[0].get("to")):
@@ -54,7 +54,7 @@ def parse_props(response: Dict[str, Any]) -> Dict[str, Any]:
     return {"status": "found"}
 
 
-def parse_summary(response: Dict[str, Any]) -> Dict[str, Any]:
+def parse_summary(response: dict[str, Any]) -> dict[str, Any]:
     pages = response.get("query", {}).get("pages", [])
 
     if not pages or "missing" in pages[0]:
@@ -64,7 +64,7 @@ def parse_summary(response: Dict[str, Any]) -> Dict[str, Any]:
     return {"status": "found", "summary": extract}
 
 
-def parse_section(response: Dict[str, Any]) -> Dict[str, Any]:
+def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     wikitext = response.get("parse", {}).get("wikitext", "")
 
     if not wikitext:
@@ -95,7 +95,7 @@ def parse_section(response: Dict[str, Any]) -> Dict[str, Any]:
     return {"status": "found", "section": cleaned_section}
 
 
-def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
+def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
     wikitext = response.get("parse", {}).get("wikitext", "")
 
     if not wikitext:
@@ -123,7 +123,7 @@ def parse_disambiguation(response: Dict[str, Any]) -> Dict[str, Any]:
     return {"status": "found", "options": links}
 
 
-def parse_toc(response: Dict[str, Any]) -> Dict[str, Any]:
+def parse_toc(response: dict[str, Any]) -> dict[str, Any]:
     sections_data = response.get("parse", {}).get("tocdata", {}).get("sections", [])
 
     if not sections_data:
