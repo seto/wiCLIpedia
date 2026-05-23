@@ -70,28 +70,12 @@ def main(argv=None):
                 target = choice
                 continue
 
-            api_props = client.fetch_props(target, lang=args.lang)
-            props = parser.parse_props(api_props)
-
-            if props["status"] in ("missing", "unknown"):
-                # Fallback: retry with title case to handle all-caps or mixed-case input
-                # e.g. "NINE INCH NAILS" -> "Nine Inch Nails"
-                if target != target.title():
-                    api_props = client.fetch_props(target.title(), lang=args.lang)
-                    props = parser.parse_props(api_props)
-
-                    if props["status"] in ("missing", "unknown"):
-                        print(render.render_not_found(target, args.lang))
-                        target = None
-                        continue
-
-                    print(render.render_title_fallback(target, target.title()))
-                    target = target.title()
-
-                else:
-                    print(render.render_not_found(target, args.lang))
-                    target = None
-                    continue
+            resolved = _resolve_page(target, args.lang)
+            if resolved is None:
+                print(render.render_not_found(target, args.lang))
+                target = None
+                continue
+            target, props = resolved
 
             if props["status"] == "redirect":
                 target = props.get("target")
@@ -230,6 +214,33 @@ def main(argv=None):
 
     print(render.render_exit())
     return 0
+
+
+def _resolve_page(page: str, lang: str) -> tuple[str, dict] | None:
+    for candidate in _candidates(page):
+        api_props = client.fetch_props(candidate, lang=lang)
+        props = parser.parse_props(api_props)
+
+        if props["status"] not in ("missing", "unknown"):
+            if page != candidate:
+                print(render.render_title_fallback(page, candidate))
+            return candidate, props
+
+    return None
+
+
+def _candidates(page: str) -> list[str]:
+    # Normalizations to try when the page title is not found
+    # to handle all-caps or mixed-case input
+    seen = {page}
+    result = [page]
+
+    for normalized in (page.title(), page.capitalize()):
+        if normalized not in seen:
+            seen.add(normalized)
+            result.append(normalized)
+
+    return result
 
 
 if __name__ == "__main__":

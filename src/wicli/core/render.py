@@ -82,7 +82,7 @@ def render_redirect(page: str) -> str:
 
 
 def render_title_fallback(original: str, fallback: str) -> str:
-    return f"\n{_INFO}{_BOLD}Page '{original}' not found. Redirecting to '{fallback}'.{_RESET}"
+    return f"\n{_INFO}{_BOLD}Page '{original}' not found. Trying '{fallback}'.{_RESET}"
 
 
 def render_not_found(page: str, lang: str) -> str:
