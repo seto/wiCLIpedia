@@ -61,7 +61,12 @@ def parse_summary(response: dict[str, Any]) -> dict[str, Any]:
         return {"status": "missing"}
 
     extract = pages[0].get("extract", "")
-    return {"status": "found", "summary": extract}
+
+    return {
+        "status": "found",
+        "summary": extract,
+        "_cached_at": response.get("_cached_at"),
+    }
 
 
 def parse_section(response: dict[str, Any]) -> dict[str, Any]:
@@ -92,7 +97,11 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     lines = [line.strip() for line in clean.strip().split("\n")]
     cleaned_section = "\n".join([line for line in lines if line])
 
-    return {"status": "found", "section": cleaned_section}
+    return {
+        "status": "found",
+        "section": cleaned_section,
+        "_cached_at": response.get("_cached_at"),
+    }
 
 
 def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
@@ -120,7 +129,11 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
             desc = desc.replace(title, "").strip(" –-,")
             links.append({"page": title, "desc": desc})
 
-    return {"status": "found", "options": links}
+    return {
+        "status": "found",
+        "options": links,
+        "_cached_at": response.get("_cached_at"),
+    }
 
 
 def parse_toc(response: dict[str, Any]) -> dict[str, Any]:
@@ -140,4 +153,8 @@ def parse_toc(response: dict[str, Any]) -> dict[str, Any]:
             }
         )
 
-    return {"status": "found", "sections": sections}
+    return {
+        "status": "found",
+        "sections": sections,
+        "_cached_at": response.get("_cached_at"),
+    }

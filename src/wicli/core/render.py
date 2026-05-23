@@ -26,6 +26,7 @@ disambiguation options, and user prompts and navigation.
 
 import os
 import textwrap
+import time
 
 # ANSI escape codes to style terminal output
 _ITALIC = "\033[3m"
@@ -100,11 +101,11 @@ def render_exit() -> str:
     return f"{_SUCCESS}{_BOLD}Goodbye!{_RESET}"
 
 
-def render_summary(title: str, summary: str) -> str:
+def render_summary(title: str, summary: str, cached_at: float = None) -> str:
     wrapped = textwrap.fill(summary, width=_get_width())
 
     output = f"""
-{_render_content_banner()}
+{_render_content_banner(cached_at)}
 
 {_BOLD}{title}{_RESET}
 
@@ -118,7 +119,7 @@ def render_summary_not_found(title: str) -> str:
     return f"{_WARNING}Summary not found for page '{title}'.{_RESET}"
 
 
-def render_toc(sections: list) -> str:
+def render_toc(sections: list, cached_at: float = None) -> str:
     toc = []
     for section in sections:
         indent = "  " * (section["tocLevel"] - 1)
@@ -130,7 +131,7 @@ def render_toc(sections: list) -> str:
     toc_str = "\n".join(toc)
 
     output = f"""
-{_render_content_banner()}
+{_render_content_banner(cached_at)}
 
 {_BOLD}Available content for this page:{_RESET}
 
@@ -156,11 +157,11 @@ def render_toc_not_found() -> str:
     return f"{_WARNING}Table of contents not found for this page.{_RESET}"
 
 
-def render_section(title: str, section: str) -> str:
+def render_section(title: str, section: str, cached_at: float = None) -> str:
     wrapped = textwrap.fill(section, width=_get_width())
 
     output = f"""
-{_render_content_banner()}
+{_render_content_banner(cached_at)}
 
 {_BOLD}{title}{_RESET}
 
@@ -174,7 +175,7 @@ def render_section_not_found(title: str) -> str:
     return f"{_WARNING}Content not found for section '{title}'.{_RESET}"
 
 
-def render_disambiguation(options: list) -> str:
+def render_disambiguation(options: list, cached_at: float = None) -> str:
     links = []
     for i, option in enumerate(options, start=1):
         entry = (
@@ -187,7 +188,7 @@ def render_disambiguation(options: list) -> str:
     links_str = "\n".join(links)
 
     output = f"""
-{_render_content_banner()}
+{_render_content_banner(cached_at)}
 
 {_BOLD}This page is a disambiguation for the following options:{_RESET}
 
@@ -219,16 +220,22 @@ def _get_width() -> int:
     return width
 
 
-def _render_content_banner() -> str:
+def _render_content_banner(cached_at: float) -> str:
     width = _get_width()
     separator = "─" * width
 
     attribution = "© Wikipedia contributors ─ Content licensed under CC BY-SA 4.0"
 
+    if cached_at:
+        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(float(cached_at)))
+        fetch = f"Content loaded from cache (as of {ts})."
+    else:
+        ts = time.strftime("%Y-%m-%d %H:%M:%S")
+        fetch = f"Content fetched from Wikipedia live (at {ts})."
+
     banner = f"""{_PURPLE}{separator}
-
 {attribution.center(width)}
-
-{separator}{_RESET}"""
+{_ITALIC}{fetch.center(width)}{_RESET}
+{_PURPLE}{separator}{_RESET}"""
 
     return banner

@@ -107,7 +107,13 @@ def main(argv=None):
                     target = None
                     continue
 
-                print(render.render_summary(target, summary.get("summary")))
+                print(
+                    render.render_summary(
+                        target,
+                        summary.get("summary"),
+                        cached_at=summary.get("_cached_at"),
+                    )
+                )
                 print(render.render_toc_prompt(), end="")
 
                 choice = input().strip()
@@ -120,7 +126,12 @@ def main(argv=None):
                         target = None
                         continue
 
-                    print(render.render_toc(parsed_tocdata.get("sections")))
+                    print(
+                        render.render_toc(
+                            parsed_tocdata.get("sections"),
+                            cached_at=parsed_tocdata.get("_cached_at"),
+                        )
+                    )
 
                     toc_map = {
                         s["number"]: {"index": s["index"], "line": s["line"]}
@@ -141,7 +152,7 @@ def main(argv=None):
                             index = toc_map[choice]["index"]
                             title = toc_map[choice]["line"]
                             api_section = client.fetch_section(
-                                target, index, lang=args.lang
+                                target, section=index, lang=args.lang
                             )
                             section = parser.parse_section(api_section)
 
@@ -149,7 +160,13 @@ def main(argv=None):
                                 print(render.render_section_not_found(title))
                                 continue
 
-                            print(render.render_section(title, section.get("section")))
+                            print(
+                                render.render_section(
+                                    title,
+                                    section.get("section"),
+                                    cached_at=section.get("_cached_at"),
+                                )
+                            )
                             continue
 
                         print(render.render_invalid_choice())
@@ -171,7 +188,12 @@ def main(argv=None):
                     target = None
                     continue
 
-                print(render.render_disambiguation(disambiguation.get("options")))
+                print(
+                    render.render_disambiguation(
+                        disambiguation.get("options"),
+                        cached_at=disambiguation.get("_cached_at"),
+                    )
+                )
 
                 disambiguation_map = {
                     str(i + 1): option["page"]

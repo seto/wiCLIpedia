@@ -28,6 +28,7 @@ found at the following docs page:
     https://en.wikipedia.org/wiki/Special:ApiSandbox
 """
 
+import functools
 import json
 from importlib.metadata import version
 from typing import Any
@@ -35,8 +36,31 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from . import cache
+
 _USER_AGENT = f"wiclipedia/{version('wiclipedia')} (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
 _BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
+
+
+def _cached(resource: str):
+    """Decorator that loads from cache before calling fn, and saves the result after."""
+
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(page: str, lang: str = "en", **kwargs):
+            res = resource.format(**kwargs)
+            cached = cache.load(page, lang, res)
+
+            if cached is not None:
+                return cached
+
+            data = fn(page, lang=lang, **kwargs)
+            cache.save(page, lang, res, data)
+            return data
+
+        return wrapper
+
+    return decorator
 
 
 def fetch_props(page: str, lang: str = "en") -> dict[str, Any]:
@@ -53,6 +77,7 @@ def fetch_props(page: str, lang: str = "en") -> dict[str, Any]:
     return _get(url)
 
 
+@_cached("summary")
 def fetch_summary(page: str, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "query",
@@ -68,6 +93,7 @@ def fetch_summary(page: str, lang: str = "en") -> dict[str, Any]:
     return _get(url)
 
 
+@_cached("disambiguation")
 def fetch_disambiguation(page: str, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "parse",
@@ -81,6 +107,7 @@ def fetch_disambiguation(page: str, lang: str = "en") -> dict[str, Any]:
     return _get(url)
 
 
+@_cached("toc")
 def fetch_toc(page: str, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "parse",
@@ -94,6 +121,7 @@ def fetch_toc(page: str, lang: str = "en") -> dict[str, Any]:
     return _get(url)
 
 
+@_cached("section_{section}")
 def fetch_section(page: str, section: int, lang: str = "en") -> dict[str, Any]:
     params = {
         "action": "parse",
