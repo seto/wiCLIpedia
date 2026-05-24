@@ -29,33 +29,23 @@ import textwrap
 import time
 
 # ANSI escape codes to style terminal output
-_ITALIC = "\033[3m"
-_BOLD = "\033[1m"
-_CYAN = "\033[36m"
-_PURPLE = "\033[35m"
-_INFO = "\033[34m"
-_WARNING = "\033[33m"
-_SUCCESS = "\033[32m"
-_ERROR = "\033[31m"
 _RESET = "\033[0m"
-
-
-def render_cache_purged(rows: int) -> str:
-    if rows == 0:
-        return f"{_INFO}{_BOLD}Cache is already empty. No entries to purge.{_RESET}"
-    elif rows == 1:
-        return f"{_SUCCESS}{_BOLD}Cache purged successfully. 1 entry removed.{_RESET}"
-
-    return (
-        f"{_SUCCESS}{_BOLD}Cache purged successfully. {rows} entries removed.{_RESET}"
-    )
+_BOLD = "\033[1m"
+_DIM = "\033[2m"
+_ITALIC = "\033[3m"
+_RED = "\033[31m"
+_YELLOW = "\033[33m"
+_GREEN = "\033[32m"
+_BLUE = "\033[34m"
+_PURPLE = "\033[35m"
+_CYAN = "\033[36m"
 
 
 def render_welcome() -> str:
     width = _get_width()
     separator = "─" * width
 
-    logo = rf"""{_CYAN}{_BOLD}{separator}
+    logo = rf"""{_PURPLE}{_BOLD}{separator}
                      _       ___ ________    ____               ___      
                     | |     / (_) ____/ /   /  _/___  ___  ____/ (_)___ _
                     | | /| / / / /   / /    / // __ \/ _ \/ __  / / __ `/
@@ -84,32 +74,41 @@ User navigation:
     return message
 
 
+def render_cache_purged(rows: int) -> str:
+    if rows == 0:
+        return f"{_BLUE}{_BOLD}Cache is already empty. No entries to purge.{_RESET}"
+    elif rows == 1:
+        return f"{_GREEN}{_BOLD}Cache purged successfully. 1 entry removed.{_RESET}"
+
+    return f"{_GREEN}{_BOLD}Cache purged successfully. {rows} entries removed.{_RESET}"
+
+
 def render_start_prompt() -> str:
-    return f"{_INFO}Enter a page title: {_RESET}"
+    return f"{_CYAN}Enter a page title: {_RESET}"
 
 
 def render_redirect(page: str) -> str:
-    return f"\n{_INFO}{_BOLD}Redirected to '{page}'.{_RESET}"
+    return f"{_BLUE}{_BOLD}Redirected to '{page}'.{_RESET}"
 
 
 def render_title_fallback(original: str, fallback: str) -> str:
-    return f"\n{_INFO}{_BOLD}Page '{original}' not found. Trying '{fallback}'.{_RESET}"
+    return f"{_BLUE}{_BOLD}Page '{original}' not found. Trying '{fallback}'.{_RESET}"
 
 
 def render_not_found(page: str, lang: str) -> str:
-    return f"{_ERROR}Page '{page}' not found in {lang} Wikipedia.{_RESET}"
+    return f"{_YELLOW}{_BOLD}Page '{page}' not found in {lang} Wikipedia.{_RESET}"
 
 
 def render_invalid_choice() -> str:
-    return f"{_WARNING}Invalid choice. Enter a valid number.{_RESET}"
+    return f"{_YELLOW}Invalid choice. Enter a valid number.{_RESET}"
 
 
 def render_user_cancelled() -> str:
-    return f"\n{_WARNING}WiCLIpedia stopped by user.{_RESET}"
+    return f"{_YELLOW}WiCLIpedia stopped by user.{_RESET}"
 
 
 def render_exit() -> str:
-    return f"{_SUCCESS}{_BOLD}Goodbye!{_RESET}"
+    return f"{_GREEN}{_BOLD}Goodbye!{_RESET}"
 
 
 def render_summary(title: str, summary: str, cached_at: float = None) -> str:
@@ -127,7 +126,7 @@ def render_summary(title: str, summary: str, cached_at: float = None) -> str:
 
 
 def render_summary_not_found(title: str) -> str:
-    return f"{_WARNING}Summary not found for page '{title}'.{_RESET}"
+    return f"{_YELLOW}Summary not found for page '{title}'.{_RESET}"
 
 
 def render_toc(sections: list, cached_at: float = None) -> str:
@@ -153,19 +152,19 @@ def render_toc(sections: list, cached_at: float = None) -> str:
 
 
 def render_toc_prompt() -> str:
-    return f"{_INFO}Do you want to see the table of contents? (y/n): {_RESET}"
+    return f"{_CYAN}Do you want to see the table of contents? (y/n): {_RESET}"
 
 
 def render_toc_skip() -> str:
-    return f"{_WARNING}Invalid choice. Returning to start.{_RESET}"
+    return f"{_YELLOW}Invalid choice. Skipping table of contents.{_RESET}"
 
 
 def render_toc_navigation_prompt() -> str:
-    return f"{_INFO}Enter the section number: {_RESET}"
+    return f"{_CYAN}Enter the section number: {_RESET}"
 
 
 def render_toc_not_found() -> str:
-    return f"{_WARNING}Table of contents not found for this page.{_RESET}"
+    return f"{_YELLOW}Table of contents not found for this page.{_RESET}"
 
 
 def render_section(title: str, section: str, cached_at: float = None) -> str:
@@ -183,7 +182,7 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
 
 
 def render_section_not_found(title: str) -> str:
-    return f"{_WARNING}Content not found for section '{title}'.{_RESET}"
+    return f"{_YELLOW}Content not found for section '{title}'.{_RESET}"
 
 
 def render_disambiguation(options: list, cached_at: float = None) -> str:
@@ -210,15 +209,15 @@ def render_disambiguation(options: list, cached_at: float = None) -> str:
 
 
 def render_disambiguation_redirect(page: str) -> str:
-    return f"\n{_INFO}{_BOLD}Redirected to '{page} (disambiguation page)'.{_RESET}"
+    return f"{_BLUE}{_BOLD}Redirected to '{page} (disambiguation page)'.{_RESET}"
 
 
 def render_disambiguation_prompt() -> str:
-    return f"{_INFO}Enter the page number: {_RESET}"
+    return f"{_CYAN}Enter the page number: {_RESET}"
 
 
 def render_disambiguation_not_found(page: str) -> str:
-    return f"{_WARNING}Disambiguation options not found for page '{page}'.{_RESET}"
+    return f"{_YELLOW}Disambiguation options not found for page '{page}'.{_RESET}"
 
 
 def _get_width() -> int:
@@ -239,14 +238,14 @@ def _render_content_banner(cached_at: float) -> str:
 
     if cached_at:
         ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(float(cached_at)))
-        fetch = f"Content loaded from cache (as of {ts})."
+        fetch = f"Loaded from cache (as of {ts})."
     else:
         ts = time.strftime("%Y-%m-%d %H:%M:%S")
-        fetch = f"Content fetched from Wikipedia live (at {ts})."
+        fetch = f"Fetched from Wikipedia live (at {ts})."
 
-    banner = f"""{_PURPLE}{separator}
-{attribution.center(width)}
-{_ITALIC}{fetch.center(width)}{_RESET}
-{_PURPLE}{separator}{_RESET}"""
+    banner = f"""{_DIM}{separator}
+{_BOLD}{attribution.center(width)}{_RESET}
+{_DIM}{_ITALIC}{fetch.center(width)}{_RESET}
+{_DIM}{separator}{_RESET}"""
 
     return banner
