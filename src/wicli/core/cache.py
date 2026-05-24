@@ -92,8 +92,6 @@ def save(page: str, lang: str, resource: str, data: dict[str, Any]) -> None:
         conn.close()
 
 
-# NOTE: Evaluate whether this function should be called at startup or
-# on demand by the user (e.g. using a flag in the CLI options)
 def prune() -> None:
     conn = _connect()
 

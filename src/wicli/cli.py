@@ -35,7 +35,7 @@ For more details, run with `-h` or `--help`.
 import argparse
 import sys
 
-from .core import client, parser, render
+from .core import cache, client, parser, render
 
 
 def main(argv=None):
@@ -50,6 +50,8 @@ def main(argv=None):
 
     if args.no_cache:
         client.disable_cache()
+    else:
+        cache.prune()
 
     target = args.page
     choice = None
