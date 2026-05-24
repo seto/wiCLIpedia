@@ -85,7 +85,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     clean = re.sub(r"<ref[^>]*/>", "", clean)
 
     # Preserve block quotations, then remove remaining templates
-    # iteratively to handle nesting (e.g. {{a|{{b}}}})
+    # iteratively to handle nesting (e.g., {{a|{{b}}}})
     clean = re.sub(r"\{\{[Cc]itazione\|([^}]+)\}\}", r"\1", clean)
     while re.search(r"\{\{[^{}]*\}\}", clean):
         clean = re.sub(r"\{\{[^{}]*\}\}", "", clean)
