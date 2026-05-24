@@ -106,6 +106,22 @@ def prune() -> None:
         conn.close()
 
 
+def purge() -> int:
+    conn = _connect()
+
+    try:
+        cursor = conn.execute("DELETE FROM cache")
+        conn.commit()
+
+        return cursor.rowcount
+
+    except Exception:
+        pass
+
+    finally:
+        conn.close()
+
+
 def _connect() -> sqlite3.Connection:
     try:
         _CACHE_DIR.mkdir(parents=True, exist_ok=True)

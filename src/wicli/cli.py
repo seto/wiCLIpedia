@@ -45,8 +45,14 @@ def main(argv=None):
     ap.add_argument("page", nargs="?", default=None, help="page title")
     ap.add_argument("-l", "--lang", default="en", help="language code (default: en)")
     ap.add_argument("--no-cache", action="store_true", help="disable local cache")
+    ap.add_argument("--purge", action="store_true", help="purge local cache and exit")
 
     args = ap.parse_args(argv)
+
+    if args.purge:
+        rows = cache.purge()
+        print(render.render_cache_purged(rows))
+        return 0
 
     if args.no_cache:
         client.disable_cache()

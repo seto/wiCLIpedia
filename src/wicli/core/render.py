@@ -40,6 +40,17 @@ _ERROR = "\033[31m"
 _RESET = "\033[0m"
 
 
+def render_cache_purged(rows: int) -> str:
+    if rows == 0:
+        return f"{_INFO}{_BOLD}Cache is already empty. No entries to purge.{_RESET}"
+    elif rows == 1:
+        return f"{_SUCCESS}{_BOLD}Cache purged successfully. 1 entry removed.{_RESET}"
+
+    return (
+        f"{_SUCCESS}{_BOLD}Cache purged successfully. {rows} entries removed.{_RESET}"
+    )
+
+
 def render_welcome() -> str:
     width = _get_width()
     separator = "─" * width
