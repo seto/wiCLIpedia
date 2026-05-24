@@ -27,6 +27,7 @@ from the `src` directory:
 CLI arguments:
 - `page`: The Wikipedia page title to retrieve (optional, prompted if not provided).
 - `-l` or `--lang`: The language code of the Wikipedia to query (defaults to "en").
+- `--no-cache`: Disable local cache storage for the session (force fresh API calls).
 
 For more details, run with `-h` or `--help`.
 """
@@ -43,8 +44,13 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog="wicli", description="WiCLIpedia CLI")
     ap.add_argument("page", nargs="?", default=None, help="page title")
     ap.add_argument("-l", "--lang", default="en", help="language code (default: en)")
+    ap.add_argument("--no-cache", action="store_true", help="disable local cache")
 
     args = ap.parse_args(argv)
+
+    if args.no_cache:
+        client.disable_cache()
+
     target = args.page
     choice = None
 

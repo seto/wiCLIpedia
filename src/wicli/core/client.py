@@ -40,6 +40,12 @@ from . import cache
 
 _USER_AGENT = f"wiclipedia/{version('wiclipedia')} (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
 _BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
+_USE_CACHE = True
+
+
+def disable_cache():
+    global _USE_CACHE
+    _USE_CACHE = False
 
 
 def _cached(resource: str):
@@ -48,6 +54,9 @@ def _cached(resource: str):
     def decorator(fn):
         @functools.wraps(fn)
         def wrapper(page: str, lang: str = "en", **kwargs):
+            if not _USE_CACHE:
+                return fn(page, lang=lang, **kwargs)
+
             res = resource.format(**kwargs)
             cached = cache.load(page, lang, res)
 
