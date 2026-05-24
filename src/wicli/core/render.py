@@ -25,20 +25,27 @@ disambiguation options, and user prompts and navigation.
 """
 
 import os
+import sys
 import textwrap
 import time
 
-# ANSI escape codes to style terminal output
-_RESET = "\033[0m"
-_BOLD = "\033[1m"
-_DIM = "\033[2m"
-_ITALIC = "\033[3m"
-_RED = "\033[31m"
-_YELLOW = "\033[33m"
-_GREEN = "\033[32m"
-_BLUE = "\033[34m"
-_PURPLE = "\033[35m"
-_CYAN = "\033[36m"
+_NO_COLOR = (
+    os.environ.get("NO_COLOR") is not None
+    or not hasattr(sys.stdout, "isatty")
+    or not sys.stdout.isatty()
+    or os.environ.get("TERM") == "dumb"
+)
+
+_RESET = "" if _NO_COLOR else "\033[0m"
+_BOLD = "" if _NO_COLOR else "\033[1m"
+_DIM = "" if _NO_COLOR else "\033[2m"
+_ITALIC = "" if _NO_COLOR else "\033[3m"
+_RED = "" if _NO_COLOR else "\033[31m"
+_YELLOW = "" if _NO_COLOR else "\033[33m"
+_GREEN = "" if _NO_COLOR else "\033[32m"
+_BLUE = "" if _NO_COLOR else "\033[34m"
+_PURPLE = "" if _NO_COLOR else "\033[35m"
+_CYAN = "" if _NO_COLOR else "\033[36m"
 
 
 def render_welcome() -> str:
