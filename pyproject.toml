@@ -10,7 +10,6 @@ readme = "README.md"
 authors = [{ name="seto" }]
 license = { text="GPL-3.0-or-later" }
 requires-python = ">=3.12"
-dependencies = []
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
@@ -22,6 +21,18 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: Wiki",
     "Topic :: Terminals",
     "Topic :: Utilities",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black~=26.3",
+    "build~=1.5",
+    "invoke~=3.0",
+    "isort~=8.0",
+    "pytest~=9.0",
+    "pytest-cov~=7.1",
+    "twine~=6.2"
 ]
 
 [project.urls]
