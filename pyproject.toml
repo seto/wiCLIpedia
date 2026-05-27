@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wiclipedia"
-version = "0.1.0b3"
+version = "0.1.0b4"
 description = "Minimalist Wikipedia CLI client for terminal dwellers."
 readme = "README.md"
 authors = [{ name="seto" }]
-license = { text="GPL-3.0-or-later" }
+license = { text="AGPL-3.0-or-later" }
 requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Environment :: Console",
     "Operating System :: OS Independent",
     "Intended Audience :: End Users/Desktop",

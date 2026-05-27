@@ -1,6 +1,6 @@
 # WiCLIpedia
 
-[![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0+-blue.svg)](LICENSE)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0+-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/pypi/v/wiclipedia.svg?maxAge=86400)](https://pypi.org/project/wiclipedia/)
 [![Supported Versions](https://img.shields.io/pypi/pyversions/wiclipedia.svg)](https://pypi.org/project/wiclipedia)
 [![Code Style: Black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/psf/black)
@@ -81,5 +81,5 @@ More information about the MediaWiki API and usage guidelines:
 
 ## License
 
-This program is licensed under the [GNU General Public License v3.0 or later](https://www.gnu.org/licenses/gpl-3.0.html) (GPL-3.0).  
+This program is licensed under the [GNU Affero General Public License v3.0 or later](https://www.gnu.org/licenses/agpl-3.0.html) (AGPL-3.0+).  
 See the [LICENSE](LICENSE) file for details.
