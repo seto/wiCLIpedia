@@ -137,22 +137,35 @@ def render_summary_not_found(title: str) -> str:
 
 
 def render_toc(sections: list, cached_at: float = None) -> str:
+    # Map each tocLevel to the maximum number width at that level,
+    # used to align section numbers consistently within each level
+    widths = {}
+    for section in sections:
+        lvl = section["tocLevel"]
+        widths[lvl] = max(widths.get(lvl, 0), len(str(section["number"])))
+
+    # Compute the cumulative indentation for each tocLevel by summing
+    # the number widths (plus 2 separator spaces) of all preceding levels
+    indents = {}
+    offset = 0
+    for lvl, width in sorted(widths.items()):
+        indents[lvl] = offset
+        offset += width + 2
+
     toc = []
     for section in sections:
-        indent = "  " * (section["tocLevel"] - 1)
-        num = f"{section['number']}." if section["tocLevel"] == 1 else section["number"]
-        num_padded = f"{num:<5}"
-        line = f"{indent}{_style(num_padded, _BOLD)} {section['line']}"
-        toc.append(line)
-
-    toc_str = "\n".join(toc)
+        lvl = section["tocLevel"]
+        indent = " " * indents[lvl]
+        index = _style(f"{section['number']:<{widths[lvl]}}", _DIM)
+        title = _style(section["line"], _BOLD) if lvl == 1 else section["line"]
+        toc.append(f"{indent}{index}  {title}")
 
     output = f"""
 {_render_content_banner(cached_at)}
 
 {_style("Available content for this page:", _BOLD)}
 
-{toc_str}
+{"\n".join(toc)}
 """
 
     return output
@@ -193,23 +206,24 @@ def render_section_not_found(title: str) -> str:
 
 
 def render_disambiguation(options: list, cached_at: float = None) -> str:
+    width = len(str(len(options)))
+
     links = []
     for i, option in enumerate(options, start=1):
-        entry = (
-            f"{_style(option['page'], _ITALIC)} - {option['desc']}"
+        page = (
+            f"{_style(option['page'], _BOLD)} - {option['desc']}"
             if option["desc"]
-            else f"{_style(option['page'], _ITALIC)}"
+            else _style(option["page"], _BOLD)
         )
-        links.append(f"{i}. {entry}")
-
-    links_str = "\n".join(links)
+        num = _style(str(f"{i:<{width}}"), _DIM)
+        links.append(f"{num}  {page}")
 
     output = f"""
 {_render_content_banner(cached_at)}
 
 {_style("This page is a disambiguation for the following options:", _BOLD)}
 
-{links_str}
+{"\n".join(links)}
 """
 
     return output
