@@ -98,6 +98,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
             if buffer:
                 blocks.append("\n".join(buffer))
                 buffer = []
+
             cleaned = _clean_inline(token.value)
             if cleaned:
                 blocks.append(cleaned)
@@ -130,6 +131,7 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
     for line in lines:
         stripped = re.sub(r"('{2,5}|\*|{{.*?}})", "", line).strip()
         match = re.search(r"\[\[(.*?)(?:\|.*?)?\]\]", stripped)
+
         if match:
             title = match.group(1).strip()
             desc = re.sub(r"\[\[(?:.*?\|)?(.*?)\]\]", r"\1", stripped)

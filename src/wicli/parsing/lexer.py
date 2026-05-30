@@ -61,11 +61,13 @@ def tokenize(wikitext: str) -> list[Token]:
         if token_type == TokenType.TABLE:
             table_lines = [line]
             i += 1
+
             while i < len(lines):
                 table_lines.append(lines[i])
                 if lines[i].strip().startswith("|}"):
                     break
                 i += 1
+
             tokens.append(Token(TokenType.TABLE, "\n".join(table_lines)))
 
         elif token_type in (
@@ -120,19 +122,24 @@ def _strip_templates(text: str) -> str:
             depth += 1
             current = []
             i += 2
+
         elif text[i : i + 2] == "}}":
             if depth == 1:
                 inner = "".join(current)
                 parts = inner.split("|")
                 name = parts[0].strip().lower()
+
                 if name in _TEMPLATES_KEEP_LAST and len(parts) > 1:
                     result.append(parts[-1].strip())
+
             depth = max(0, depth - 1)
             current = []
             i += 2
+
         elif depth > 0:
             current.append(text[i])
             i += 1
+
         else:
             result.append(text[i])
             i += 1
