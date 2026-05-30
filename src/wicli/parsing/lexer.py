@@ -32,7 +32,7 @@ from .nodes import Token, TokenType
 
 # Templates that carry visible text in their last parameter,
 # all the other templates are discarded entirely
-_TEMPLATES_KEEP_LAST = {"lang", "transl", "abbr", "nowrap"}
+_TEMPLATES_KEEP_LAST = {"lang", "transl", "abbr", "nowrap", "as of"}
 _TEMPLATES_KEEP_FIRST = {"senza fonte", "citation needed", "cn"}
 
 
