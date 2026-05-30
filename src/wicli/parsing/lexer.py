@@ -33,6 +33,7 @@ from .nodes import Token, TokenType
 # Templates that carry visible text in their last parameter,
 # all the other templates are discarded entirely
 _TEMPLATES_KEEP_LAST = {"lang", "transl", "abbr", "nowrap"}
+_TEMPLATES_KEEP_FIRST = {"senza fonte", "citation needed", "cn"}
 
 
 def tokenize(wikitext: str) -> list[Token]:
@@ -131,6 +132,8 @@ def _strip_templates(text: str) -> str:
 
                 if name in _TEMPLATES_KEEP_LAST and len(parts) > 1:
                     result.append(parts[-1].strip())
+                elif name in _TEMPLATES_KEEP_FIRST and len(parts) > 1:
+                    result.append(parts[1].strip())
 
             depth = max(0, depth - 1)
             current = []
