@@ -30,8 +30,6 @@ import re
 
 from .nodes import Token, TokenType
 
-# Templates that carry visible text in their last parameter,
-# all the other templates are discarded entirely
 _TEMPLATES_KEEP_LAST = {"lang", "transl", "abbr", "nowrap", "as of"}
 _TEMPLATES_KEEP_FIRST = {"senza fonte", "citation needed", "cn", "blockquote", "quote", "cquote"}
 
@@ -111,8 +109,11 @@ def _strip_templates(text: str) -> str:
 
     Done on the full string before line splitting because templates can open
     inline mid-sentence and close several lines later.
+    
+    For templates in `_TEMPLATES_KEEP_LAST`, the last parameter is kept as visible text.
+    For templates in `_TEMPLATES_KEEP_FIRST`, the first parameter is kept instead.
 
-    Only the outermost template name is checked against `_TEMPLATES_KEEP_LAST` as
+    Only the outermost template name is checked against either set;
     nested templates are always discarded regardless of their name.
     """
 
