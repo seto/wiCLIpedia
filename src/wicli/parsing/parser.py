@@ -28,10 +28,8 @@ rendering in the command line interface.
 import re
 from typing import Any
 
-# File namespace aliases used to identify and remove file embeds,
-# supports EN, IT, FR, ES, DE languages
-_FILE_NAMESPACES = r"File|Image|Immagine|Fichier|Archivo|Datei"
-_RE_FILE_EMBED = re.compile(rf"\[\[(?:{_FILE_NAMESPACES}):[^\]]*\]\]", re.IGNORECASE)
+from .lexer import tokenize
+from .nodes import TokenType
 
 
 def parse_props(response: dict[str, Any]) -> dict[str, Any]:
@@ -82,31 +80,34 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     if not wikitext:
         return {"status": "missing"}
 
-    # Replace {{' }} with an apostrophe before any other processing,
-    # as it's used in wikitext to avoid parsing issues with apostrophes
-    clean = re.sub(r"\{\{'?\}\}", "'", wikitext)
+    tokens = tokenize(wikitext)
+    blocks, buffer = [], []
+    for token in tokens:
+        if token.type == TokenType.TABLE:
+            if buffer:
+                blocks.append("\n".join(buffer))
+                buffer = []
+            blocks.append("[Table not available in CLI]")
 
-    clean = _RE_FILE_EMBED.sub("", clean)
-    clean = re.sub(r"^={2,6}\s*(.*?)\s*={2,6}$", "", clean, flags=re.MULTILINE)
-    clean = re.sub(r"<ref[^>]*>.*?</ref>", "", clean, flags=re.DOTALL)
-    clean = re.sub(r"<ref[^>]*/>", "", clean)
+        elif token.type == TokenType.LIST_ITEM:
+            cleaned = _clean_inline(token.value)
+            if cleaned:
+                buffer.append("• " + cleaned.lstrip("*#").strip())
 
-    # Preserve block quotations, then remove remaining templates
-    # iteratively to handle nesting (e.g., {{a|{{b}}}})
-    clean = re.sub(r"\{\{[Cc]itazione\|([^}]+)\}\}", r"\1", clean)
-    while re.search(r"\{\{[^{}]*\}\}", clean):
-        clean = re.sub(r"\{\{[^{}]*\}\}", "", clean)
+        elif token.type == TokenType.TEXT:
+            if buffer:
+                blocks.append("\n".join(buffer))
+                buffer = []
+            cleaned = _clean_inline(token.value)
+            if cleaned:
+                blocks.append(cleaned)
 
-    clean = re.sub(r"\[\[[^|\]]+\|([^\]]+)\]\]", r"\1", clean)
-    clean = re.sub(r"\[\[([^\]]+)\]\]", r"\1", clean)
-    clean = re.sub(r"'{2,5}", "", clean)
-
-    lines = [line.strip() for line in clean.strip().split("\n")]
-    cleaned_section = "\n".join([line for line in lines if line])
+    if buffer:
+        blocks.append("\n".join(buffer))
 
     return {
         "status": "found",
-        "section": cleaned_section,
+        "section": "\n\n".join(blocks),
         "_cached_at": response.get("_cached_at"),
     }
 
@@ -165,3 +166,30 @@ def parse_toc(response: dict[str, Any]) -> dict[str, Any]:
         "sections": sections,
         "_cached_at": response.get("_cached_at"),
     }
+
+
+def _clean_inline(text: str) -> str:
+    """Clean residual wikitext inline markup from a single token value.
+
+    Called after the lexer has already stripped multi-line refs and templates.
+    Handles inline refs and links that survive on a single line of text.
+    """
+
+    # Match and remove <ref> tags that may be left in the token value,
+    # which can occur if they open and close within the same line
+    text = re.sub(r"<ref[^>]*(?<!/)>.*?</ref>", "", text)
+    text = re.sub(r"<ref[^>]*/?>", "", text)
+
+    # Match and remove internal links, keeping the display text if present
+    text = re.sub(r"\[\[[^\]|]+\|([^\]]+)\]\]", r"\1", text)
+    text = re.sub(r"\[\[([^\]]+)\]\]", r"\1", text)
+
+    # Remove bold/italic markup
+    text = re.sub(r"'{2,5}", "", text)
+
+    # Remove any remaining HTML tags that may be present
+    text = re.sub(r"<[^>]+>", "", text)
+
+    text = " ".join(text.split())
+
+    return text.strip()

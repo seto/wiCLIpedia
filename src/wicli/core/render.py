@@ -190,7 +190,23 @@ def render_toc_not_found() -> str:
 
 
 def render_section(title: str, section: str, cached_at: float = None) -> str:
-    content = textwrap.fill(section, width=_get_width())
+    width = _get_width()
+
+    blocks = []
+    for block in section.split("\n\n"):
+        if block.startswith("•"):
+            # For list blocks, each item is wrapped separately with
+            # a hanging indent to align continuation lines under the text
+            items = block.split("\n")
+            wrapped = [
+                textwrap.fill(item, width=width, subsequent_indent="  ")
+                for item in items
+            ]
+            blocks.append("\n".join(wrapped))
+        else:
+            blocks.append(textwrap.fill(block, width=width))
+
+    content = "\n\n".join(blocks)
 
     output = f"""
 {_render_content_banner(cached_at)}
