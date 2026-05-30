@@ -30,8 +30,21 @@ import re
 
 from .nodes import Token, TokenType
 
-_TEMPLATES_KEEP_LAST = {"lang", "transl", "abbr", "nowrap", "as of"}
-_TEMPLATES_KEEP_FIRST = {"senza fonte", "citation needed", "cn", "blockquote", "quote", "cquote"}
+_TEMPLATES_KEEP_LAST = {
+    "abbr",
+    "as of",
+    "lang",
+    "nowrap",
+    "transl",
+}
+_TEMPLATES_KEEP_FIRST = {
+    "blockquote",
+    "citation needed",
+    "cn",
+    "cquote",
+    "quote",
+    "senza fonte",
+}
 
 
 def tokenize(wikitext: str) -> list[Token]:
@@ -109,7 +122,7 @@ def _strip_templates(text: str) -> str:
 
     Done on the full string before line splitting because templates can open
     inline mid-sentence and close several lines later.
-    
+
     For templates in `_TEMPLATES_KEEP_LAST`, the last parameter is kept as visible text.
     For templates in `_TEMPLATES_KEEP_FIRST`, the first parameter is kept instead.
 
