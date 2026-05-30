@@ -62,9 +62,16 @@ def parse_summary(response: dict[str, Any]) -> dict[str, Any]:
 
     extract = pages[0].get("extract", "")
 
+    if not extract:
+        return {"status": "missing"}
+
+    paragraphs = [
+        " ".join(block.split()) for block in extract.splitlines() if block.strip()
+    ]
+
     return {
         "status": "found",
-        "summary": extract,
+        "paragraphs": paragraphs,
         "_cached_at": response.get("_cached_at"),
     }
 

@@ -101,7 +101,7 @@ def main(argv=None):
                 api_summary = client.fetch_summary(target, lang=args.lang)
                 summary = parser.parse_summary(api_summary)
 
-                if not summary.get("summary"):
+                if not summary.get("paragraphs"):
                     print(render.render_summary_not_found(target))
                     target = None
                     continue
@@ -109,7 +109,7 @@ def main(argv=None):
                 print(
                     render.render_summary(
                         target,
-                        summary.get("summary"),
+                        summary.get("paragraphs"),
                         cached_at=summary.get("_cached_at"),
                     )
                 )

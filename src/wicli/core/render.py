@@ -118,15 +118,17 @@ def render_exit() -> str:
     return _style("Goodbye!", _GREEN, _BOLD)
 
 
-def render_summary(title: str, summary: str, cached_at: float = None) -> str:
-    content = textwrap.fill(summary, width=_get_width())
+def render_summary(title: str, paragraphs: list[str], cached_at: float = None) -> str:
+    width = _get_width()
+
+    summary = "\n\n".join(textwrap.fill(p, width=width) for p in paragraphs)
 
     output = f"""
 {_render_content_banner(cached_at)}
 
 {_style(title, _BOLD)}
 
-{_style(content, _ITALIC)}
+{_style(summary, _ITALIC)}
 """
 
     return output
