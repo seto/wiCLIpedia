@@ -35,7 +35,8 @@ For more details, run with `-h` or `--help`.
 import argparse
 import sys
 
-from .core import cache, client, parser, render
+from .core import cache, client, render
+from .parsing import parser
 
 
 def main(argv=None):
