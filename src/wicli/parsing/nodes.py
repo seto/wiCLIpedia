@@ -14,3 +14,30 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
+
+"""AST node definitions for the WiCLIpedia wikitext parser.
+
+Defines `TokenType`, the enum of all recognized wikitext constructs,
+and `Token`, the minimal unit produced by the lexer.
+"""
+
+from dataclasses import dataclass
+from enum import Enum, auto
+
+
+class TokenType(Enum):
+    FILE = auto()
+    HEADING = auto()
+    LINK = auto()
+    LIST_ITEM = auto()
+    NEWLINE = auto()
+    REF = auto()
+    TABLE = auto()
+    TEMPLATE = auto()
+    TEXT = auto()
+
+
+@dataclass
+class Token:
+    type: TokenType
+    value: str
