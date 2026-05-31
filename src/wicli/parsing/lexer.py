@@ -38,12 +38,14 @@ _TEMPLATES_KEEP_LAST = {
     "transl",
 }
 _TEMPLATES_KEEP_FIRST = {
-    "blockquote",
     "citation needed",
     "cn",
-    "cquote",
-    "quote",
     "senza fonte",
+}
+_BLOCKQUOTE_TEMPLATES = {
+    "blockquote",
+    "quote",
+    "cquote",
 }
 
 
@@ -144,8 +146,12 @@ def _strip_templates(text: str) -> str:
                 parts = inner.split("|")
                 name = parts[0].strip().lower()
 
-                if name in _TEMPLATES_KEEP_LAST and len(parts) > 1:
+                if name in _BLOCKQUOTE_TEMPLATES and len(parts) > 1:
+                    result.append(f"\x00BLOCKQUOTE\x00{parts[1].strip()}\x00")
+
+                elif name in _TEMPLATES_KEEP_LAST and len(parts) > 1:
                     result.append(parts[-1].strip())
+
                 elif name in _TEMPLATES_KEEP_FIRST and len(parts) > 1:
                     result.append(parts[1].strip())
 
@@ -197,5 +203,8 @@ def _classify_line(line: str) -> TokenType:
 
     if not stripped:
         return TokenType.NEWLINE
+
+    if stripped.startswith("\x00BLOCKQUOTE\x00"):
+        return TokenType.BLOCKQUOTE
 
     return TokenType.TEXT

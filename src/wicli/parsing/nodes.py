@@ -35,6 +35,7 @@ class TokenType(Enum):
     TABLE = auto()
     TEMPLATE = auto()
     TEXT = auto()
+    BLOCKQUOTE = auto()
 
 
 @dataclass
