@@ -33,6 +33,7 @@ class TokenType(Enum):
     LIST_ITEM = auto()
     NEWLINE = auto()
     REF = auto()
+    SUBHEADING = auto()
     TABLE = auto()
     TEMPLATE = auto()
     TEXT = auto()

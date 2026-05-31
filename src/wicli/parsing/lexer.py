@@ -174,6 +174,8 @@ def _classify_line(line: str) -> TokenType:
     """Classify a single wikitext line by its leading characters.
 
     Branch order matters:
+    - SUBHEADING (`===`) is checked before HEADING (`==`) to avoid
+      misclassifying deeper nesting levels.
     - HEADING (`==`) is checked before TEMPLATE (`{{`) because
       some section titles may contain template-like syntax.
     - TABLE (`{|`) is checked before TEMPLATE (`{{`) for the same reason.
@@ -182,6 +184,9 @@ def _classify_line(line: str) -> TokenType:
     """
 
     stripped = line.strip()
+
+    if stripped.startswith("==="):
+        return TokenType.SUBHEADING
 
     if stripped.startswith("=="):
         return TokenType.HEADING
