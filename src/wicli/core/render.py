@@ -194,7 +194,11 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
 
     blocks = []
     for block in section.split("\n\n"):
-        if block.startswith("\x00BLOCKQUOTE\x00"):
+        if block.startswith("\x00SUBHEADING\x00"):
+            text = block.replace("\x00SUBHEADING\x00", "").replace("\x00", "")
+            blocks.append(_style(text, _DIM))
+
+        elif block.startswith("\x00BLOCKQUOTE\x00"):
             quote = block.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
             quote = textwrap.fill(f"« {quote} »", width=width - 16)
             quote = textwrap.indent(quote, "      ")

@@ -103,6 +103,15 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
             if cleaned:
                 blocks.append(cleaned)
 
+        elif token.type == TokenType.SUBHEADING:
+            if buffer:
+                blocks.append("\n".join(buffer))
+                buffer = []
+
+            cleaned = _clean_inline(token.value.strip("=").strip())
+            if cleaned:
+                blocks.append(f"\x00SUBHEADING\x00{cleaned}\x00")
+
         elif token.type == TokenType.BLOCKQUOTE:
             if buffer:
                 blocks.append("\n".join(buffer))
