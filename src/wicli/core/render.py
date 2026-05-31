@@ -204,11 +204,13 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
             # For list blocks, each item is wrapped separately with
             # a hanging indent to align continuation lines under the text
             items = block.split("\n")
-            wrapped = [
-                textwrap.fill(item, width=width, subsequent_indent="  ")
-                for item in items
-            ]
-            blocks.append("\n".join(wrapped))
+            blocks.append(
+                "\n".join(
+                    textwrap.fill(item, width=width, subsequent_indent="  ")
+                    for item in items
+                )
+            )
+
         else:
             blocks.append(textwrap.fill(block, width=width))
 

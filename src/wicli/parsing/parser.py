@@ -196,12 +196,10 @@ def _clean_inline(text: str) -> str:
     text = re.sub(r"\[\[[^\]|]+\|([^\]]+)\]\]", r"\1", text)
     text = re.sub(r"\[\[([^\]]+)\]\]", r"\1", text)
 
-    # Remove bold/italic markup
+    # Remove bold/italic markup, any remaining HTML tags, and normalize
+    # whitespaces to single spaces
     text = re.sub(r"'{2,5}", "", text)
-
-    # Remove any remaining HTML tags that may be present
     text = re.sub(r"<[^>]+>", "", text)
-
     text = " ".join(text.split())
 
     return text.strip()

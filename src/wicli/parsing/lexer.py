@@ -192,13 +192,13 @@ def _classify_line(line: str) -> TokenType:
     if stripped.startswith("{{"):
         return TokenType.TEMPLATE
 
-    if stripped.startswith("*") or stripped.startswith("#"):
+    if stripped.startswith(("*", "#")):
         return TokenType.LIST_ITEM
 
     if stripped.startswith("<ref"):
         return TokenType.REF
 
-    if stripped.startswith("[[File:") or stripped.startswith("[[Image:"):
+    if stripped.startswith(("[[File:", "[[Image:")):
         return TokenType.FILE
 
     if not stripped:

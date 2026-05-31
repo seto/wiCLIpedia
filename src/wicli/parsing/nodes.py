@@ -26,6 +26,7 @@ from enum import Enum, auto
 
 
 class TokenType(Enum):
+    BLOCKQUOTE = auto()
     FILE = auto()
     HEADING = auto()
     LINK = auto()
@@ -35,7 +36,6 @@ class TokenType(Enum):
     TABLE = auto()
     TEMPLATE = auto()
     TEXT = auto()
-    BLOCKQUOTE = auto()
 
 
 @dataclass
