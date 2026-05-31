@@ -128,7 +128,7 @@ def render_summary(title: str, paragraphs: list[str], cached_at: float = None) -
 
 {_style(title, _BOLD)}
 
-{_style(summary, _ITALIC)}
+{summary}
 """
 
     return output
@@ -219,7 +219,7 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
 
 {_style(title, _BOLD)}
 
-{_style(content, _ITALIC)}
+{content}
 """
 
     return output
