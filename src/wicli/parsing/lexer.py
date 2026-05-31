@@ -178,7 +178,7 @@ def _classify_line(line: str) -> TokenType:
       misclassifying deeper nesting levels.
     - HEADING (`==`) is checked before TEMPLATE (`{{`) because
       some section titles may contain template-like syntax.
-    - TABLE (`{|`) is checked before TEMPLATE (`{{`) for the same reason.
+    - TABLE (`{|`, `|-`) is checked before TEMPLATE (`{{`) for the same reason.
     - FILE is checked explicitly because `[[File:...]]` would otherwise be
       classified as TEXT.
     """
@@ -191,7 +191,7 @@ def _classify_line(line: str) -> TokenType:
     if stripped.startswith("=="):
         return TokenType.HEADING
 
-    if stripped.startswith("{|"):
+    if stripped.startswith(("{|", "|-")):
         return TokenType.TABLE
 
     if stripped.startswith("{{"):
