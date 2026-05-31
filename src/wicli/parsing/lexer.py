@@ -206,10 +206,10 @@ def _classify_line(line: str) -> TokenType:
     if stripped.startswith(("[[File:", "[[Image:")):
         return TokenType.FILE
 
-    if not stripped:
-        return TokenType.NEWLINE
-
     if stripped.startswith("\x00BLOCKQUOTE\x00"):
         return TokenType.BLOCKQUOTE
+
+    if not stripped:
+        return TokenType.NEWLINE
 
     return TokenType.TEXT
