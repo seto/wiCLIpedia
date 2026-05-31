@@ -194,7 +194,13 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
 
     blocks = []
     for block in section.split("\n\n"):
-        if block.startswith("•"):
+        if block.startswith("\x00BLOCKQUOTE\x00"):
+            quote = block.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
+            quote = textwrap.fill(f"« {quote} »", width=width - 16)
+            quote = textwrap.indent(quote, "      ")
+            blocks.append(_style(quote, _ITALIC))
+
+        elif block.startswith("•"):
             # For list blocks, each item is wrapped separately with
             # a hanging indent to align continuation lines under the text
             items = block.split("\n")
