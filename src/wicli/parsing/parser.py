@@ -108,7 +108,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                 blocks.append("\n".join(buffer))
                 buffer = []
 
-            cleaned = _clean_inline(token.value.strip("=").strip())
+            cleaned = _clean_inline(token.value.strip().strip("="))
             if cleaned:
                 blocks.append(f"\x00SUBHEADING\x00{cleaned}\x00")
 
