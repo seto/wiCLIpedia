@@ -33,20 +33,41 @@ from .nodes import Token, TokenType
 _TEMPLATES_KEEP_LAST = {
     "abbr",
     "as of",
+    "cast listing",
+    "citation",
+    "date",
     "lang",
+    "langue",
     "nowrap",
     "transl",
+    "unité",
 }
 _TEMPLATES_KEEP_FIRST = {
+    "citation nécessaire",
     "citation needed",
     "cn",
+    "cr",
+    "cita requerida",
+    "référence nécessaire",
     "senza fonte",
 }
 _BLOCKQUOTE_TEMPLATES = {
     "blockquote",
+    "cita",
+    "citazione",
     "quote",
     "cquote",
+    "zitat",
 }
+_FILE_NAMESPACES = (
+    "[[Archivo:",
+    "[[Bild:",
+    "[[Datei:",
+    "[[Fichier:",
+    "[[File:",
+    "[[Image:",
+    "[[Immagine:",
+)
 
 
 def tokenize(wikitext: str) -> list[Token]:
@@ -147,7 +168,18 @@ def _strip_templates(text: str) -> str:
                 name = parts[0].strip().lower()
 
                 if name in _BLOCKQUOTE_TEMPLATES and len(parts) > 1:
-                    result.append(f"\x00BLOCKQUOTE\x00{parts[1].strip()}\x00")
+                    # Extract quote text handling language-specific variations
+                    # where blockquotes might use an explicit 'text=' parameter
+                    quote = next(
+                        (
+                            p.split("=", 1)[1].strip()
+                            for p in parts[1:]
+                            if p.strip().lower().startswith("text=")
+                        ),
+                        parts[1].strip() if len(parts) > 1 else "",
+                    )
+                    if quote:
+                        result.append(f"\x00BLOCKQUOTE\x00{quote}\x00")
 
                 elif name in _TEMPLATES_KEEP_LAST and len(parts) > 1:
                     result.append(parts[-1].strip())
@@ -203,7 +235,7 @@ def _classify_line(line: str) -> TokenType:
     if stripped.startswith("<ref"):
         return TokenType.REF
 
-    if stripped.startswith(("[[File:", "[[Image:")):
+    if stripped.startswith(_FILE_NAMESPACES):
         return TokenType.FILE
 
     if stripped.startswith("\x00BLOCKQUOTE\x00"):
