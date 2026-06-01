@@ -195,8 +195,9 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
     blocks = []
     for block in section.split("\n\n"):
         if block.startswith("\x00SUBHEADING\x00"):
-            text = block.replace("\x00SUBHEADING\x00", "").replace("\x00", "")
-            blocks.append(_style(text, _DIM))
+            subheading = block.replace("\x00SUBHEADING\x00", "").replace("\x00", "")
+            if subheading != title:
+                blocks.append(_style(subheading, _DIM))
 
         elif block.startswith("\x00BLOCKQUOTE\x00"):
             quote = block.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
