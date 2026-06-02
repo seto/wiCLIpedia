@@ -152,7 +152,11 @@ def _get(url: str) -> dict[str, Any]:
 
     try:
         with urlopen(req, timeout=5) as response:
-            data = response.read().decode("utf-8")
+            try:
+                return response.read().decode("utf-8")
+            
+            except json.JSONDecodeError as e:
+                raise RuntimeError(f"Invalid JSON response: {e}") from e
 
     except HTTPError as e:
         raise RuntimeError(f"HTTP error: {e.code} {e.reason}") from e
@@ -162,9 +166,3 @@ def _get(url: str) -> dict[str, Any]:
 
     except TimeoutError as e:
         raise RuntimeError("Request timed out.") from e
-
-    try:
-        return json.loads(data)
-
-    except json.JSONDecodeError as e:
-        raise RuntimeError(f"Invalid JSON response: {e}") from e

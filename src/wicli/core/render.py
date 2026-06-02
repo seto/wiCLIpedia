@@ -298,7 +298,7 @@ def _render_content_banner(cached_at: float) -> str:
     attribution = "© Wikipedia contributors ─ Content licensed under CC BY-SA 4.0"
 
     if cached_at:
-        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(float(cached_at)))
+        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(cached_at))
         fetch = f"Loaded from cache (as of {ts})."
     else:
         ts = time.strftime("%Y-%m-%d %H:%M:%S")
