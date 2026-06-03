@@ -30,6 +30,7 @@ found at the following docs page:
 
 import functools
 import json
+import time
 from importlib.metadata import version
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -41,6 +42,7 @@ from . import cache
 _USER_AGENT = f"wiclipedia/{version('wiclipedia')} (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
 _BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 _USE_CACHE = True
+_MAX_RETRIES = 3
 
 
 def disable_cache():
@@ -146,23 +148,41 @@ def fetch_section(page: str, section: int, lang: str = "en") -> dict[str, Any]:
 
 
 def _get(url: str) -> dict[str, Any]:
-    """Perform an HTTP GET request and return the parsed JSON response."""
+    """Perform an HTTP GET request and return the parsed JSON response.
+
+    Retries up to _MAX_RETRIES times on HTTP 429, honouring the Retry-After
+    header when present, and falling back to exponential backoff otherwise.
+    """
 
     req = Request(url, headers={"User-Agent": _USER_AGENT})
 
-    try:
-        with urlopen(req, timeout=5) as response:
-            try:
-                return response.read().decode("utf-8")
-            
-            except json.JSONDecodeError as e:
-                raise RuntimeError(f"Invalid JSON response: {e}") from e
+    for attempt in range(_MAX_RETRIES + 1):
+        try:
+            with urlopen(req, timeout=10) as response:
+                try:
+                    return json.loads(response.read().decode("utf-8"))
 
-    except HTTPError as e:
-        raise RuntimeError(f"HTTP error: {e.code} {e.reason}") from e
+                except json.JSONDecodeError as e:
+                    raise RuntimeError(f"Invalid JSON response: {e}") from e
 
-    except URLError as e:
-        raise RuntimeError(f"Network error: {e.reason}") from e
+        except HTTPError as e:
+            if e.code == 429 and attempt < _MAX_RETRIES:
+                retry_after = e.headers.get("Retry-After")
+                try:
+                    wait = float(retry_after) if retry_after else 3 ** (attempt + 1)
+                except ValueError:
+                    wait = 3 ** (attempt + 1)
 
-    except TimeoutError as e:
-        raise RuntimeError("Request timed out.") from e
+                time.sleep(wait)
+                continue
+
+            if e.code == 429:
+                raise RuntimeError("Too many requests. Please try again later.") from e
+
+            raise RuntimeError(f"HTTP error: {e.code} {e.reason}") from e
+
+        except URLError as e:
+            raise RuntimeError(f"Network error: {e.reason}") from e
+
+        except TimeoutError as e:
+            raise RuntimeError("Request timed out.") from e
