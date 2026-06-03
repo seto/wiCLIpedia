@@ -162,12 +162,14 @@ def render_toc(sections: list, cached_at: float = None) -> str:
         title = _style(section["line"], _BOLD) if lvl == 1 else section["line"]
         toc.append(f"{indent}{index}  {title}")
 
+    toc_str = "\n".join(toc)
+
     output = f"""
 {_render_content_banner(cached_at)}
 
 {_style("Available content for this page:", _BOLD)}
 
-{"\n".join(toc)}
+{toc_str}
 """
 
     return output
@@ -249,12 +251,14 @@ def render_disambiguation(options: list, cached_at: float = None) -> str:
         num = _style(str(f"{i:<{width}}"), _DIM)
         links.append(f"{num}  {page}")
 
+    links_str = "\n".join(links)
+
     output = f"""
 {_render_content_banner(cached_at)}
 
 {_style("This page is a disambiguation for the following options:", _BOLD)}
 
-{"\n".join(links)}
+{links_str}
 """
 
     return output
@@ -286,7 +290,8 @@ def _style(text: str, *styles) -> str:
     """Apply ANSI style codes to text, unless NO_COLOR is set."""
 
     if not _NO_COLOR:
-        return f"{"".join(styles)}{text}{_RESET}"
+        prefix = "".join(styles)
+        return f"{prefix}{text}{_RESET}"
 
     return text
 
