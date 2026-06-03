@@ -116,7 +116,7 @@ def purge() -> int:
         return cursor.rowcount
 
     except Exception:
-        pass
+        return 0
 
     finally:
         conn.close()

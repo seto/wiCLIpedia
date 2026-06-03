@@ -38,6 +38,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from . import cache
+from .exceptions import WicliAPIError, WicliNetworkError
 
 _USER_AGENT = f"wiclipedia/{version('wiclipedia')} (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
 _BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
@@ -163,7 +164,7 @@ def _get(url: str) -> dict[str, Any]:
                     return json.loads(response.read().decode("utf-8"))
 
                 except json.JSONDecodeError as e:
-                    raise RuntimeError(f"Invalid JSON response: {e}") from e
+                    raise WicliAPIError(f"Invalid JSON response: {e}") from e
 
         except HTTPError as e:
             if e.code == 429 and attempt < _MAX_RETRIES:
@@ -177,12 +178,12 @@ def _get(url: str) -> dict[str, Any]:
                 continue
 
             if e.code == 429:
-                raise RuntimeError("Too many requests. Please try again later.") from e
+                raise WicliAPIError("Too many requests. Please try again later.") from e
 
-            raise RuntimeError(f"HTTP error: {e.code} {e.reason}") from e
+            raise WicliAPIError(f"HTTP error: {e.code} {e.reason}") from e
 
         except URLError as e:
-            raise RuntimeError(f"Network error: {e.reason}") from e
+            raise WicliNetworkError(f"Network error: {e.reason}") from e
 
         except TimeoutError as e:
-            raise RuntimeError("Request timed out.") from e
+            raise WicliNetworkError("Request timed out.") from e

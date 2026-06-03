@@ -36,6 +36,7 @@ import argparse
 import sys
 
 from .core import cache, client, render
+from .core.exceptions import WicliAPIError, WicliNetworkError
 from .parsing import parser
 
 
@@ -220,9 +221,20 @@ def main(argv=None):
             else:
                 raise RuntimeError(f"Unexpected page status: {props['status']}")
 
+    except WicliAPIError as e:
+        print(f"API error: {e}", file=sys.stderr)
+        return 1
+
+    except WicliNetworkError as e:
+        print(f"Network error: {e}", file=sys.stderr)
+        return 1
+
     except RuntimeError as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
         return 2
+
+    except EOFError:
+        print(render.render_user_cancelled())
 
     except KeyboardInterrupt:
         print(render.render_user_cancelled())
