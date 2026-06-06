@@ -17,7 +17,8 @@ def test(ctx):
 @task
 def clean(ctx):
     print("Cleaning...")
-    ctx.run("rm -rf dist/ build/ *.egg-info .pytest_cache")
+    ctx.run("rm -rf dist/ build/ .pytest_cache")
+    ctx.run('find . -name "*.egg-info" -type d -exec rm -r {} +')
     ctx.run('find . -name "__pycache__" -type d -exec rm -r {} +')
     print("Done!")
 
