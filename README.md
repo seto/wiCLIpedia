@@ -1,8 +1,9 @@
 # WiCLIpedia
 
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0+-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/pypi/v/wiclipedia.svg?maxAge=86400)](https://pypi.org/project/wiclipedia/)
+[![Version](https://img.shields.io/pypi/v/wiclipedia.svg?maxAge=86400&color=blue)](https://pypi.org/project/wiclipedia/)
 [![Supported Versions](https://img.shields.io/pypi/pyversions/wiclipedia.svg)](https://pypi.org/project/wiclipedia)
+[![CI](https://github.com/seto/wiCLIpedia/actions/workflows/ci.yml/badge.svg)](https://github.com/seto/wiCLIpedia/actions/workflows/ci.yml/)
 [![Code Style: Black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/psf/black)
 
 This is a minimalist command line interface (CLI) program to fetch and display data from Wikipedia.
