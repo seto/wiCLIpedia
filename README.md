@@ -10,6 +10,14 @@ This is a minimalist command line interface (CLI) program to fetch and display d
 
 _In an era where Artificial Intelligence answers everything and large language models shape our knowledge, this program is a small tribute to Wikipedia, the silent, human-curated backbone that feeds those very models. Never forget the source._
 
+---
+
+<p align="center">
+  <img src="https://vhs.charm.sh/vhs-7KOuqmKO57GVzOLWjePhFF.gif" width="800" alt="Demo">
+</p>
+
+---
+
 ## Features
 
 - Fetches and displays article summaries and table of contents
