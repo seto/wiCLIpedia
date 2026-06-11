@@ -107,7 +107,7 @@ def render_not_found(page: str, lang: str) -> str:
 
 
 def render_invalid_choice() -> str:
-    return _style("Invalid choice. Enter a valid number.", _YELLOW)
+    return _style("Invalid choice. Enter a valid value.", _YELLOW)
 
 
 def render_user_cancelled() -> str:
@@ -256,8 +256,6 @@ def render_disambiguation(options: list, cached_at: float = None) -> str:
 
 {links_str}
 """
-
-    return output
 
 
 def render_disambiguation_redirect(page: str) -> str:
