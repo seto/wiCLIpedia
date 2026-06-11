@@ -114,65 +114,71 @@ def main(argv=None):
                         cached_at=summary.get("_cached_at"),
                     )
                 )
-                print(render.render_toc_prompt(), end="")
 
-                choice = input().strip()
-                if choice.lower() == "y":
-                    raw_toc = client.fetch_toc(target, lang=args.lang)
-                    parsed_tocdata = parser.parse_toc(raw_toc)
+                while True:
+                    print(render.render_toc_prompt(), end="")
+                    choice = input().strip()
 
-                    if not parsed_tocdata.get("sections"):
-                        print(render.render_toc_not_found())
-                        target = None
-                        continue
+                    if choice.lower() in ("n", ":b", ":q"):
+                        break
 
-                    print(
-                        render.render_toc(
-                            parsed_tocdata.get("sections"),
-                            cached_at=parsed_tocdata.get("_cached_at"),
-                        )
-                    )
+                    if choice.lower() == "y":
+                        raw_toc = client.fetch_toc(target, lang=args.lang)
+                        parsed_tocdata = parser.parse_toc(raw_toc)
 
-                    toc_map = {
-                        s["number"]: {"index": s["index"], "line": s["line"]}
-                        for s in parsed_tocdata["sections"]
-                    }
-                    while True:
-                        print(render.render_toc_navigation_prompt(), end="")
-                        choice = input().strip()
-
-                        if choice.lower() == ":q":
-                            break
-
-                        if choice.lower() == ":b":
+                        if not parsed_tocdata.get("sections"):
+                            print(render.render_toc_not_found())
                             target = None
-                            break
-
-                        if choice in toc_map:
-                            index = toc_map[choice]["index"]
-                            title = toc_map[choice]["line"]
-                            api_section = client.fetch_section(
-                                target, section=index, lang=args.lang
-                            )
-                            section = parser.parse_section(api_section)
-
-                            if not section.get("section"):
-                                print(render.render_section_not_found(title))
-                                continue
-
-                            print(
-                                render.render_section(
-                                    title,
-                                    section.get("section"),
-                                    cached_at=section.get("_cached_at"),
-                                )
-                            )
                             continue
 
-                        print(render.render_invalid_choice())
+                        print(
+                            render.render_toc(
+                                parsed_tocdata.get("sections"),
+                                cached_at=parsed_tocdata.get("_cached_at"),
+                            )
+                        )
 
-                elif choice.lower() not in (":b", ":q", "n"):
-                    print(render.render_toc_skip())
+                        toc_map = {
+                            s["number"]: {"index": s["index"], "line": s["line"]}
+                            for s in parsed_tocdata["sections"]
+                        }
+
+                        while True:
+                            print(render.render_toc_navigation_prompt(), end="")
+                            choice = input().strip()
+
+                            if choice.lower() in (":b", ":q"):
+                                break
+
+                            if choice in toc_map:
+                                index = toc_map[choice]["index"]
+                                title = toc_map[choice]["line"]
+                                api_section = client.fetch_section(
+                                    target, section=index, lang=args.lang
+                                )
+                                section = parser.parse_section(api_section)
+
+                                if not section.get("section"):
+                                    print(render.render_section_not_found(title))
+                                    continue
+
+                                print(
+                                    render.render_section(
+                                        title,
+                                        section.get("section"),
+                                        cached_at=section.get("_cached_at"),
+                                    )
+                                )
+                                continue
+
+                            print(render.render_invalid_choice())
+
+                        break
+
+                    print(render.render_invalid_choice())
+
+                if choice.lower() == ":q":
+                    break
 
                 target = None
                 continue

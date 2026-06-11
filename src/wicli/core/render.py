@@ -142,10 +142,6 @@ def render_toc_prompt() -> str:
     return _style("Do you want to see the table of contents? (y/n): ", _CYAN)
 
 
-def render_toc_skip() -> str:
-    return _style("Invalid choice. Skipping table of contents.", _YELLOW)
-
-
 def render_toc(sections: list, cached_at: float = None) -> str:
     # Map each tocLevel to the maximum number width at that level,
     # used to align section numbers consistently within each level
