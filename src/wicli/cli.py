@@ -67,8 +67,11 @@ def main(argv=None):
     print(render.render_welcome())
 
     try:
-        # Main loop to handle redirects, section navigation, and disambiguation choices,
-        # until a page and its content is successfully retrieved or the user exits
+        # Main command-line loop (REPL)
+        # State driving:
+        # - If `target` is None: prompt the user for a new search page
+        # - If `target` is set: resolve the page title and dispatch to the
+        #   corresponding handler based on its status (found, redirect, disambiguation)
         while True:
             if choice and choice.lower() == ":q":
                 break
@@ -115,6 +118,8 @@ def main(argv=None):
                     )
                 )
 
+                # TOC prompt loop: Keeps asking until a valid choice (y/n)
+                # or a navigation command (:b/:q) is entered
                 while True:
                     print(render.render_toc_prompt(), end="")
                     choice = input().strip()
@@ -143,6 +148,8 @@ def main(argv=None):
                             for s in parsed_tocdata["sections"]
                         }
 
+                        # Section navigation loop: Allows the user to repeatedly
+                        # view different sections of the current page until exiting
                         while True:
                             print(render.render_toc_navigation_prompt(), end="")
                             choice = input().strip()
