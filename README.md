@@ -78,7 +78,7 @@ Use `--no-cache` to bypass it for a session, or `--purge` to clear it entirely.
 ANSI colors and styles are enabled by default.  
 Set the `NO_COLOR` environment variable to disable them (see [no-color.org](https://no-color.org)).
 
-## API Respect & Fair Use Disclaimer
+## API Respect and Fair Use Disclaimer
 
 WiCLIpedia interfaces directly with the official Wikipedia PHP/MediaWiki APIs without using any third-party scraping libraries.  
 Please use this program responsibly. If you need to perform massive automated data extraction, use official database dumps instead of hammering the live API.
