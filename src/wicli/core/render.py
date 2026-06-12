@@ -52,17 +52,27 @@ def render_welcome() -> str:
     width = _get_width()
     separator = "─" * width
 
-    logo = rf"""{separator}
-                               _ ________    ____               ___      
-                     _      __(_) ____/ /   /  _/___  ___  ____/ (_)___ _
-                    | | /| / / / /   / /    / // __ \/ _ \/ __  / / __ `/
-                    | |/ |/ / / /___/ /____/ // /_/ /  __/ /_/ / / /_/ / 
-                    |__/|__/_/\____/_____/___/ .___/\___/\__,_/_/\__,_/  
-                                            /_/                                               
-{separator}"""
+    logo = (
+        rf"""
+               _ ________    ____               ___      
+     _      __(_) ____/ /   /  _/___  ___  ____/ (_)___ _
+    | | /| / / / /   / /    / // __ \/ _ \/ __  / / __ `/
+    | |/ |/ / / /___/ /____/ // /_/ /  __/ /_/ / / /_/ / 
+    |__/|__/_/\____/_____/___/ .___/\___/\__,_/_/\__,_/  
+                            /_/                          
+"""
+        # Fallback to simple text if terminal is 
+        # narrower than the 58-char ASCII logo
+        if width >= 58
+        else "\nwiCLIpedia\n"
+    )
+
+    logo = "\n".join(
+        line.center(width) if line.strip() else "" for line in logo.split("\n")
+    )
 
     message = f"""
-{_style(logo, _PURPLE, _BOLD) if width >= 72 else ""}
+{_style(f"{separator}{logo}{separator}", _PURPLE, _BOLD)}
 
 {_style("Welcome to WiCLIpedia! Your command-line gateway to Wikipedia content.", _BOLD)}
 
