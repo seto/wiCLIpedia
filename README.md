@@ -25,7 +25,9 @@ _In an era where Artificial Intelligence answers everything and large language m
 - Fetches and displays article summaries and table of contents
 - Navigates article sections interactively
 - Handles redirects and disambiguation pages automatically
-- Supports multiple languages (tested mainly English and Italian)
+- Supports multiple Wikipedia languages
+- Caches responses locally to minimize API calls
+- ANSI colors and styles for enhanced readability (can be disabled)
 
 ## Installation
 
