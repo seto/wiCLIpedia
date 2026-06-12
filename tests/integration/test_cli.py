@@ -183,6 +183,109 @@ class TestErrorHandling:
         assert result == 0
         mock.assert_called_with("Python", lang="it")
 
+    def test_runtime_error_exits_2(self):
+        with patch(
+            "wicli.cli.client.fetch_props",
+            side_effect=RuntimeError("unexpected"),
+        ):
+            result = main(["Python"])
+        assert result == 2
+
+
+class TestNoCache:
+    def test_no_cache_flag_calls_disable_cache(self):
+        with patch("wicli.cli.client.disable_cache") as mock_disable:
+            with patch("wicli.cli.client.fetch_props", return_value=_props_found()):
+                with patch("wicli.cli.client.fetch_summary", return_value=_summary()):
+                    with patch("builtins.input", side_effect=["n", ":q"]):
+                        result = main(["Python", "--no-cache"])
+        assert result == 0
+        mock_disable.assert_called_once()
+
+
+class TestTitleFallback:
+    def test_fallback_to_title_case(self):
+        # First call (raw input) → missing, second call (title-cased) → found
+        with patch(
+            "wicli.cli.client.fetch_props",
+            side_effect=[_props_missing(), _props_found()],
+        ):
+            with patch("wicli.cli.client.fetch_summary", return_value=_summary()):
+                with patch("builtins.input", side_effect=["n", ":q"]):
+                    result = main(["python"])
+        assert result == 0
+
+
+class TestEdgeCases:
+    def test_empty_summary_prompts_again(self):
+        with patch("wicli.cli.client.fetch_props", return_value=_props_found()):
+            with patch(
+                "wicli.cli.client.fetch_summary",
+                return_value={"query": {"pages": [{"extract": ""}]}},
+            ):
+                with patch("builtins.input", side_effect=[":q"]):
+                    result = main(["Python"])
+        assert result == 0
+
+    def test_toc_not_found_goes_back(self):
+        with patch("wicli.cli.client.fetch_props", return_value=_props_found()):
+            with patch("wicli.cli.client.fetch_summary", return_value=_summary()):
+                with patch(
+                    "wicli.cli.client.fetch_toc",
+                    return_value={"parse": {"tocdata": {"sections": []}}},
+                ):
+                    # y → fetch TOC (empty) → back to prompt → :q
+                    with patch("builtins.input", side_effect=["y", ":q"]):
+                        result = main(["Python"])
+        assert result == 0
+
+    def test_section_not_found_continues(self):
+        with patch("wicli.cli.client.fetch_props", return_value=_props_found()):
+            with patch("wicli.cli.client.fetch_summary", return_value=_summary()):
+                with patch("wicli.cli.client.fetch_toc", return_value=_toc()):
+                    with patch(
+                        "wicli.cli.client.fetch_section",
+                        return_value={"parse": {"wikitext": ""}},
+                    ):
+                        # y → TOC | 1 → empty section | :b → back | :q
+                        with patch(
+                            "builtins.input", side_effect=["y", "1", ":b", ":q"]
+                        ):
+                            result = main(["Python"])
+        assert result == 0
+
+    def test_invalid_toc_prompt_choice_then_quit(self):
+        with patch("wicli.cli.client.fetch_props", return_value=_props_found()):
+            with patch("wicli.cli.client.fetch_summary", return_value=_summary()):
+                # x → invalid choice in y/n prompt | :q
+                with patch("builtins.input", side_effect=["x", ":q"]):
+                    result = main(["Python"])
+        assert result == 0
+
+    def test_disambiguation_no_options_goes_back(self):
+        with patch(
+            "wicli.cli.client.fetch_props", return_value=_props_disambiguation()
+        ):
+            with patch(
+                "wicli.cli.client.fetch_disambiguation",
+                return_value={"parse": {"wikitext": "no links here"}},
+            ):
+                with patch("builtins.input", side_effect=[":q"]):
+                    result = main(["Blade Runner"])
+        assert result == 0
+
+    def test_unknown_status_raises_runtime_error(self):
+        with patch(
+            "wicli.cli.client.fetch_props",
+            return_value={"query": {"pages": [{"pageprops": {"wikibase_item": "Q1"}}]}},
+        ):
+            with patch(
+                "wicli.cli.parser.parse_props",
+                return_value={"status": "spam and eggs"},
+            ):
+                result = main(["Python"])
+        assert result == 2
+
 
 def _props_found():
     return {"query": {"pages": [{"pageprops": {"wikibase_item": "Q1"}}]}}

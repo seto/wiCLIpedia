@@ -58,3 +58,11 @@ target-version = ["py311", "py312", "py313", "py314"]
 [tool.isort]
 profile = "black"
 line_length = 88
+
+[tool.coverage.run]
+omit = ["src/wicli/__main__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if __name__ == \\\"__main__\\\":",
+]

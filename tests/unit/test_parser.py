@@ -217,3 +217,54 @@ class TestParseDisambiguation:
         }
         result = parse_disambiguation(response)
         assert result["options"][0]["page"] == "Python (language)"
+
+
+class TestParseSectionTokenTypes:
+    def test_list_items_prefixed_with_bullet(self):
+        response = {"parse": {"wikitext": "* First item\n* Second item"}}
+        result = parse_section(response)
+        assert result["status"] == "found"
+        assert "• First item" in result["section"]
+        assert "• Second item" in result["section"]
+
+    def test_blockquote_template_preserved(self):
+        # The lexer converts {{quote|text}} into a BLOCKQUOTE token
+        response = {"parse": {"wikitext": "{{quote|To be or not to be.}}"}}
+        result = parse_section(response)
+        assert result["status"] == "found"
+        assert "To be or not to be." in result["section"]
+
+    def test_list_buffer_flushed_before_text(self):
+        # List items followed by a text block — buffer must be flushed first
+        wikitext = "* Item one\n* Item two\n\nFollowing paragraph."
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert "• Item one" in result["section"]
+        assert "Following paragraph." in result["section"]
+
+    def test_list_buffer_flushed_at_end(self):
+        # List items at the very end of the wikitext — flushed after the loop
+        response = {"parse": {"wikitext": "* Only item"}}
+        result = parse_section(response)
+        assert "• Only item" in result["section"]
+
+    def test_subheading_flushes_preceding_list(self):
+        wikitext = "* List item\n=== Sub ==="
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert "• List item" in result["section"]
+        assert "Sub" in result["section"]
+
+    def test_blockquote_flushes_preceding_list(self):
+        wikitext = "* List item\n{{quote|A quote.}}"
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert "• List item" in result["section"]
+        assert "A quote." in result["section"]
+
+    def test_table_flushes_preceding_list(self):
+        wikitext = "* List item\n{|\n| cell\n|}"
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert "• List item" in result["section"]
+        assert "[Table not available in CLI]" in result["section"]

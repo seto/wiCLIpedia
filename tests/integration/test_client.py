@@ -4,6 +4,7 @@ from urllib.error import HTTPError, URLError
 
 import pytest
 
+import wicli.core.client as client_module
 from wicli.core.client import _get
 from wicli.core.exceptions import WicliAPIError, WicliNetworkError
 
@@ -97,6 +98,97 @@ class TestRetryLogic:
             with patch("wicli.core.client.time.sleep"):
                 result = _get("http://example.com")
         assert result == {"ok": True}
+
+
+class TestCachedDecorator:
+    def setup_method(self):
+        # Restore _USE_CACHE to True before each test
+        client_module._USE_CACHE = True
+
+    def teardown_method(self):
+        client_module._USE_CACHE = True
+
+    def test_cache_miss_calls_fn_and_saves(self):
+        api_data = {"query": {"pages": [{"extract": "Hello."}]}}
+        with patch("wicli.core.client.cache.load", return_value=None) as mock_load:
+            with patch("wicli.core.client.cache.save") as mock_save:
+                with patch(
+                    "wicli.core.client.urlopen",
+                    return_value=_mock_response(api_data),
+                ):
+                    result = client_module.fetch_summary("Python", lang="en")
+        mock_load.assert_called_once_with("Python", "en", "summary")
+        mock_save.assert_called_once_with("Python", "en", "summary", api_data)
+        assert result == api_data
+
+    def test_cache_hit_returns_cached_without_http(self):
+        cached_data = {"query": {"pages": [{"extract": "Cached."}]}, "_cached_at": 1.0}
+        with patch("wicli.core.client.cache.load", return_value=cached_data):
+            with patch("wicli.core.client.urlopen") as mock_urlopen:
+                result = client_module.fetch_summary("Python", lang="en")
+        mock_urlopen.assert_not_called()
+        assert result == cached_data
+
+    def test_section_cache_key_includes_section_number(self):
+        api_data = {"parse": {"wikitext": "Section text."}}
+        with patch("wicli.core.client.cache.load", return_value=None) as mock_load:
+            with patch("wicli.core.client.cache.save"):
+                with patch(
+                    "wicli.core.client.urlopen",
+                    return_value=_mock_response(api_data),
+                ):
+                    client_module.fetch_section("Python", section=3, lang="en")
+        mock_load.assert_called_once_with("Python", "en", "section_3")
+
+    def test_disable_cache_bypasses_cache(self):
+        client_module.disable_cache()
+        api_data = {"query": {"pages": [{"extract": "Live."}]}}
+        with patch("wicli.core.client.cache.load") as mock_load:
+            with patch("wicli.core.client.cache.save") as mock_save:
+                with patch(
+                    "wicli.core.client.urlopen",
+                    return_value=_mock_response(api_data),
+                ):
+                    result = client_module.fetch_summary("Python", lang="en")
+        mock_load.assert_not_called()
+        mock_save.assert_not_called()
+        assert result == api_data
+
+
+class TestFetchFunctions:
+    """Tests that exercise the HTTP request body of each fetch_* function."""
+
+    def setup_method(self):
+        client_module._USE_CACHE = True
+
+    def teardown_method(self):
+        client_module._USE_CACHE = True
+
+    def test_fetch_props_makes_http_call(self):
+        api_data = {"query": {"pages": [{"pageprops": {}}]}}
+        with patch("wicli.core.client.urlopen", return_value=_mock_response(api_data)):
+            result = client_module.fetch_props("Python", lang="en")
+        assert result == api_data
+
+    def test_fetch_disambiguation_cache_miss_makes_http_call(self):
+        api_data = {"parse": {"wikitext": "* [[Page A]]"}}
+        with patch("wicli.core.client.cache.load", return_value=None):
+            with patch("wicli.core.client.cache.save"):
+                with patch(
+                    "wicli.core.client.urlopen", return_value=_mock_response(api_data)
+                ):
+                    result = client_module.fetch_disambiguation("Python", lang="en")
+        assert result == api_data
+
+    def test_fetch_toc_cache_miss_makes_http_call(self):
+        api_data = {"parse": {"tocdata": {"sections": []}}}
+        with patch("wicli.core.client.cache.load", return_value=None):
+            with patch("wicli.core.client.cache.save"):
+                with patch(
+                    "wicli.core.client.urlopen", return_value=_mock_response(api_data)
+                ):
+                    result = client_module.fetch_toc("Python", lang="en")
+        assert result == api_data
 
 
 def _mock_response(data: dict) -> MagicMock:

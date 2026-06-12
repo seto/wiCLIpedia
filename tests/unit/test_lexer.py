@@ -1,4 +1,4 @@
-from wicli.parsing.lexer import tokenize
+from wicli.parsing.lexer import _classify_line, tokenize
 from wicli.parsing.nodes import TokenType
 
 
@@ -109,3 +109,32 @@ def test_mixed_content():
     types = [t.type for t in tokens]
     assert TokenType.HEADING not in types
     assert types.count(TokenType.TEXT) == 2
+
+
+def test_empty_line_in_middle_discarded():
+    # An empty line between two content lines should be classified as NEWLINE
+    # and silently discarded
+    tokens = tokenize("First line.\n\nSecond line.")
+    assert len(tokens) == 2
+    assert all(t.type == TokenType.TEXT for t in tokens)
+
+
+class TestClassifyLine:
+    """Direct tests for _classify_line covering branches unreachable via tokenize.
+
+    TEMPLATE and REF are pre-stripped by _strip_templates / _strip_refs before
+    tokenize reaches _classify_line, so they can only be exercised by calling
+    _classify_line directly.
+    """
+
+    def test_template_line(self):
+        assert _classify_line("{{some template}}") == TokenType.TEMPLATE
+
+    def test_ref_line(self):
+        assert _classify_line("<ref name='x'>citation</ref>") == TokenType.REF
+
+    def test_newline_empty_string(self):
+        assert _classify_line("") == TokenType.NEWLINE
+
+    def test_newline_whitespace_only(self):
+        assert _classify_line("   ") == TokenType.NEWLINE
