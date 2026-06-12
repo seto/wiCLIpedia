@@ -235,7 +235,9 @@ def render_section_not_found(title: str) -> str:
 
 
 def render_disambiguation(options: list, cached_at: float = None) -> str:
-    width = len(str(len(options)))
+    width = _get_width()
+    pad = len(str(len(options)))
+    indent = " " * (pad + 2)
 
     links = []
     for i, option in enumerate(options, start=1):
@@ -244,8 +246,9 @@ def render_disambiguation(options: list, cached_at: float = None) -> str:
             if option["desc"]
             else _style(option["page"], _BOLD)
         )
-        num = _style(str(f"{i:<{width}}"), _DIM)
-        links.append(f"{num}  {page}")
+        wrapped = textwrap.fill(page, width=width, subsequent_indent=indent)
+        num = _style(str(f"{i:<{pad}}"), _DIM)
+        links.append(f"{num}  {wrapped}")
 
     links_str = "\n".join(links)
 
@@ -256,6 +259,8 @@ def render_disambiguation(options: list, cached_at: float = None) -> str:
 
 {links_str}
 """
+
+    return output
 
 
 def render_disambiguation_redirect(page: str) -> str:
