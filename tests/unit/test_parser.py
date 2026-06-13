@@ -218,6 +218,14 @@ class TestParseDisambiguation:
         result = parse_disambiguation(response)
         assert result["options"][0]["page"] == "Python (language)"
 
+    def test_desc_combines_before_and_after(self):
+        # Text both before and after the link — desc should merge both parts
+        response = {"parse": {"wikitext": "* Foo, a [[Bar]] in Baz"}}
+        result = parse_disambiguation(response)
+        assert result["options"][0]["page"] == "Bar"
+        assert "Foo" in result["options"][0]["desc"]
+        assert "in Baz" in result["options"][0]["desc"]
+
 
 class TestParseSectionTokenTypes:
     def test_list_items_prefixed_with_bullet(self):
