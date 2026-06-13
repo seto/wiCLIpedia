@@ -144,18 +144,28 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
         if line.strip().startswith(("*", "'''"))
     ]
 
-    # Match [[Page Title|optional alias]] and extract title and description,
-    # two passes: first to extract the page title, then to clean the description
     links = []
     for line in lines:
         stripped = re.sub(r"('{2,5}|\*|{{.*?}})", "", line).strip()
-        match = re.search(r"\[\[(.*?)(?:\|.*?)?\]\]", stripped)
+
+        # Prefer [[Page|alias]] over [[Page]] when extracting the page title,
+        # so that links with display text don't show the alias as the title
+        match = re.search(r"\[\[([^\]|]+)\|[^\]]*\]\]", stripped) or re.search(
+            r"\[\[([^\]]+)\]\]", stripped
+        )
 
         if match:
-            title = match.group(1).strip()
-            desc = re.sub(r"\[\[(?:.*?\|)?(.*?)\]\]", r"\1", stripped)
-            desc = re.sub(r"\[\[(.*?)\]\]", r"\1", desc)
-            desc = desc.replace(title, "").strip(" –-,")
+            title = match.group(1).split("#")[0].strip()
+            before = _clean_inline(stripped[: match.start()]).strip(" –-,")
+            after = _clean_inline(stripped[match.end() :]).strip(" –-,")
+
+            # Reverse order: after comes first to preserve natural
+            # reading flow when the link appears mid-line or at the end
+            if before and after:
+                desc = f"{after}, {before}"
+            else:
+                desc = after or before
+
             links.append({"page": title, "desc": desc})
 
     return {
