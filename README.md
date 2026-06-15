@@ -15,7 +15,7 @@ _In an era where Artificial Intelligence answers everything and large language m
 ---
 
 <p align="center">
-  <img src="https://vhs.charm.sh/vhs-1kU7XfTun66INYj4DY0zGZ.gif" width="600" alt="Demo">
+  <img src="https://github.com/user-attachments/assets/e586fd5b-7d1e-444d-92fa-deebc72c7429" width="600" alt="Demo" />
 </p>
 
 ---
