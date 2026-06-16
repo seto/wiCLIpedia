@@ -8,14 +8,17 @@
   <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code_style-black-000000.svg" alt="Code Style: Black"></a>
 </p>
 
-This is a minimalist command line interface (CLI) program to fetch and display data from Wikipedia.
+This is a minimalist command line interface (CLI) program to fetch and display data from
+Wikipedia.
 
-_In an era where Artificial Intelligence answers everything and large language models shape our knowledge, this program is a small tribute to Wikipedia, the silent, human-curated backbone that feeds those very models. Never forget the source._
+_In an era where Artificial Intelligence answers everything and large language models
+shape our knowledge, this program is a small tribute to Wikipedia, the silent,
+human-curated backbone that feeds those very models. Never forget the source._
 
 ---
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e586fd5b-7d1e-444d-92fa-deebc72c7429" width="600" alt="Demo" />
+  <img src="https://github.com/user-attachments/assets/e586fd5b-7d1e-444d-92fa-deebc72c7429" width="600" alt="Demo">
 </p>
 
 ---
@@ -46,7 +49,8 @@ If no page title is provided, the program will prompt you to enter one interacti
 You will be interactively prompted to navigate through the article summary sections.  
 To navigate, use the section numbers shown in the table of contents.
 
-If the query matches a disambiguation page, you will be prompted to select the intended article from a list of options.
+If the query matches a disambiguation page, you will be prompted to select the intended
+article from a list of options.
 
 By default, it fetches the English Wikipedia.  
 To specify a different language, use the `-l` or `--lang` option:
@@ -78,14 +82,18 @@ Use `--no-cache` to bypass it for a session, or `--purge` to clear it entirely.
 ## Display
 
 ANSI colors and styles are enabled by default.  
-Set the `NO_COLOR` environment variable to disable them (see [no-color.org](https://no-color.org)).
+Set the `NO_COLOR` environment variable to disable them (see
+[no-color.org](https://no-color.org)).
 
 ## API Respect and Fair Use Disclaimer
 
-WiCLIpedia interfaces directly with the official Wikipedia PHP/MediaWiki APIs without using any third-party scraping libraries.  
-Please use this program responsibly. If you need to perform massive automated data extraction, use official database dumps instead of hammering the live API.
+WiCLIpedia interfaces directly with the official Wikipedia PHP/MediaWiki APIs without
+using any third-party scraping libraries.  
+Please use this program responsibly. If you need to perform massive automated data
+extraction, use official database dumps instead of hammering the live API.
 
-WiCLIpedia caches responses locally for 72 hours by default to minimize API load. Check the [Cache](#cache) section for details.
+WiCLIpedia caches responses locally for 72 hours by default to minimize API load. Check
+the [Cache](#cache) section for details.
 
 More information about the MediaWiki API and usage guidelines:
 
@@ -94,5 +102,7 @@ More information about the MediaWiki API and usage guidelines:
 
 ## License
 
-This program is licensed under the [GNU Affero General Public License v3.0 or later](https://www.gnu.org/licenses/agpl-3.0.html) (AGPL-3.0+).  
+This program is licensed under the
+[GNU Affero General Public License v3.0 or later](https://www.gnu.org/licenses/agpl-3.0.html)
+(AGPL-3.0+).  
 See the [LICENSE](LICENSE) file for details.
