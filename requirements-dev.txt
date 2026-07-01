@@ -4,24 +4,32 @@
 #
 #    pip-compile requirements-dev.in
 #
+backports-tarfile==1.2.0
+    # via jaraco-context
 black==26.5.1
     # via -r requirements-dev.in
 build==1.5.0
     # via -r requirements-dev.in
 certifi==2026.5.20
     # via requests
+cffi==2.0.0
+    # via cryptography
 charset-normalizer==3.4.7
     # via requests
 click==8.4.1
     # via black
 coverage[toml]==7.14.1
     # via pytest-cov
+cryptography==49.0.0
+    # via secretstorage
 docutils==0.23
     # via readme-renderer
 id==1.6.1
     # via twine
 idna==3.18
     # via requests
+importlib-metadata==9.0.0
+    # via keyring
 iniconfig==2.3.0
     # via pytest
 invoke==3.0.3
@@ -34,6 +42,10 @@ jaraco-context==6.1.2
     # via keyring
 jaraco-functools==4.5.0
     # via keyring
+jeepney==0.9.0
+    # via
+    #   keyring
+    #   secretstorage
 keyring==25.7.0
     # via twine
 markdown-it-py==4.2.0
@@ -62,6 +74,8 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
+pycparser==3.0
+    # via cffi
 pygments==2.20.0
     # via
     #   pytest
@@ -69,7 +83,7 @@ pygments==2.20.0
     #   rich
 pyproject-hooks==1.2.0
     # via build
-pytest==9.0.3
+pytest==9.1.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -89,6 +103,8 @@ rfc3986==2.0.0
     # via twine
 rich==15.0.0
     # via twine
+secretstorage==3.5.0
+    # via keyring
 twine==6.2.0
     # via -r requirements-dev.in
 urllib3==2.7.0
@@ -96,3 +112,5 @@ urllib3==2.7.0
     #   id
     #   requests
     #   twine
+zipp==4.1.0
+    # via importlib-metadata
