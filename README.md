@@ -59,10 +59,11 @@ To specify a different language, use the `-l` or `--lang` option:
 wicli "La classe operaia va in paradiso" --lang it
 ```
 
-Available commands at any prompt:
+Available commands during navigation:
 
 - `:b` — Go back to the start prompt
 - `:q` — Exit the program
+- `:m` — Show the table of contents menu (only available when navigating sections)
 
 ## Options
 
