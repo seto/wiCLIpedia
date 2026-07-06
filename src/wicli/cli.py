@@ -157,6 +157,15 @@ def main(argv=None):
                             if choice.lower() in (":b", ":q"):
                                 break
 
+                            if choice.lower() == ":m":
+                                print(
+                                    render.render_toc(
+                                        parsed_tocdata.get("sections"),
+                                        cached_at=parsed_tocdata.get("_cached_at"),
+                                    )
+                                )
+                                continue
+
                             if choice in toc_map:
                                 index = toc_map[choice]["index"]
                                 title = toc_map[choice]["line"]

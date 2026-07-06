@@ -190,7 +190,7 @@ def render_toc(sections: list, cached_at: float = None) -> str:
 
 
 def render_toc_navigation_prompt() -> str:
-    return _style(f"Enter the section number: ", _CYAN)
+    return _style(f"Enter the section number (:m menu): ", _CYAN)
 
 
 def render_toc_not_found() -> str:
