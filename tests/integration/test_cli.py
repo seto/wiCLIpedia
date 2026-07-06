@@ -107,6 +107,18 @@ class TestFoundPage:
                         result = main(["Python"])
         assert result == 0
 
+    def test_reprint_toc(self):
+        with patch("wicli.cli.client.fetch_props", return_value=_props_found()):
+            with patch("wicli.cli.client.fetch_summary", return_value=_summary()):
+                with patch(
+                    "wicli.cli.client.fetch_toc", return_value=_toc()
+                ) as mock_fetch_toc:
+                    # y -> show TOC | :m -> reprint TOC menu | :q -> quit
+                    with patch("builtins.input", side_effect=["y", ":m", ":q"]):
+                        result = main(["Python"])
+        assert result == 0
+        mock_fetch_toc.assert_called_once()
+
 
 class TestDisambiguation:
     def test_select_option_navigates_to_page(self):
