@@ -101,7 +101,7 @@ def render_cache_purged(rows: int) -> str:
 
 
 def render_start_prompt() -> str:
-    return _style("Enter a page title: ", _CYAN)
+    return _style("Enter a page title:", _CYAN)
 
 
 def render_redirect(page: str) -> str:
@@ -149,7 +149,7 @@ def render_summary_not_found(title: str) -> str:
 
 
 def render_toc_prompt() -> str:
-    return _style("Do you want to see the table of contents? (y/n): ", _CYAN)
+    return _style("Do you want to see the table of contents? (y/n):", _CYAN)
 
 
 def render_toc(sections: list, cached_at: float = None) -> str:
@@ -190,7 +190,7 @@ def render_toc(sections: list, cached_at: float = None) -> str:
 
 
 def render_toc_navigation_prompt() -> str:
-    return _style(f"Enter the section number (:m menu): ", _CYAN)
+    return _style(f"Enter the section number (:m menu):", _CYAN)
 
 
 def render_toc_not_found() -> str:
@@ -278,7 +278,7 @@ def render_disambiguation_redirect(page: str) -> str:
 
 
 def render_disambiguation_prompt() -> str:
-    return _style("Enter the page number: ", _CYAN)
+    return _style("Enter the page number:", _CYAN)
 
 
 def render_disambiguation_not_found(page: str) -> str:

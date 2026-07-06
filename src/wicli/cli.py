@@ -77,8 +77,7 @@ def main(argv=None):
                 break
 
             if not target:
-                print(render.render_start_prompt(), end="")
-                choice = input().strip()
+                choice = _prompt(render.render_start_prompt())
 
                 if choice.lower() == ":q":
                     break
@@ -121,8 +120,7 @@ def main(argv=None):
                 # TOC prompt loop: Keeps asking until a valid choice (y/n)
                 # or a navigation command (:b/:q) is entered
                 while True:
-                    print(render.render_toc_prompt(), end="")
-                    choice = input().strip()
+                    choice = _prompt(render.render_toc_prompt())
 
                     if choice.lower() in ("n", ":b", ":q"):
                         break
@@ -151,8 +149,7 @@ def main(argv=None):
                         # Section navigation loop: Allows the user to repeatedly
                         # view different sections of the current page until exiting
                         while True:
-                            print(render.render_toc_navigation_prompt(), end="")
-                            choice = input().strip()
+                            choice = _prompt(render.render_toc_navigation_prompt())
 
                             if choice.lower() in (":b", ":q"):
                                 break
@@ -222,8 +219,7 @@ def main(argv=None):
                     for i, option in enumerate(disambiguation["options"])
                 }
                 while True:
-                    print(render.render_disambiguation_prompt(), end="")
-                    choice = input().strip()
+                    choice = _prompt(render.render_disambiguation_prompt())
 
                     if choice.lower() == ":q":
                         break
@@ -263,6 +259,11 @@ def main(argv=None):
 
     print(render.render_exit())
     return 0
+
+
+def _prompt(message: str) -> str:
+    print(message, end=" ")
+    return input().strip()
 
 
 def _resolve_page(page: str, lang: str) -> tuple[str, dict] | None:
