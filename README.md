@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0+-blue.svg" alt="License: AGPL-3.0-or-later"></a>
   <a href="https://pypi.org/project/wiclipedia/"><img src="https://img.shields.io/pypi/v/wiclipedia.svg?maxAge=86400&color=blue" alt="Version"></a>
   <a href="https://pypi.org/project/wiclipedia"><img src="https://img.shields.io/pypi/pyversions/wiclipedia.svg" alt="Supported Versions"></a>
-  <a href="https://github.com/seto/wiCLIpedia/actions"><img src="https://github.com/seto/wiCLIpedia/workflows/CI/badge.svg" alt="CI"></a>
+  <a href="https://github.com/seto/wiCLIpedia/actions"><img src="https://github.com/seto/wiCLIpedia/workflows/Run%20test%20suite/badge.svg" alt="Tests"></a>
   <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code_style-black-000000.svg" alt="Code Style: Black"></a>
 </p>
 
