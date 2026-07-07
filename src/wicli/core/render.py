@@ -149,7 +149,12 @@ def render_summary_not_found(title: str) -> str:
 
 
 def render_toc_prompt() -> str:
-    return _style("Do you want to see the table of contents? (y/n):", _CYAN)
+    return " ".join(
+        (
+            _style("Do you want to see the table of contents?", _CYAN),
+            _style("(y/n):", _CYAN, _DIM),
+        )
+    )
 
 
 def render_toc(sections: list, cached_at: float = None) -> str:
@@ -190,7 +195,12 @@ def render_toc(sections: list, cached_at: float = None) -> str:
 
 
 def render_toc_navigation_prompt() -> str:
-    return _style(f"Enter the section number (:m menu):", _CYAN)
+    return " ".join(
+        (
+            _style("Enter the section number", _CYAN),
+            _style("(:m menu):", _CYAN, _DIM),
+        )
+    )
 
 
 def render_toc_not_found() -> str:
