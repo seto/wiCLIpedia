@@ -116,10 +116,6 @@ def render_not_found(page: str, lang: str) -> str:
     return _style(f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD)
 
 
-def render_invalid_choice() -> str:
-    return _style("Invalid choice. Enter a valid value.", _YELLOW)
-
-
 def render_user_cancelled() -> str:
     return _style("WiCLIpedia stopped by user.", _YELLOW, _BOLD)
 
@@ -149,12 +145,11 @@ def render_summary_not_found(title: str) -> str:
 
 
 def render_toc_prompt() -> str:
-    return " ".join(
-        (
-            _style("Do you want to see the table of contents?", _CYAN),
-            _style("(y/n):", _CYAN, _DIM),
-        )
-    )
+    return _style("Do you want to see the table of contents (Y/n)?", _CYAN)
+
+
+def render_toc_invalid_choice(choice: str) -> str:
+    return _style(f"'{choice}' is not a valid choice. Enter 'y' or 'n'.", _YELLOW)
 
 
 def render_toc(sections: list, cached_at: float = None) -> str:
@@ -195,11 +190,13 @@ def render_toc(sections: list, cached_at: float = None) -> str:
 
 
 def render_toc_navigation_prompt() -> str:
-    return " ".join(
-        (
-            _style("Enter the section number", _CYAN),
-            _style("(:m menu):", _CYAN, _DIM),
-        )
+    return _style("Enter the section number:", _CYAN)
+
+
+def render_toc_navigation_invalid_choice(choice: str) -> str:
+    return _style(
+        f"'{choice}' is not a valid choice. Enter a valid section number or ':m' to show the menu.",
+        _YELLOW,
     )
 
 
@@ -289,6 +286,13 @@ def render_disambiguation_redirect(page: str) -> str:
 
 def render_disambiguation_prompt() -> str:
     return _style("Enter the page number:", _CYAN)
+
+
+def render_disambiguation_invalid_choice(choice: str) -> str:
+    return _style(
+        f"'{choice}' is not a valid choice. Enter a valid page number.",
+        _YELLOW,
+    )
 
 
 def render_disambiguation_not_found(page: str) -> str:

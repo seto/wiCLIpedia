@@ -125,7 +125,7 @@ def main(argv=None):
                     if choice.lower() in ("n", ":b", ":q"):
                         break
 
-                    if choice.lower() == "y":
+                    if choice.lower() in ("", "y"):
                         raw_toc = client.fetch_toc(target, lang=args.lang)
                         parsed_tocdata = parser.parse_toc(raw_toc)
 
@@ -184,11 +184,11 @@ def main(argv=None):
                                 )
                                 continue
 
-                            print(render.render_invalid_choice())
+                            print(render.render_toc_navigation_invalid_choice(choice))
 
                         break
 
-                    print(render.render_invalid_choice())
+                    print(render.render_toc_invalid_choice(choice))
 
                 if choice.lower() == ":q":
                     break
@@ -232,7 +232,7 @@ def main(argv=None):
                         target = disambiguation_map[choice]
                         break
 
-                    print(render.render_invalid_choice())
+                    print(render.render_disambiguation_invalid_choice(choice))
 
                 continue
 
