@@ -94,3 +94,20 @@ class TestRenderContentBannerCached:
     def test_no_cached_at_shows_live(self):
         result = render._render_content_banner(cached_at=None)
         assert "live" in result.lower() or "fetched" in result.lower()
+
+
+class TestRenderInvalidChoice:
+    def test_toc_invalid_choice(self):
+        result = render.render_toc_invalid_choice("x")
+        assert "'x'" in result
+        assert "'y'" in result
+        assert "'n'" in result
+
+    def test_toc_navigation_invalid_choice(self):
+        result = render.render_toc_navigation_invalid_choice("99")
+        assert "'99'" in result
+        assert "':m'" in result
+
+    def test_disambiguation_invalid_choice(self):
+        result = render.render_disambiguation_invalid_choice("99")
+        assert "'99'" in result
