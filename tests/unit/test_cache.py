@@ -1,5 +1,6 @@
+import sqlite3
 import time
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -91,3 +92,52 @@ def test_prune_keeps_fresh_entries():
     cache.prune()
     result = cache.load("Python", "en", "summary")
     assert result is not None
+
+
+class TestCacheFailures:
+    """Tests simulating cache backend failures.
+
+    These exercise two distinct failure modes: a connection that cannot be
+    established at all (e.g. unreadable/unwritable filesystem), which is
+    expected to propagate as RuntimeError since it likely indicates a more
+    serious environment issue; and a query that fails after a successful
+    connection (e.g. database locked), which load/save/prune/purge are
+    expected to handle gracefully and not raise.
+    """
+
+    def test_load_handles_query_error(self, monkeypatch):
+        monkeypatch.setattr(cache, "_connect", _broken_execute_connect(cache._connect))
+        result = cache.load("Python", "en", "summary")
+        assert result is None
+
+    def test_save_handles_query_error(self, monkeypatch):
+        monkeypatch.setattr(cache, "_connect", _broken_execute_connect(cache._connect))
+        cache.save("Python", "en", "summary", {"key": "value"})
+
+    def test_prune_handles_query_error(self, monkeypatch):
+        monkeypatch.setattr(cache, "_connect", _broken_execute_connect(cache._connect))
+        cache.prune()
+
+    def test_purge_handles_query_error(self, monkeypatch):
+        monkeypatch.setattr(cache, "_connect", _broken_execute_connect(cache._connect))
+        assert cache.purge() == 0
+
+    def test_connect_raises_runtime_error_on_failure(self, monkeypatch):
+        monkeypatch.setattr(cache.sqlite3, "connect", _broken_sqlite_connect)
+        with pytest.raises(RuntimeError):
+            cache._connect()
+
+
+def _broken_execute_connect(real_connect):
+    """Helper to simulate a connection that succeeds but fails on query execution."""
+
+    def _connect():
+        conn = MagicMock(wraps=real_connect())
+        conn.execute.side_effect = sqlite3.OperationalError("SQLite database is locked")
+        return conn
+
+    return _connect
+
+
+def _broken_sqlite_connect():
+    raise sqlite3.OperationalError("Disk I/O error")
