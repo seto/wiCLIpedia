@@ -9,9 +9,9 @@ def format(ctx, targets="src tests"):
     print("Done!")
 
 
-@task
-def test(ctx):
-    ctx.run("pytest")
+@task()
+def test(ctx, extras="--cov=wicli --cov-report=term-missing --color=yes"):
+    ctx.run(f"pytest tests {extras}")
 
 
 @task
