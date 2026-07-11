@@ -29,6 +29,8 @@ import sys
 import textwrap
 import time
 
+from ..parsing.table import decode_table
+
 _NO_COLOR = (
     os.environ.get("NO_COLOR") is not None
     or not hasattr(sys.stdout, "isatty")
@@ -231,6 +233,10 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
                 )
             )
 
+        elif block.startswith("\x00TABLE\x00"):
+            encoded = block.replace("\x00TABLE\x00", "").rstrip("\x00")
+            blocks.append(_render_table(decode_table(encoded)))
+        
         else:
             blocks.append(textwrap.fill(block, width=width))
 
@@ -338,3 +344,41 @@ def _render_content_banner(cached_at: float) -> str:
 {separator}"""
 
     return banner
+
+
+def _render_table(table) -> str:
+    if not table.rows or not table.rows[0]:
+        return ""
+
+    width = _get_width()
+    num_cols = len(table.rows[0])
+
+    # 3 characters of overhead per column boundary (" │ "), plus the two
+    # outer borders, subtracted from the terminal width before dividing
+    # evenly across columns.
+    col_width = max(6, (width - (num_cols + 1) * 3) // num_cols)
+    separator = _style("─" * width, _BOLD)
+
+    lines = []
+    if table.caption:
+        lines.append(_style(table.caption, _BOLD))
+    lines.append(separator)
+
+    for row in table.rows:
+        wrapped = [textwrap.wrap(cell.text, width=col_width) or [""] for cell in row]
+        height = max(len(w) for w in wrapped)
+        for w in wrapped:
+            w.extend([""] * (height - len(w)))
+
+        for line_idx in range(height):
+            cells = []
+            for c, cell in enumerate(row):
+                text = wrapped[c][line_idx].ljust(col_width)
+                cells.append(_style(text, _BOLD) if cell.is_header else text)
+            lines.append(" │ ".join(cells))
+
+        if any(cell.is_header for cell in row):
+            lines.append(separator)
+
+    lines.append(separator)
+    return "\n".join(lines)
