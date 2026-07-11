@@ -101,7 +101,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                 blocks.append(f"\x00TABLE\x00{encode_table(parsed)}\x00")
             else:
                 blocks.append("[Table not available in CLI]")
-        
+
         elif token.type == TokenType.LIST_ITEM:
             cleaned = _clean_inline(token.value)
             if cleaned:

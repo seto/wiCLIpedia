@@ -236,7 +236,7 @@ def render_section(title: str, section: str, cached_at: float = None) -> str:
         elif block.startswith("\x00TABLE\x00"):
             encoded = block.replace("\x00TABLE\x00", "").rstrip("\x00")
             blocks.append(_render_table(decode_table(encoded)))
-        
+
         else:
             blocks.append(textwrap.fill(block, width=width))
 
