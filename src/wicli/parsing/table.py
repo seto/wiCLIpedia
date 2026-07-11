@@ -15,6 +15,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Module implementing the parsing of tables in Wikipedia wikitext.
+
+This module converts the raw `{|...|}` wikitext block captured by the lexer
+into a structured `ParsedTable`, and provides an encode/decode round trip so
+that this structured data can travel through `parser.py`'s `blocks` list
+(which otherwise only holds plain strings) up to `render.py`.
+
+The encoding does not reuse the `\x00LABEL\x00value\x00` marker scheme used
+elsewhere in the project, because a table carries structured data (rows of
+cells, each with its own header flag) rather than a single opaque string.
+
+Known limitations: `colspan`/`rowspan` are not merged across cells; a cell
+using either attribute is rendered as-is in its own row/column, and rows that
+omit a spanned cell are padded with an empty one instead of inheriting the
+value from the previous row.
+"""
+
 from dataclasses import dataclass
 
 _ROW_SEP = "\x01"
