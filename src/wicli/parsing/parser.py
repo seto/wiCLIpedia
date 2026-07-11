@@ -30,6 +30,7 @@ from typing import Any
 
 from .lexer import tokenize
 from .nodes import TokenType
+from .table import encode_table, parse_table
 
 
 def parse_props(response: dict[str, Any]) -> dict[str, Any]:
@@ -87,8 +88,20 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
             if buffer:
                 blocks.append("\n".join(buffer))
                 buffer = []
-            blocks.append("[Table not available in CLI]")
 
+            parsed = parse_table(token.value)
+            for row in parsed.rows:
+                for cell in row:
+                    cell.text = _clean_inline(cell.text)
+
+            if parsed.caption:
+                parsed.caption = _clean_inline(parsed.caption)
+
+            if parsed.rows:
+                blocks.append(f"\x00TABLE\x00{encode_table(parsed)}\x00")
+            else:
+                blocks.append("[Table not available in CLI]")
+        
         elif token.type == TokenType.LIST_ITEM:
             cleaned = _clean_inline(token.value)
             if cleaned:
