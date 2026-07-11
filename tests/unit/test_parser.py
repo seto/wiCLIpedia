@@ -154,15 +154,16 @@ class TestParseSection:
         assert result["status"] == "found"
         assert "Some plain text content." in result["section"]
 
-    def test_missing_empty_wikitext(self):
-        response = {"parse": {"wikitext": ""}}
-        result = parse_section(response)
-        assert result["status"] == "missing"
-
-    def test_table_replaced(self):
+    def test_table_rendered(self):
         response = {"parse": {"wikitext": "{|\n! H\n|-\n| cell\n|}"}}
         result = parse_section(response)
         assert result["status"] == "found"
+        assert "\x00TABLE\x00" in result["section"]
+
+    def test_table_replaced_when_empty(self):
+        # A table block with no data rows at all falls back to the placeholder
+        response = {"parse": {"wikitext": "{|\n|}"}}
+        result = parse_section(response)
         assert "[Table not available in CLI]" in result["section"]
 
     def test_subheading_preserved(self):
@@ -275,4 +276,4 @@ class TestParseSectionTokenTypes:
         response = {"parse": {"wikitext": wikitext}}
         result = parse_section(response)
         assert "• List item" in result["section"]
-        assert "[Table not available in CLI]" in result["section"]
+        assert "\x00TABLE\x00" in result["section"]
