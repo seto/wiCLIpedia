@@ -224,6 +224,10 @@ def _clean_inline(text: str) -> str:
     text = re.sub(r"<ref[^>]*(?<!/)>.*?</ref>", "", text)
     text = re.sub(r"<ref[^>]*/?>", "", text)
 
+    # Match and remove external links, keeping the display text if present
+    text = re.sub(r"\[(?:https?|ftp)://\S+\s+([^\]]+)\]", r"\1", text)
+    text = re.sub(r"\[(?:https?|ftp)://\S+\]", "", text)
+
     # Match and remove internal links, keeping the display text if present
     text = re.sub(r"\[\[[^\]|]+\|([^\]]+)\]\]", r"\1", text)
     text = re.sub(r"\[\[([^\]]+)\]\]", r"\1", text)

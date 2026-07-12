@@ -185,6 +185,14 @@ class TestParseSection:
         assert "[[" not in result["section"]
         assert "Sprawl" in result["section"]
 
+    def test_external_link_cleaned(self):
+        response = {
+            "parse": {"wikitext": "Published as [http://example.com/book The Book]."}
+        }
+        result = parse_section(response)
+        assert "[http" not in result["section"]
+        assert "The Book" in result["section"]
+
     def test_bold_markup_cleaned(self):
         response = {"parse": {"wikitext": "'''Bold text''' and normal."}}
         result = parse_section(response)
