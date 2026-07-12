@@ -56,7 +56,7 @@ def test_self_closing_ref_stripped():
 
 
 def test_generic_template_discarded():
-    tokens = tokenize("{{cite web|url=http://example.com|title=Example}}")
+    tokens = tokenize("{{some unknown template|foo=bar}}")
     assert tokens == []
 
 
@@ -77,6 +77,24 @@ def test_blockquote_template():
     assert len(tokens) == 1
     assert tokens[0].type == TokenType.BLOCKQUOTE
     assert "That is not dead which can eternal lie." in tokens[0].value
+
+
+def test_citation_template_keeps_title():
+    tokens = tokenize("{{cite web|url=http://example.com|title=Example}}")
+    assert len(tokens) == 1
+    assert tokens[0].value == "Example"
+
+
+def test_citation_template_keeps_title_and_year():
+    tokens = tokenize("{{cita libro|titolo=Il falso e l'osceno|anno=2009}}")
+    assert len(tokens) == 1
+    assert tokens[0].value == "Il falso e l'osceno - 2009."
+
+
+def test_citation_template_without_title_discarded():
+    # No title param at all -> nothing useful to show, falls back to silent removal
+    tokens = tokenize("{{cite web|url=http://example.com}}")
+    assert tokens == []
 
 
 def test_table_consumed_as_single_token():

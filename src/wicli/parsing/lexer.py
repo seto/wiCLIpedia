@@ -68,6 +68,19 @@ _FILE_NAMESPACES = (
     "[[Image:",
     "[[Immagine:",
 )
+_CITATION_TEMPLATES = {
+    "cita libro": {"title": "titolo", "year": "anno"},
+    "cita news": {"title": "titolo", "year": "anno"},
+    "cita pubblicazione": {"title": "titolo", "year": "anno"},
+    "cita web": {"title": "titolo", "year": "anno"},
+    "cite book": {"title": "title", "year": "year"},
+    "cite journal": {"title": "title", "year": "date"},
+    "cite magazine": {"title": "title", "year": "date"},
+    "cite news": {"title": "title", "year": "year"},
+    "cite web": {"title": "title", "year": "date"},
+    "internetquelle": {"title": "titel", "year": "datum"},
+    "lien web": {"title": "titre", "year": "année"},
+}
 
 
 def tokenize(wikitext: str) -> list[Token]:
@@ -140,6 +153,16 @@ def _strip_refs(text: str) -> str:
     return text
 
 
+def _parse_named_params(parts: list[str]) -> dict[str, str]:
+    params = {}
+    for p in parts:
+        if "=" in p:
+            key, value = p.split("=", 1)
+            params[key.strip().lower()] = value.strip()
+
+    return params
+
+
 def _strip_templates(text: str) -> str:
     """Remove all templates from the full wikitext string.
 
@@ -186,6 +209,13 @@ def _strip_templates(text: str) -> str:
 
                 elif name in _TEMPLATES_KEEP_FIRST and len(parts) > 1:
                     result.append(parts[1].strip())
+
+                elif name in _CITATION_TEMPLATES:
+                    params = _parse_named_params(parts[1:])
+                    title = params.get(_CITATION_TEMPLATES[name]["title"], "").strip()
+                    year = params.get(_CITATION_TEMPLATES[name]["year"], "").strip()
+                    if title:
+                        result.append(f"{title} - {year}." if year else title)
 
             depth = max(0, depth - 1)
             current = []
