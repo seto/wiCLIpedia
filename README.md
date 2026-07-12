@@ -18,7 +18,7 @@ human-curated backbone that feeds those very models. Never forget the source._
 ---
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/51b51758-e340-4d1c-8255-5c784cd8f8c4"  width="600" alt="Demo">
+  <img src="https://github.com/user-attachments/assets/51b51758-e340-4d1c-8255-5c784cd8f8c4" width="600" alt="Demo">
 </p>
 
 ---
