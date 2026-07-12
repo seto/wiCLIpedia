@@ -166,6 +166,13 @@ class TestParseSection:
         result = parse_section(response)
         assert "[Table not available in CLI]" in result["section"]
 
+    def test_table_caption_cleaned(self):
+        wikitext = "{|\n|+ ''Directed'' films\n! H\n|-\n| cell\n|}"
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert "''" not in result["section"]
+        assert "Directed" in result["section"]
+
     def test_subheading_preserved(self):
         response = {"parse": {"wikitext": "=== Early life ===\nSome text."}}
         result = parse_section(response)

@@ -111,3 +111,45 @@ class TestRenderInvalidChoice:
     def test_disambiguation_invalid_choice(self):
         result = render.render_disambiguation_invalid_choice("99")
         assert "'99'" in result
+
+
+class TestRenderTableBlock:
+    def test_table_block_rendered(self):
+        from wicli.parsing.table import ParsedTable, TableCell, encode_table
+
+        table = ParsedTable(
+            rows=[
+                [TableCell("A", True), TableCell("B", True)],
+                [TableCell("1", False), TableCell("2", False)],
+            ]
+        )
+        section = f"\x00TABLE\x00{encode_table(table)}\x00"
+        result = render.render_section("Data", section)
+        assert "A" in result and "1" in result
+
+    def test_table_caption_rendered(self):
+        from wicli.parsing.table import ParsedTable, TableCell, encode_table
+
+        table = ParsedTable(rows=[[TableCell("X", False)]], caption="My caption")
+        section = f"\x00TABLE\x00{encode_table(table)}\x00"
+        result = render.render_section("Data", section)
+        assert "My caption" in result
+
+    def test_render_table_empty_returns_blank(self):
+        from wicli.parsing.table import ParsedTable
+
+        assert render._render_table(ParsedTable(rows=[])) == ""
+
+    def test_table_multiple_header_rows(self):
+        from wicli.parsing.table import ParsedTable, TableCell, encode_table
+
+        table = ParsedTable(
+            rows=[
+                [TableCell("H1", True)],
+                [TableCell("H2", True)],
+                [TableCell("d", False)],
+            ]
+        )
+        section = f"\x00TABLE\x00{encode_table(table)}\x00"
+        result = render.render_section("Data", section)
+        assert "H1" in result and "H2" in result and "d" in result
