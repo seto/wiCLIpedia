@@ -106,4 +106,5 @@ More information about the MediaWiki API and usage guidelines:
 This program is licensed under the
 [GNU Affero General Public License v3.0 or later](https://www.gnu.org/licenses/agpl-3.0.html)
 (AGPL-3.0+).  
-See the [LICENSE](LICENSE) file for details.
+See the [LICENSE](https://github.com/seto/wiCLIpedia/blob/main/LICENSE) file for
+details.
