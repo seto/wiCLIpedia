@@ -242,9 +242,10 @@ def _clean_inline(text: str) -> str:
     text = re.sub(r"\[\[[^\]|]+\|([^\]]+)\]\]", r"\1", text)
     text = re.sub(r"\[\[([^\]]+)\]\]", r"\1", text)
 
-    # Remove bold/italic markup, any remaining HTML tags, and normalize
-    # whitespaces to single spaces
+    # Remove bold/italic markup, replace <br> with space, strip remaining HTML
+    # tags, and normalize whitespaces to single spaces
     text = re.sub(r"'{2,5}", "", text)
+    text = re.sub(r"<br\s*/?>", " ", text, flags=re.IGNORECASE)
     text = re.sub(r"<[^>]+>", "", text)
     text = " ".join(text.split())
 

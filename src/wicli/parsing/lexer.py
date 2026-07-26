@@ -60,6 +60,12 @@ _BLOCKQUOTE_TEMPLATES = {
     "cquote",
     "zitat",
 }
+_TEMPLATES_STATIC = {
+    "nom": "Nominated",
+    "nominated": "Nominated",
+    "win": "Won",
+    "won": "Won",
+}
 _FILE_NAMESPACES = (
     "[[Archivo:",
     "[[Bild:",
@@ -217,6 +223,9 @@ def _strip_templates(text: str) -> str:
                     year = params.get(_CITATION_TEMPLATES[name]["year"], "").strip()
                     if title:
                         result.append(f"{title} - {year}." if year else title)
+
+                elif name in _TEMPLATES_STATIC:
+                    result.append(_TEMPLATES_STATIC[name])
 
             depth = max(0, depth - 1)
             current = []

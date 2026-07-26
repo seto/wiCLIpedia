@@ -26,12 +26,12 @@ The encoding does not reuse the `\x00LABEL\x00value\x00` marker scheme used
 elsewhere in the project, because a table carries structured data (rows of
 cells, each with its own header flag) rather than a single opaque string.
 
-Known limitations: `colspan`/`rowspan` are not merged across cells; a cell
-using either attribute is rendered as-is in its own row/column, and rows that
-omit a spanned cell are padded with an empty one instead of inheriting the
-value from the previous row.
+Known limitations: `colspan` is not merged; cells using it are rendered as-is
+in their own column. `rowspan` is fully supported: spanned values are inherited
+into subsequent rows at the correct column position.
 """
 
+import re
 from dataclasses import dataclass
 
 _ROW_SEP = "\x01"
@@ -44,6 +44,7 @@ _CAPTION_SEP = "\x04"
 class TableCell:
     text: str
     is_header: bool
+    rowspan: int = 1
 
 
 @dataclass
@@ -56,14 +57,16 @@ def parse_table(raw: str) -> ParsedTable:
     """Parse a raw `{| ... |}` wikitext block into a `ParsedTable` object.
 
     The first line (table-level attributes, e.g., `{| class="wikitable"`) is
-    always discarded. Rows with fewer cells than the widest row (due to rowspan/colspan)
-    are padded with empty cells to ensure that every row has the same length.
+    always discarded. Cells with `rowspan` propagate their value into subsequent
+    rows at the correct column position. Rows are padded to uniform width.
     """
 
     lines = raw.splitlines()
     rows: list[list[TableCell]] = []
-    current_row: list[TableCell] = []
+    current_cells: list[TableCell] = []
     caption: str | None = None
+    # Maps column index -> {"cell": TableCell, "remaining": int}
+    active_spans: dict = {}
 
     for line in lines[1:]:
         stripped = line.strip()
@@ -72,9 +75,10 @@ def parse_table(raw: str) -> ParsedTable:
             break
 
         if stripped.startswith("|-"):
-            if current_row:
-                rows.append(current_row)
-                current_row = []
+            row, active_spans = _finalize_row(current_cells, active_spans)
+            if row:
+                rows.append(row)
+            current_cells = []
             continue
 
         # Handle caption lines (`|+`) before processing generic cell lines,
@@ -84,21 +88,65 @@ def parse_table(raw: str) -> ParsedTable:
             continue
 
         if stripped.startswith("!"):
-            current_row.extend(_split_cells(stripped[1:], "!!", is_header=True))
+            current_cells.extend(_split_cells(stripped[1:], "!!", is_header=True))
 
         elif stripped.startswith("|"):
-            current_row.extend(_split_cells(stripped[1:], "||", is_header=False))
+            current_cells.extend(_split_cells(stripped[1:], "||", is_header=False))
 
-    if current_row:
-        rows.append(current_row)
+    # Flush any remaining cells after the loop
+    row, _ = _finalize_row(current_cells, active_spans)
+    if row:
+        rows.append(row)
 
-    # Pad short rows (missing spanned cells, malformed wikitext) so every
-    # row has the same number of columns for rendering.
+    # Pad short rows so every row has the same number of columns for rendering.
     max_cols = max((len(r) for r in rows), default=0)
     for r in rows:
         r.extend(TableCell("", False) for _ in range(max_cols - len(r)))
 
     return ParsedTable(rows=rows, caption=caption)
+
+
+def _finalize_row(
+    new_cells: list[TableCell],
+    active_spans: dict,
+) -> tuple[list[TableCell], dict]:
+    """Build a finalized row by inserting inherited rowspan cells at the correct
+    column positions, and return the updated active spans for the next row."""
+
+    finalized: dict[int, TableCell] = {}
+
+    # Place inherited cells at their fixed column positions
+    for col, span_info in active_spans.items():
+        finalized[col] = span_info["cell"]
+
+    # Place new cells in the first unoccupied column each time
+    col = 0
+    next_span_updates: dict = {}
+    for cell in new_cells:
+        while col in finalized:
+            col += 1
+        finalized[col] = TableCell(cell.text, cell.is_header)
+        if cell.rowspan > 1:
+            next_span_updates[col] = {
+                "cell": TableCell(cell.text, cell.is_header),
+                "remaining": cell.rowspan - 1,
+            }
+        col += 1
+
+    if not finalized:
+        return [], {}
+
+    row = [finalized.get(i, TableCell("", False)) for i in range(max(finalized) + 1)]
+
+    # Compute next active spans: decrement existing, merge new
+    next_spans = {
+        c: {"cell": s["cell"], "remaining": s["remaining"] - 1}
+        for c, s in active_spans.items()
+        if s["remaining"] > 1
+    }
+    next_spans.update(next_span_updates)
+
+    return row, next_spans
 
 
 def encode_table(table: ParsedTable) -> str:
@@ -131,11 +179,16 @@ def decode_table(encoded: str) -> ParsedTable:
 
 
 def _split_cells(text: str, separator: str, is_header: bool) -> list[TableCell]:
-    return [TableCell(*_strip_attrs(part), is_header) for part in text.split(separator)]
+    cells = []
+    for part in text.split(separator):
+        cell_text, rowspan = _strip_attrs(part)
+        cells.append(TableCell(cell_text, is_header, rowspan))
+    return cells
 
 
-def _strip_attrs(part: str) -> tuple[str]:
-    """Strip cell-level attributes (e.g., `style="..."`) from a cell's content.
+def _strip_attrs(part: str) -> tuple[str, int]:
+    """Strip cell-level attributes (e.g., `style="..."`) from a cell's content
+    and extract the `rowspan` value if present.
 
     A `|` inside a cell only separates attributes from content when the text
     before it contains `=` (an attribute assignment) and does not contain
@@ -144,9 +197,13 @@ def _strip_attrs(part: str) -> tuple[str]:
     """
 
     content = part.strip()
+    rowspan = 1
     if "|" in content:
         before, after = content.split("|", 1)
         if "=" in before and "[[" not in before:
+            match = re.search(r"\browspan\s*=\s*\"?(\d+)\"?", before, re.IGNORECASE)
+            if match:
+                rowspan = int(match.group(1))
             content = after.strip()
 
-    return (content,)
+    return content, rowspan
