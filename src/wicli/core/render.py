@@ -357,14 +357,16 @@ def _render_table(table) -> str:
     # outer borders, subtracted from the terminal width before dividing
     # evenly across columns.
     col_width = max(6, (width - (num_cols + 1) * 3) // num_cols)
-    separator = _style("─" * width, _BOLD)
+    outer_sep = _style("─" * width, _BOLD)
+    inner_sep = _style("─" * width, _BOLD, _DIM)
+    divider = _style(" │ ", _DIM)
 
     lines = []
     if table.caption:
         lines.append(_style(table.caption, _BOLD))
-    lines.append(separator)
+    lines.append(outer_sep)
 
-    for row in table.rows:
+    for i, row in enumerate(table.rows):
         wrapped = [textwrap.wrap(cell.text, width=col_width) or [""] for cell in row]
         height = max(len(w) for w in wrapped)
         for w in wrapped:
@@ -375,10 +377,10 @@ def _render_table(table) -> str:
             for c, cell in enumerate(row):
                 text = wrapped[c][line_idx].ljust(col_width)
                 cells.append(_style(text, _BOLD) if cell.is_header else text)
-            lines.append(" │ ".join(cells))
+            lines.append(divider.join(cells))
 
-        if any(cell.is_header for cell in row):
-            lines.append(separator)
+        if i < len(table.rows) - 1:
+            lines.append(inner_sep)
 
-    lines.append(separator)
+    lines.append(outer_sep)
     return "\n".join(lines)
