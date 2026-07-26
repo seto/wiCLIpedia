@@ -103,9 +103,10 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                 blocks.append("[Table not available in CLI]")
 
         elif token.type == TokenType.LIST_ITEM:
-            cleaned = _clean_inline(token.value)
+            cleaned = _clean_inline(token.value).lstrip("*#").strip()
+
             if cleaned:
-                buffer.append("• " + cleaned.lstrip("*#").strip())
+                buffer.append("• " + cleaned)
 
         elif token.type == TokenType.TEXT:
             if buffer:
