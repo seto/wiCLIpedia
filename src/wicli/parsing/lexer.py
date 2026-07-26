@@ -39,6 +39,7 @@ _TEMPLATES_KEEP_LAST = {
     "lang",
     "langue",
     "nowrap",
+    "portal inline",
     "transl",
     "unité",
 }
