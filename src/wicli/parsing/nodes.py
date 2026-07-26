@@ -27,6 +27,7 @@ from enum import Enum, auto
 
 class TokenType(Enum):
     BLOCKQUOTE = auto()
+    DEFINITION_TERM = auto()
     FILE = auto()
     HEADING = auto()
     LINK = auto()

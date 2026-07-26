@@ -262,6 +262,9 @@ def _classify_line(line: str) -> TokenType:
     if stripped.startswith(("*", "#")):
         return TokenType.LIST_ITEM
 
+    if stripped.startswith(";"):
+        return TokenType.DEFINITION_TERM
+
     if stripped.startswith("<ref"):
         return TokenType.REF
 
