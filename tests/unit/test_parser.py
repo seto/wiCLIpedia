@@ -258,6 +258,22 @@ class TestParseSectionTokenTypes:
         assert result["status"] == "found"
         assert "To be or not to be." in result["section"]
 
+    def test_list_item_empty_after_template_strip_skipped(self):
+        # Unknown templates are stripped entirely, leaving only "* " — the bullet
+        # must be suppressed rather than rendered as a blank "•" item
+        wikitext = "* {{unknown nav template|unknown}}\n* Real item"
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert result["section"].count("•") == 1
+        assert "• Real item" in result["section"]
+
+    def test_portal_inline_template_kept(self):
+        wikitext = "* {{Portal inline|Cyberpunk}}\n* Real item"
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert "• Cyberpunk" in result["section"]
+        assert "• Real item" in result["section"]
+
     def test_list_buffer_flushed_before_text(self):
         # List items followed by a text block — buffer must be flushed first
         wikitext = "* Item one\n* Item two\n\nFollowing paragraph."
@@ -285,6 +301,19 @@ class TestParseSectionTokenTypes:
         result = parse_section(response)
         assert "• List item" in result["section"]
         assert "A quote." in result["section"]
+
+    def test_definition_term_rendered_as_subheading(self):
+        response = {"parse": {"wikitext": ";Kerrang! Awards"}}
+        result = parse_section(response)
+        assert result["status"] == "found"
+        assert "\x00SUBHEADING\x00Kerrang! Awards\x00" in result["section"]
+
+    def test_definition_term_flushes_preceding_list(self):
+        wikitext = "* List item\n;Label"
+        response = {"parse": {"wikitext": wikitext}}
+        result = parse_section(response)
+        assert "• List item" in result["section"]
+        assert "\x00SUBHEADING\x00Label\x00" in result["section"]
 
     def test_table_flushes_preceding_list(self):
         wikitext = "* List item\n{|\n| cell\n|}"

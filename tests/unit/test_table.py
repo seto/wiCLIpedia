@@ -58,6 +58,30 @@ class TestParseTable:
         result = parse_table(raw)
         assert result.rows == []
 
+    def test_rowspan_propagates_to_next_row(self):
+        # rowspan="2" on "Song" should repeat it in the second row
+        raw = '{|\n|-\n| rowspan="2" | Song\n| 1992\n|-\n| 1995\n|}'
+        result = parse_table(raw)
+        assert result.rows[0][0].text == "Song"
+        assert result.rows[0][1].text == "1992"
+        assert result.rows[1][0].text == "Song"  # inherited
+        assert result.rows[1][1].text == "1995"
+
+    def test_rowspan_mid_row_propagates(self):
+        # rowspan in the middle column: [Year, Artist(rowspan=2), Song]
+        raw = '{|\n|-\n| 1976\n| rowspan="2" | De Niro\n| Taxi Driver\n|-\n| 1980\n| Raging Bull\n|}'
+        result = parse_table(raw)
+        assert result.rows[0] == [
+            TableCell("1976", False),
+            TableCell("De Niro", False),
+            TableCell("Taxi Driver", False),
+        ]
+        assert result.rows[1] == [
+            TableCell("1980", False),
+            TableCell("De Niro", False),  # inherited
+            TableCell("Raging Bull", False),
+        ]
+
 
 class TestEncodeDecodeTable:
     def test_round_trip_preserves_cells(self):

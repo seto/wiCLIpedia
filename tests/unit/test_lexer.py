@@ -79,6 +79,25 @@ def test_blockquote_template():
     assert "That is not dead which can eternal lie." in tokens[0].value
 
 
+def test_won_template_kept_as_text():
+    tokens = tokenize("{{won}}")
+    assert len(tokens) == 1
+    assert tokens[0].value == "Won"
+
+
+def test_nom_template_kept_as_text():
+    tokens = tokenize("text with {{nom}} inline")
+    assert len(tokens) == 1
+    assert "Nominated" in tokens[0].value
+
+
+def test_definition_term():
+    tokens = tokenize(";Kerrang! Awards")
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.DEFINITION_TERM
+    assert tokens[0].value == ";Kerrang! Awards"
+
+
 def test_citation_template_keeps_title():
     tokens = tokenize("{{cite web|url=http://example.com|title=Example}}")
     assert len(tokens) == 1
