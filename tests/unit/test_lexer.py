@@ -84,6 +84,13 @@ def test_blockquote_template():
     assert "That is not dead which can eternal lie." in tokens[0].value
 
 
+def test_blockquote_with_wikilink_pipe():
+    tokens = tokenize("{{blockquote|Text about [[Max Stirner|Stirner]] here.}}")
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.BLOCKQUOTE
+    assert "[[Max Stirner|Stirner]]" in tokens[0].value
+
+
 def test_won_template_kept_as_text():
     tokens = tokenize("{{won}}")
     assert len(tokens) == 1

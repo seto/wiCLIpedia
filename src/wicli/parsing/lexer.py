@@ -170,6 +170,32 @@ def _parse_named_params(parts: list[str]) -> dict[str, str]:
     return params
 
 
+def _split_pipe(text: str) -> list[str]:
+    """Split on | while ignoring pipes inside [[ ]] wikilinks."""
+
+    parts, current, depth = [], [], 0
+    i = 0
+    while i < len(text):
+        if text[i : i + 2] == "[[":
+            depth += 1
+            current.append("[[")
+            i += 2
+        elif text[i : i + 2] == "]]":
+            depth = max(0, depth - 1)
+            current.append("]]")
+            i += 2
+        elif text[i] == "|" and depth == 0:
+            parts.append("".join(current))
+            current = []
+            i += 1
+        else:
+            current.append(text[i])
+            i += 1
+
+    parts.append("".join(current))
+    return parts
+
+
 def _strip_templates(text: str) -> str:
     """Remove all templates from the full wikitext string.
 
@@ -194,7 +220,7 @@ def _strip_templates(text: str) -> str:
         elif text[i : i + 2] == "}}":
             if depth == 1:
                 inner = "".join(current)
-                parts = inner.split("|")
+                parts = _split_pipe(inner)
                 name = parts[0].strip().lower()
 
                 if name in _BLOCKQUOTE_TEMPLATES and len(parts) > 1:
