@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Entry point to run the test suite directly.
 
 This module can be executed from the command line using the following command

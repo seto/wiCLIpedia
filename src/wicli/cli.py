@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright (C) 2026  Roberto Matarazzo
 #
 # This file is part of WiCLIpedia.
