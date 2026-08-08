@@ -139,7 +139,9 @@ class TestDisambiguation:
                 "wicli.cli.client.fetch_props",
                 side_effect=[_props_disambiguation(), _props_found()],
             ),
-            patch("wicli.cli.client.fetch_disambiguation", return_value=_disambiguation()),
+            patch(
+                "wicli.cli.client.fetch_disambiguation", return_value=_disambiguation()
+            ),
             patch("wicli.cli.client.fetch_summary", return_value=_summary()),
             # 1 -> select Page A | n -> skip TOC | :q -> quit
             patch("builtins.input", side_effect=["1", "n", ":q"]),
@@ -150,7 +152,9 @@ class TestDisambiguation:
     def test_back_from_disambiguation(self):
         with (
             patch("wicli.cli.client.fetch_props", return_value=_props_disambiguation()),
-            patch("wicli.cli.client.fetch_disambiguation", return_value=_disambiguation()),
+            patch(
+                "wicli.cli.client.fetch_disambiguation", return_value=_disambiguation()
+            ),
             # :b -> back to prompt | :q -> quit
             patch("builtins.input", side_effect=[":b", ":q"]),
         ):
@@ -160,7 +164,9 @@ class TestDisambiguation:
     def test_invalid_choice_then_quit(self):
         with (
             patch("wicli.cli.client.fetch_props", return_value=_props_disambiguation()),
-            patch("wicli.cli.client.fetch_disambiguation", return_value=_disambiguation()),
+            patch(
+                "wicli.cli.client.fetch_disambiguation", return_value=_disambiguation()
+            ),
             # 99 -> invalid | :q -> quit
             patch("builtins.input", side_effect=["99", ":q"]),
         ):
@@ -310,7 +316,9 @@ class TestEdgeCases:
         with (
             patch(
                 "wicli.cli.client.fetch_props",
-                return_value={"query": {"pages": [{"pageprops": {"wikibase_item": "Q1"}}]}},
+                return_value={
+                    "query": {"pages": [{"pageprops": {"wikibase_item": "Q1"}}]}
+                },
             ),
             patch(
                 "wicli.cli.parser.parse_props",

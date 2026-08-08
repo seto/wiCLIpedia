@@ -59,7 +59,9 @@ class TestGetAPIErrors:
 class TestGetNetworkErrors:
     def test_url_error_raises_network_error(self):
         with (
-            patch("wicli.core.client.urlopen", side_effect=URLError("connection refused")),
+            patch(
+                "wicli.core.client.urlopen", side_effect=URLError("connection refused")
+            ),
             pytest.raises(WicliNetworkError, match="Network error"),
         ):
             _get("http://example.com")
