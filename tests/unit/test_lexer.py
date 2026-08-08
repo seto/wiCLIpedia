@@ -68,8 +68,13 @@ def test_template_keep_last():
 
 def test_template_keep_first():
     tokens = tokenize("{{citation needed|date=April 2025}}")
+    assert len(tokens) == 0
+
+
+def test_template_keep_first_positional():
+    tokens = tokenize("{{citation needed|some custom text}}")
     assert len(tokens) == 1
-    assert tokens[0].value == "date=April 2025"
+    assert tokens[0].value == "some custom text"
 
 
 def test_blockquote_template():

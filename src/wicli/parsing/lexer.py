@@ -215,7 +215,11 @@ def _strip_templates(text: str) -> str:
                     result.append(parts[-1].strip())
 
                 elif name in _TEMPLATES_KEEP_FIRST and len(parts) > 1:
-                    result.append(parts[1].strip())
+                    # Skip named params (e.g. date=) as they are meta-data and
+                    # not relevant to the visible text content
+                    first = parts[1].strip()
+                    if "=" not in first:
+                        result.append(first)
 
                 elif name in _CITATION_TEMPLATES:
                     params = _parse_named_params(parts[1:])
