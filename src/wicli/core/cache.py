@@ -63,7 +63,7 @@ def load(page: str, lang: str, resource: str) -> dict[str, Any] | None:
 
         return data
 
-    except Exception:
+    except (RuntimeError, sqlite3.DatabaseError, json.JSONDecodeError):
         return None
 
     finally:
@@ -85,7 +85,7 @@ def save(page: str, lang: str, resource: str, data: dict[str, Any]) -> None:
         )
         conn.commit()
 
-    except Exception:
+    except (RuntimeError, sqlite3.DatabaseError, TypeError):
         pass
 
     finally:
@@ -99,7 +99,7 @@ def prune() -> None:
         conn.execute("DELETE FROM cache WHERE cached_at < ?", (time.time() - _TTL,))
         conn.commit()
 
-    except Exception:
+    except (RuntimeError, sqlite3.DatabaseError):
         pass
 
     finally:
@@ -115,7 +115,7 @@ def purge() -> int:
 
         return cursor.rowcount
 
-    except Exception:
+    except (RuntimeError, sqlite3.DatabaseError):
         return 0
 
     finally:
