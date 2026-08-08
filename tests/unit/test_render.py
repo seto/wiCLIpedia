@@ -50,24 +50,24 @@ class TestRenderDisambiguationNotFound:
 class TestRenderSectionBlocks:
     def test_subheading_different_from_title(self):
         section = "\x00SUBHEADING\x00Overview\x00"
-        result = render.render_section("History", section)
+        result = render.render_section("History", section, cached_at=None)
         assert "Overview" in result
 
     def test_subheading_equal_to_title_skipped(self):
         section = "\x00SUBHEADING\x00History\x00"
-        result = render.render_section("History", section)
+        result = render.render_section("History", section, cached_at=None)
         # The subheading matches the title so it should not appear as a block
         # (only the title line in the header is present)
         assert result.count("History") == 1
 
     def test_blockquote_block(self):
         section = "\x00BLOCKQUOTE\x00To be or not to be.\x00"
-        result = render.render_section("Hamlet", section)
+        result = render.render_section("Hamlet", section, cached_at=None)
         assert "To be or not to be." in result
 
     def test_list_block(self):
         section = "• First item\n• Second item"
-        result = render.render_section("Items", section)
+        result = render.render_section("Items", section, cached_at=None)
         assert "First item" in result
         assert "Second item" in result
 
@@ -124,7 +124,7 @@ class TestRenderTableBlock:
             ]
         )
         section = f"\x00TABLE\x00{encode_table(table)}\x00"
-        result = render.render_section("Data", section)
+        result = render.render_section("Data", section, cached_at=None)
         assert "A" in result and "1" in result
 
     def test_table_caption_rendered(self):
@@ -132,7 +132,7 @@ class TestRenderTableBlock:
 
         table = ParsedTable(rows=[[TableCell("X", False)]], caption="My caption")
         section = f"\x00TABLE\x00{encode_table(table)}\x00"
-        result = render.render_section("Data", section)
+        result = render.render_section("Data", section, cached_at=None)
         assert "My caption" in result
 
     def test_render_table_empty_returns_blank(self):
@@ -151,5 +151,5 @@ class TestRenderTableBlock:
             ]
         )
         section = f"\x00TABLE\x00{encode_table(table)}\x00"
-        result = render.render_section("Data", section)
+        result = render.render_section("Data", section, cached_at=None)
         assert "H1" in result and "H2" in result and "d" in result

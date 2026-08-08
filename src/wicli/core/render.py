@@ -126,7 +126,7 @@ def render_exit() -> str:
     return _style("Goodbye!", _GREEN, _BOLD)
 
 
-def render_summary(title: str, paragraphs: list[str], cached_at: float = None) -> str:
+def render_summary(title: str, paragraphs: list[str], cached_at: float | None) -> str:
     width = _get_width()
 
     summary = "\n\n".join(textwrap.fill(p, width=width) for p in paragraphs)
@@ -154,7 +154,7 @@ def render_toc_invalid_choice(choice: str) -> str:
     return _style(f"'{choice}' is not a valid choice. Enter 'y' or 'n'.", _YELLOW)
 
 
-def render_toc(sections: list, cached_at: float = None) -> str:
+def render_toc(sections: list, cached_at: float | None) -> str:
     # Map each tocLevel to the maximum number width at that level,
     # used to align section numbers consistently within each level
     widths = {}
@@ -206,7 +206,7 @@ def render_toc_not_found() -> str:
     return _style("Table of contents not found for this page.", _YELLOW)
 
 
-def render_section(title: str, section: str, cached_at: float = None) -> str:
+def render_section(title: str, section: str, cached_at: float | None) -> str:
     width = _get_width()
 
     blocks = []
@@ -257,7 +257,7 @@ def render_section_not_found(title: str) -> str:
     return _style(f"Content not found for section '{title}'.", _YELLOW)
 
 
-def render_disambiguation(options: list, cached_at: float = None) -> str:
+def render_disambiguation(options: list, cached_at: float | None) -> str:
     width = _get_width()
     pad = len(str(len(options)))
     indent = " " * (pad + 2)
