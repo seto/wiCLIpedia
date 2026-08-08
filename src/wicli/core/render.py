@@ -222,6 +222,12 @@ def render_section(title: str, section: str, cached_at: float | None) -> str:
             quote = textwrap.indent(quote, "      ")
             blocks.append(_style(quote, _ITALIC))
 
+        elif block.startswith("\x00POEM\x00"):
+            inner = block[len("\x00POEM\x00") :].rstrip("\x00")
+            lines = [line for line in inner.split("\x00LINE\x00") if line.strip()]
+            poem = "\n".join(textwrap.indent(line, "      ") for line in lines)
+            blocks.append(_style(poem, _ITALIC))
+
         elif block.startswith("•"):
             # For list blocks, each item is wrapped separately with
             # a hanging indent to align continuation lines under the text

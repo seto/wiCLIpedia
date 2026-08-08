@@ -77,7 +77,6 @@ def parse_summary(response: dict[str, Any]) -> dict[str, Any]:
 
 def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     wikitext = response.get("parse", {}).get("wikitext", "")
-
     if not wikitext:
         return {"status": "missing"}
 
@@ -135,15 +134,27 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
             if cleaned:
                 blocks.append(f"\x00SUBHEADING\x00{cleaned}\x00")
 
-        elif token.type == TokenType.BLOCKQUOTE:
+        elif token.type in (TokenType.BLOCKQUOTE, TokenType.POEM):
             if buffer:
                 blocks.append("\n".join(buffer))
                 buffer = []
 
-            text = token.value.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
-            cleaned = _clean_inline(text)
-            if cleaned:
-                blocks.append(f"\x00BLOCKQUOTE\x00{cleaned}\x00")
+            raw = token.value
+            if raw.startswith("\x00POEM\x00"):
+                inner = raw[len("\x00POEM\x00") :].rstrip("\x00")
+                cleaned_lines = [
+                    _clean_inline(line) for line in inner.split("\x00LINE\x00")
+                ]
+                cleaned_lines = [l for l in cleaned_lines if l]
+                if cleaned_lines:
+                    blocks.append(
+                        "\x00POEM\x00" + "\x00LINE\x00".join(cleaned_lines) + "\x00"
+                    )
+            else:
+                text = raw.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
+                cleaned = _clean_inline(text)
+                if cleaned:
+                    blocks.append(f"\x00BLOCKQUOTE\x00{cleaned}\x00")
 
     if buffer:
         blocks.append("\n".join(buffer))

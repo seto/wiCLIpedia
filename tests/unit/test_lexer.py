@@ -91,6 +91,14 @@ def test_blockquote_with_wikilink_pipe():
     assert "[[Max Stirner|Stirner]]" in tokens[0].value
 
 
+def test_poem_quote_preserves_line_breaks():
+    tokens = tokenize("{{poem quote|First line.\nSecond line.\nThird line.}}")
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.POEM
+    assert "\x00POEM\x00" in tokens[0].value
+    assert tokens[0].value.count("\x00LINE\x00") == 2
+
+
 def test_won_template_kept_as_text():
     tokens = tokenize("{{won}}")
     assert len(tokens) == 1

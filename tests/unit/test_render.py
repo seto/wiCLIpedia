@@ -65,6 +65,16 @@ class TestRenderSectionBlocks:
         result = render.render_section("Hamlet", section, cached_at=None)
         assert "To be or not to be." in result
 
+    def test_poemquote_block(self):
+        section = (
+            "\x00POEM\x00FOLLOW\x00LINE\x00THE\x00LINE\x00WHITE\x00LINE\x00RABBIT\x00"
+        )
+        result = render.render_section("Poem", section, cached_at=None)
+        assert "FOLLOW" in result
+        assert "THE" in result
+        assert "WHITE" in result
+        assert "RABBIT" in result
+
     def test_list_block(self):
         section = "• First item\n• Second item"
         result = render.render_section("Items", section, cached_at=None)

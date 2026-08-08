@@ -258,6 +258,15 @@ class TestParseSectionTokenTypes:
         assert result["status"] == "found"
         assert "To be or not to be." in result["section"]
 
+    def test_poemquote_template_preserved(self):
+        # The lexer converts {{poem|text}} into a POEM token
+        response = {"parse": {"wikitext": "{{poem quote|Foo.\nBar.\nBaz.}}"}}
+        result = parse_section(response)
+        assert result["status"] == "found"
+        assert "Foo." in result["section"]
+        assert "Bar." in result["section"]
+        assert "Baz." in result["section"]
+
     def test_list_item_empty_after_template_strip_skipped(self):
         # Unknown templates are stripped entirely, leaving only "* " — the bullet
         # must be suppressed rather than rendered as a blank "•" item

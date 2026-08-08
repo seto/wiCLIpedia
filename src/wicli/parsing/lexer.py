@@ -60,6 +60,10 @@ _BLOCKQUOTE_TEMPLATES = {
     "cquote",
     "zitat",
 }
+_POEMQUOTE_TEMPLATES = {
+    "poem quote",
+    "poemquote",
+}
 _TEMPLATES_STATIC = {
     "nom": "Nominated",
     "nominated": "Nominated",
@@ -240,6 +244,11 @@ def _strip_templates(text: str) -> str:
                 elif name in _TEMPLATES_KEEP_LAST and len(parts) > 1:
                     result.append(parts[-1].strip())
 
+                elif name in _POEMQUOTE_TEMPLATES and len(parts) > 1:
+                    poem = parts[1].strip().replace("\n", "\x00LINE\x00")
+                    if poem:
+                        result.append(f"\x00POEM\x00{poem}\x00")
+
                 elif name in _TEMPLATES_KEEP_FIRST and len(parts) > 1:
                     # Skip named params (e.g. date=) as they are meta-data and
                     # not relevant to the visible text content
@@ -313,6 +322,9 @@ def _classify_line(line: str) -> TokenType:
 
     if stripped.startswith("\x00BLOCKQUOTE\x00"):
         return TokenType.BLOCKQUOTE
+
+    if stripped.startswith("\x00POEM\x00"):
+        return TokenType.POEM
 
     if not stripped:
         return TokenType.NEWLINE

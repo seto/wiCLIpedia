@@ -37,6 +37,7 @@ class TokenType(Enum):
     SUBHEADING = auto()
     TABLE = auto()
     TEMPLATE = auto()
+    POEM = auto()
     TEXT = auto()
 
 
