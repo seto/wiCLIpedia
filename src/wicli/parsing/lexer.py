@@ -29,69 +29,15 @@ import html
 import re
 
 from .nodes import Token, TokenType
-
-_TEMPLATES_KEEP_LAST = {
-    "abbr",
-    "as of",
-    "cast listing",
-    "citation",
-    "date",
-    "lang",
-    "langue",
-    "nowrap",
-    "portal inline",
-    "transl",
-    "unité",
-}
-_TEMPLATES_KEEP_FIRST = {
-    "citation nécessaire",
-    "citation needed",
-    "cn",
-    "cr",
-    "cita requerida",
-    "référence nécessaire",
-    "senza fonte",
-}
-_BLOCKQUOTE_TEMPLATES = {
-    "blockquote",
-    "cita",
-    "citazione",
-    "quote",
-    "cquote",
-    "zitat",
-}
-_POEMQUOTE_TEMPLATES = {
-    "poem quote",
-    "poemquote",
-}
-_TEMPLATES_STATIC = {
-    "nom": "Nominated",
-    "nominated": "Nominated",
-    "win": "Won",
-    "won": "Won",
-}
-_FILE_NAMESPACES = (
-    "[[Archivo:",
-    "[[Bild:",
-    "[[Datei:",
-    "[[Fichier:",
-    "[[File:",
-    "[[Image:",
-    "[[Immagine:",
+from .templates import (
+    BLOCKQUOTE_TEMPLATES,
+    CITATION_TEMPLATES,
+    FILE_NAMESPACES,
+    POEMQUOTE_TEMPLATES,
+    TEMPLATES_KEEP_FIRST,
+    TEMPLATES_KEEP_LAST,
+    TEMPLATES_STATIC,
 )
-_CITATION_TEMPLATES = {
-    "cita libro": {"title": "titolo", "year": "anno"},
-    "cita news": {"title": "titolo", "year": "anno"},
-    "cita pubblicazione": {"title": "titolo", "year": "anno"},
-    "cita web": {"title": "titolo", "year": "anno"},
-    "cite book": {"title": "title", "year": "year"},
-    "cite journal": {"title": "title", "year": "date"},
-    "cite magazine": {"title": "title", "year": "date"},
-    "cite news": {"title": "title", "year": "year"},
-    "cite web": {"title": "title", "year": "date"},
-    "internetquelle": {"title": "titel", "year": "datum"},
-    "lien web": {"title": "titre", "year": "année"},
-}
 
 
 def tokenize(wikitext: str) -> list[Token]:
@@ -227,7 +173,7 @@ def _strip_templates(text: str) -> str:
                 parts = _split_pipe(inner)
                 name = parts[0].strip().lower()
 
-                if name in _BLOCKQUOTE_TEMPLATES and len(parts) > 1:
+                if name in BLOCKQUOTE_TEMPLATES and len(parts) > 1:
                     # Extract quote text handling language-specific variations
                     # where blockquotes might use an explicit 'text=' parameter
                     quote = next(
@@ -241,30 +187,30 @@ def _strip_templates(text: str) -> str:
                     if quote:
                         result.append(f"\x00BLOCKQUOTE\x00{quote}\x00")
 
-                elif name in _TEMPLATES_KEEP_LAST and len(parts) > 1:
+                elif name in TEMPLATES_KEEP_LAST and len(parts) > 1:
                     result.append(parts[-1].strip())
 
-                elif name in _POEMQUOTE_TEMPLATES and len(parts) > 1:
+                elif name in POEMQUOTE_TEMPLATES and len(parts) > 1:
                     poem = parts[1].strip().replace("\n", "\x00LINE\x00")
                     if poem:
                         result.append(f"\x00POEM\x00{poem}\x00")
 
-                elif name in _TEMPLATES_KEEP_FIRST and len(parts) > 1:
+                elif name in TEMPLATES_KEEP_FIRST and len(parts) > 1:
                     # Skip named params (e.g. date=) as they are meta-data and
                     # not relevant to the visible text content
                     first = parts[1].strip()
                     if "=" not in first:
                         result.append(first)
 
-                elif name in _CITATION_TEMPLATES:
+                elif name in CITATION_TEMPLATES:
                     params = _parse_named_params(parts[1:])
-                    title = params.get(_CITATION_TEMPLATES[name]["title"], "").strip()
-                    year = params.get(_CITATION_TEMPLATES[name]["year"], "").strip()
+                    title = params.get(CITATION_TEMPLATES[name]["title"], "").strip()
+                    year = params.get(CITATION_TEMPLATES[name]["year"], "").strip()
                     if title:
                         result.append(f"{title} - {year}." if year else title)
 
-                elif name in _TEMPLATES_STATIC:
-                    result.append(_TEMPLATES_STATIC[name])
+                elif name in TEMPLATES_STATIC:
+                    result.append(TEMPLATES_STATIC[name])
 
             depth = max(0, depth - 1)
             current = []
@@ -317,7 +263,7 @@ def _classify_line(line: str) -> TokenType:
     if stripped.startswith("<ref"):
         return TokenType.REF
 
-    if stripped.startswith(_FILE_NAMESPACES):
+    if stripped.startswith(FILE_NAMESPACES):
         return TokenType.FILE
 
     if stripped.startswith("\x00BLOCKQUOTE\x00"):
