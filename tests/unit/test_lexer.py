@@ -186,6 +186,25 @@ def test_subheading_with_html_comment_cleaned():
     assert "Notable members" in tokens[0].value
 
 
+def test_gallery_stripped():
+    wikitext = "Text before\n<gallery>\nFile:Image1.jpg|Caption 1\nFile:Image2.jpg|Caption 2\n</gallery>\nText after"
+    tokens = tokenize(wikitext)
+    assert len(tokens) == 2
+    assert all(t.type == TokenType.TEXT for t in tokens)
+    assert tokens[0].value == "Text before"
+    assert tokens[1].value == "Text after"
+    assert not any("<gallery>" in t.value for t in tokens)
+
+
+def test_gallery_inline_stripped():
+    wikitext = "Text with <gallery>File:Image.jpg|Caption</gallery> inline."
+    tokens = tokenize(wikitext)
+    assert len(tokens) == 1
+    assert "<gallery>" not in tokens[0].value
+    assert "Caption" not in tokens[0].value
+    assert "File:Image.jpg" not in tokens[0].value
+
+
 def test_mixed_content():
     wikitext = "First line.\n== Heading ==\nSecond line."
     tokens = tokenize(wikitext)

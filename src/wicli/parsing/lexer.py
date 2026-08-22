@@ -53,6 +53,7 @@ def tokenize(wikitext: str) -> list[Token]:
 
     normalized = _normalize_entities(wikitext)
     normalized = _strip_html_comments(normalized)
+    normalized = _strip_galleries(normalized)
     normalized = _strip_refs(normalized)
     normalized = _strip_templates(normalized)
 
@@ -118,6 +119,13 @@ def _strip_html_comments(text: str) -> str:
     """
 
     text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
+    return text
+
+
+def _strip_galleries(text: str) -> str:
+    """Remove all gallery HTML tags and their content from the wikitext."""
+
+    text = re.sub(r"<gallery[^>]*>.*?</gallery>", "", text, flags=re.DOTALL | re.IGNORECASE)
     return text
 
 
