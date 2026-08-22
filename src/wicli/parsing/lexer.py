@@ -28,8 +28,7 @@ the command line interface.
 import html
 import re
 
-from .nodes import Token, TokenType
-from .templates import (
+from .languages.templates import (
     BLOCKQUOTE_TEMPLATES,
     CITATION_TEMPLATES,
     FILE_NAMESPACES,
@@ -38,6 +37,7 @@ from .templates import (
     TEMPLATES_KEEP_LAST,
     TEMPLATES_STATIC,
 )
+from .nodes import Token, TokenType
 
 
 def tokenize(wikitext: str) -> list[Token]:
@@ -125,7 +125,9 @@ def _strip_html_comments(text: str) -> str:
 def _strip_galleries(text: str) -> str:
     """Remove all gallery HTML tags and their content from the wikitext."""
 
-    text = re.sub(r"<gallery[^>]*>.*?</gallery>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(
+        r"<gallery[^>]*>.*?</gallery>", "", text, flags=re.DOTALL | re.IGNORECASE
+    )
     return text
 
 
