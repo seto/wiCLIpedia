@@ -52,6 +52,7 @@ def tokenize(wikitext: str) -> list[Token]:
     """
 
     normalized = _normalize_entities(wikitext)
+    normalized = _strip_html_comments(normalized)
     normalized = _strip_refs(normalized)
     normalized = _strip_templates(normalized)
 
@@ -107,6 +108,16 @@ def _strip_refs(text: str) -> str:
     text = re.sub(r"<ref[^>]*(?<!/)>.*?</ref>", "", text, flags=re.DOTALL)
     text = re.sub(r"<ref[^>]*/?>", "", text)
 
+    return text
+
+
+def _strip_html_comments(text: str) -> str:
+    """Remove all HTML comments from the wikitext string.
+
+    HTML comments can span multiple lines and are not relevant to CLI rendering.
+    """
+
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
     return text
 
 

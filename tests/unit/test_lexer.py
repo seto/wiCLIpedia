@@ -160,6 +160,32 @@ def test_multiline_ref_stripped():
     assert tokens[0].value == "BeforeAfter"
 
 
+def test_html_comment_inline_stripped():
+    tokens = tokenize("Text with <!-- comment --> inline.")
+    assert len(tokens) == 1
+    assert "<!--" not in tokens[0].value
+    assert "comment" not in tokens[0].value
+    assert "Text with" in tokens[0].value
+    assert "inline." in tokens[0].value
+
+
+def test_multiline_html_comment_stripped():
+    wikitext = "Before<!-- Multi\nline\ncomment -->After"
+    tokens = tokenize(wikitext)
+    assert len(tokens) == 1
+    assert tokens[0].value == "BeforeAfter"
+
+
+def test_subheading_with_html_comment_cleaned():
+    wikitext = "=== Notable members ===<!-- A comment -->"
+    tokens = tokenize(wikitext)
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.SUBHEADING
+    assert "<!--" not in tokens[0].value
+    assert "A comment" not in tokens[0].value
+    assert "Notable members" in tokens[0].value
+
+
 def test_mixed_content():
     wikitext = "First line.\n== Heading ==\nSecond line."
     tokens = tokenize(wikitext)
