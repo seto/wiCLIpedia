@@ -25,6 +25,7 @@ TEMPLATES_KEEP_LAST = {
     "citation",
     "date",
     "lang",
+    "langx",
     "langue",
     "nowrap",
     "portal inline",
