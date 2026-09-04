@@ -81,7 +81,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
         return {"status": "missing"}
 
     tokens = tokenize(wikitext)
-    blocks, buffer = [], []
+    blocks, buffer, links = [], [], []
     for token in tokens:
         if token.type == TokenType.TABLE:
             if buffer:
@@ -106,6 +106,12 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
 
             if cleaned:
                 buffer.append("• " + cleaned)
+
+                # A list item that links to another page (e.g. section "See also" /
+                # "Voci correlate") is also tracked to offer direct navigation
+                target = _extract_link_target(token.value)
+                if target:
+                    links.append({"page": target, "desc": cleaned})
 
         elif token.type == TokenType.TEXT:
             if buffer:
@@ -162,6 +168,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     return {
         "status": "found",
         "section": "\n\n".join(blocks),
+        "links": links,
         "_cached_at": response.get("_cached_at"),
     }
 
@@ -182,14 +189,10 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
     for line in lines:
         stripped = re.sub(r"('{2,5}|\*|{{.*?}})", "", line).strip()
 
-        # Prefer [[Page|alias]] over [[Page]] when extracting the page title,
-        # so that links with display text don't show the alias as the title
-        match = re.search(r"\[\[([^\]|]+)\|[^\]]*\]\]", stripped) or re.search(
-            r"\[\[([^\]]+)\]\]", stripped
-        )
+        title = _extract_link_target(stripped)
 
-        if match:
-            title = match.group(1).split("#")[0].strip()
+        if title:
+            match = re.search(r"\[\[[^\]]+\]\]", stripped)
             before = _clean_inline(stripped[: match.start()]).strip(" –-,")
             after = _clean_inline(stripped[match.end() :]).strip(" –-,")
 
@@ -231,6 +234,19 @@ def parse_toc(response: dict[str, Any]) -> dict[str, Any]:
         "sections": sections,
         "_cached_at": response.get("_cached_at"),
     }
+
+
+def _extract_link_target(text: str) -> str | None:
+    """Return the target page title of the first internal wikilink in text.
+
+    Prefers [[Page|alias]] over [[Page]] so that links with display text
+    don't return the alias in place of the actual page title.
+    """
+
+    match = re.search(r"\[\[([^\]|]+)\|[^\]]*\]\]", text) or re.search(
+        r"\[\[([^\]]+)\]\]", text
+    )
+    return match.group(1).split("#")[0].strip() if match else None
 
 
 def _clean_inline(text: str) -> str:

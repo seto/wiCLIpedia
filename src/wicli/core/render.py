@@ -191,11 +191,22 @@ def render_toc(sections: list, cached_at: float | None) -> str:
     return output
 
 
-def render_toc_navigation_prompt() -> str:
+def render_toc_navigation_prompt(has_links: bool = False) -> str:
+    if has_links:
+        return _style(
+            "Enter the section number, 'jN' to open a related page, or ':m' to show the menu:",
+            _CYAN,
+        )
     return _style("Enter the section number:", _CYAN)
 
 
-def render_toc_navigation_invalid_choice(choice: str) -> str:
+def render_toc_navigation_invalid_choice(choice: str, has_links: bool = False) -> str:
+    if has_links:
+        return _style(
+            f"'{choice}' is not a valid choice. Enter a valid section number, "
+            "a related page number (e.g. 'j1'), or ':m' to show the menu.",
+            _YELLOW,
+        )
     return _style(
         f"'{choice}' is not a valid choice. Enter a valid section number or ':m' to show the menu.",
         _YELLOW,
@@ -261,6 +272,23 @@ def render_section(title: str, section: str, cached_at: float | None) -> str:
 
 def render_section_not_found(title: str) -> str:
     return _style(f"Content not found for section '{title}'.", _YELLOW)
+
+
+def render_section_links(links: list) -> str:
+    pad = len(str(len(links)))
+
+    entries = []
+    for i, link in enumerate(links, start=1):
+        num = _style(f"{f'j{i}':<{pad + 1}}", _DIM)
+        entries.append(f"{num}  {_style(link['page'], _BOLD)}")
+
+    entries_str = "\n".join(entries)
+
+    return f"""
+{_style("Down the rabbit hole? Related pages you can jump to:", _BOLD)}
+
+{entries_str}
+"""
 
 
 def render_disambiguation(options: list, cached_at: float | None) -> str:

@@ -199,6 +199,24 @@ class TestParseSection:
         assert "'''" not in result["section"]
         assert "Bold text" in result["section"]
 
+    def test_list_item_link_extracted(self):
+        # A "See also" / "Voci correlate" style bullet list of wikilinks
+        response = {
+            "parse": {
+                "wikitext": "* [[Count Zero]]\n* [[Mona Lisa Overdrive|Mona Lisa Overdrive]]"
+            }
+        }
+        result = parse_section(response)
+        assert result["links"] == [
+            {"page": "Count Zero", "desc": "Count Zero"},
+            {"page": "Mona Lisa Overdrive", "desc": "Mona Lisa Overdrive"},
+        ]
+
+    def test_list_item_without_link_not_tracked(self):
+        response = {"parse": {"wikitext": "* Plain item without a link"}}
+        result = parse_section(response)
+        assert result["links"] == []
+
 
 class TestParseDisambiguation:
     def test_found_with_descriptions(self):

@@ -132,6 +132,24 @@ class TestFoundPage:
         mock_fetch_toc.assert_called_once()
 
 
+class TestRelatedPageNavigation:
+    def test_invalid_choice_then_jump_to_related_page(self):
+        with (
+            patch(
+                "wicli.cli.client.fetch_props",
+                side_effect=[_props_found(), _props_found()],
+            ),
+            patch("wicli.cli.client.fetch_summary", return_value=_summary()),
+            patch("wicli.cli.client.fetch_toc", return_value=_toc()),
+            patch("wicli.cli.client.fetch_section", return_value=_section_with_links()),
+            # y -> show TOC | 1 -> section with related links | zz -> invalid |
+            # j1 -> jump to "Related Page" | n -> skip TOC | :q -> quit
+            patch("builtins.input", side_effect=["y", "1", "zz", "j1", "n", ":q"]),
+        ):
+            result = main(["Test Page"])
+        assert result == 0
+
+
 class TestDisambiguation:
     def test_select_option_navigates_to_page(self):
         with (
@@ -363,6 +381,10 @@ def _toc():
 
 def _section():
     return {"parse": {"wikitext": "Section content here."}}
+
+
+def _section_with_links():
+    return {"parse": {"wikitext": "* [[Related Page]]"}}
 
 
 def _disambiguation():

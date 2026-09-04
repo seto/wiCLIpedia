@@ -118,9 +118,39 @@ class TestRenderInvalidChoice:
         assert "'99'" in result
         assert "':m'" in result
 
+    def test_toc_navigation_invalid_choice_with_links(self):
+        result = render.render_toc_navigation_invalid_choice("99", has_links=True)
+        assert "'99'" in result
+        assert "'j1'" in result
+
     def test_disambiguation_invalid_choice(self):
         result = render.render_disambiguation_invalid_choice("99")
         assert "'99'" in result
+
+
+class TestRenderTocNavigationPrompt:
+    def test_without_links(self):
+        result = render.render_toc_navigation_prompt()
+        assert "related page" not in result
+
+    def test_with_links(self):
+        result = render.render_toc_navigation_prompt(has_links=True)
+        assert "related page" in result
+
+
+class TestRenderSectionLinks:
+    def test_lists_all_pages(self):
+        links = [
+            {"page": "Neuromancer", "desc": "Neuromancer"},
+            {"page": "Count Zero", "desc": "Count Zero"},
+            {"page": "Mona Lisa Overdrive", "desc": "Mona Lisa Overdrive"},
+        ]
+        result = render.render_section_links(links)
+        assert "j1" in result
+        assert "j2" in result
+        assert "Neuromancer" in result
+        assert "Count Zero" in result
+        assert "Mona Lisa Overdrive" in result
 
 
 class TestRenderTableBlock:

@@ -115,6 +115,10 @@ def main(argv=None):
                     )
                 )
 
+                # Set when the user jumps to a related page from within a section
+                # (see below), so the target isn't reset once the loops unwind
+                jumped = False
+
                 # TOC prompt loop: Keeps asking until a valid choice (y/n)
                 # or a navigation command (:b/:q) is entered
                 while True:
@@ -144,10 +148,17 @@ def main(argv=None):
                             for s in parsed_tocdata["sections"]
                         }
 
+                        # Number-to-page mapping of related links found in the last
+                        # rendered section (e.g. a "See also"-style list); repopulated
+                        # on every section view and cleared when it has none
+                        related_map = {}
+
                         # Section navigation loop: Allows the user to repeatedly
                         # view different sections of the current page until exiting
                         while True:
-                            choice = _prompt(render.render_toc_navigation_prompt())
+                            choice = _prompt(
+                                render.render_toc_navigation_prompt(bool(related_map))
+                            )
 
                             if choice.lower() in (":b", ":q"):
                                 break
@@ -171,6 +182,7 @@ def main(argv=None):
 
                                 if not section.get("section"):
                                     print(render.render_section_not_found(title))
+                                    related_map = {}
                                     continue
 
                                 print(
@@ -180,9 +192,26 @@ def main(argv=None):
                                         cached_at=section.get("_cached_at"),
                                     )
                                 )
+
+                                related_map = {
+                                    f"j{i + 1}": link["page"]
+                                    for i, link in enumerate(section.get("links", []))
+                                }
+                                if related_map:
+                                    print(render.render_section_links(section["links"]))
+
                                 continue
 
-                            print(render.render_toc_navigation_invalid_choice(choice))
+                            if choice.lower() in related_map:
+                                target = related_map[choice.lower()]
+                                jumped = True
+                                break
+
+                            print(
+                                render.render_toc_navigation_invalid_choice(
+                                    choice, bool(related_map)
+                                )
+                            )
 
                         break
 
@@ -191,7 +220,9 @@ def main(argv=None):
                 if choice.lower() == ":q":
                     break
 
-                target = None
+                if not jumped:
+                    target = None
+
                 continue
 
             if props["status"] == "disambiguation":
