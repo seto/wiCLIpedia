@@ -108,3 +108,8 @@ This program is licensed under the
 (AGPL-3.0+).  
 See the [LICENSE](https://github.com/seto/wiCLIpedia/blob/master/LICENSE) file for
 details.
+
+## Changelog
+
+See [CHANGES.md](https://github.com/seto/wiCLIpedia/blob/master/CHANGES.md) for release
+notes.
