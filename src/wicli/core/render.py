@@ -1,19 +1,19 @@
 # Copyright (C) 2026  Roberto Matarazzo
 #
-# This file is part of WiCLIpedia.
+# This file is part of wiCLIpedia.
 #
-# WiCLIpedia is free software: you can redistribute it and/or modify
+# wiCLIpedia is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# WiCLIpedia is distributed in the hope that it will be useful,
+# wiCLIpedia is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
+# along with wiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
 """Module implementing the rendering of Wikipedia content for the CLI.
 
@@ -76,7 +76,7 @@ def render_welcome() -> str:
     message = f"""
 {_style(f"{separator}{logo}{separator}", _PURPLE, _BOLD)}
 
-{_style("Welcome to WiCLIpedia! Your command-line gateway to Wikipedia content.", _BOLD)}
+{_style("Welcome to wiCLIpedia! Your command-line gateway to Wikipedia content.", _BOLD)}
 
 To get started, enter a Wikipedia page title when prompted.
 You can specify the language at startup using -l or --lang (e.g., wicli --lang it).
@@ -119,7 +119,7 @@ def render_not_found(page: str, lang: str) -> str:
 
 
 def render_user_cancelled() -> str:
-    return _style("WiCLIpedia stopped by user.", _YELLOW, _BOLD)
+    return _style("wiCLIpedia stopped by user.", _YELLOW, _BOLD)
 
 
 def render_exit() -> str:

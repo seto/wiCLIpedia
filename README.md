@@ -1,4 +1,4 @@
-<h1 align="center">WiCLIpedia</h1>
+<h1 align="center">wiCLIpedia</h1>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0+-blue.svg" alt="License: AGPL-3.0-or-later"></a>
@@ -88,12 +88,12 @@ Set the `NO_COLOR` environment variable to disable them (see
 
 ## API Respect and Fair Use Disclaimer
 
-WiCLIpedia interfaces directly with the official Wikipedia PHP/MediaWiki APIs without
+wiCLIpedia interfaces directly with the official Wikipedia PHP/MediaWiki APIs without
 using any third-party scraping libraries.  
 Please use this program responsibly. If you need to perform massive automated data
 extraction, use official database dumps instead of hammering the live API.
 
-WiCLIpedia caches responses locally for 72 hours by default to minimize API load. Check
+wiCLIpedia caches responses locally for 72 hours by default to minimize API load. Check
 the [Cache](#cache) section for details.
 
 More information about the MediaWiki API and usage guidelines:

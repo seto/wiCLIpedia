@@ -1,21 +1,21 @@
 # Copyright (C) 2026  Roberto Matarazzo
 #
-# This file is part of WiCLIpedia.
+# This file is part of wiCLIpedia.
 #
-# WiCLIpedia is free software: you can redistribute it and/or modify
+# wiCLIpedia is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# WiCLIpedia is distributed in the hope that it will be useful,
+# wiCLIpedia is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with WiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
+# along with wiCLIpedia.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Module implementing the command line entry point of WiCLIpedia.
+"""Module implementing the command line entry point of wiCLIpedia.
 
 This module can be executed from the command line using the following command
 from the `src` directory:
@@ -41,7 +41,7 @@ from .parsing import parser
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
 
-    ap = argparse.ArgumentParser(prog="wicli", description="WiCLIpedia CLI")
+    ap = argparse.ArgumentParser(prog="wicli", description="wiCLIpedia CLI")
     ap.add_argument("page", nargs="?", default=None, help="page title")
     ap.add_argument("-l", "--lang", default="en", help="language code (default: en)")
     ap.add_argument("--no-cache", action="store_true", help="disable local cache")
