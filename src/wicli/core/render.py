@@ -389,7 +389,7 @@ def _style(text: str, *styles) -> str:
 def _license_notice() -> str:
     return """This program comes with ABSOLUTELY NO WARRANTY; for details type ':show-w'.
 This is free software, and you are welcome to redistribute it
-under certain conditions; type ':show-c' ofr details."""
+under certain conditions; type ':show-c' for details."""
 
 
 def _render_content_banner(cached_at: float) -> str:
