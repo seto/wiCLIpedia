@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.3.0
+
+### Added
+
+- Ability to jump to related pages directly from the article view. Six degrees of
+  Wikipedia, here you come.
+- AGPL startup notice and commands to show warranty and redistribution conditions.
+
 > **Note:** entries from 0.1.0 (initial release) to 0.2.4 were reconstructed from the
 > commit history and may not be 100% accurate.
 
