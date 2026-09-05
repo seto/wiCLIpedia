@@ -153,6 +153,16 @@ class TestRenderSectionLinks:
         assert "Mona Lisa Overdrive" in result
 
 
+class TestShowNotices:
+    def test_show_warranty_mentions_no_warranty(self):
+        result = render.show_warranty()
+        assert "NO WARRANTY" in result
+
+    def test_show_conditions_mentions_license(self):
+        result = render.show_conditions()
+        assert "GNU Affero General Public License" in result
+
+
 class TestRenderTableBlock:
     def test_table_block_rendered(self):
         from wicli.parsing.table import ParsedTable, TableCell, encode_table

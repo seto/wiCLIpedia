@@ -87,6 +87,8 @@ User navigation:
 
 {_style("Enjoy exploring Wikipedia from your terminal!", _ITALIC)}
 
+{_style(_license_notice(), _DIM, _ITALIC)}
+
 {separator}
 """
 
@@ -339,6 +341,31 @@ def render_disambiguation_not_found(page: str) -> str:
     return _style(f"Disambiguation options not found for page '{page}'.", _YELLOW)
 
 
+def show_warranty() -> str:
+    text = """
+THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
+EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE
+OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
+COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+"""
+    return _style(text, _DIM, _ITALIC)
+
+
+def show_conditions() -> str:
+    text = """
+This program is free software: you can redistribute it and/or modify 
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+See https://www.gnu.org/licenses/agpl-3.0.html for the full text.
+"""
+    return _style(text, _DIM, _ITALIC)
+
+
 def _get_width() -> int:
     try:
         column = os.get_terminal_size().columns
@@ -357,6 +384,12 @@ def _style(text: str, *styles) -> str:
         return f"{prefix}{text}{_RESET}"
 
     return text
+
+
+def _license_notice() -> str:
+    return """This program comes with ABSOLUTELY NO WARRANTY; for details type ':show-w'.
+This is free software, and you are welcome to redistribute it
+under certain conditions; type ':show-c' ofr details."""
 
 
 def _render_content_banner(cached_at: float) -> str:

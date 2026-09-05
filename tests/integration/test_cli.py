@@ -34,6 +34,18 @@ class TestQuitImmediately:
         assert result == 0
 
 
+class TestShowCommands:
+    def test_show_warranty_then_quit(self):
+        with patch("builtins.input", side_effect=[":show-w", ":q"]):
+            result = main([])
+        assert result == 0
+
+    def test_show_conditions_then_quit(self):
+        with patch("builtins.input", side_effect=[":show-c", ":q"]):
+            result = main([])
+        assert result == 0
+
+
 class TestPageNotFound:
     def test_page_not_found_prompts_again(self):
         with (

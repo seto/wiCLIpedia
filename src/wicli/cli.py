@@ -83,6 +83,14 @@ def main(argv=None):
                 if not choice or choice.lower() == ":b":
                     continue
 
+                if choice and choice.lower() == ":show-w":
+                    print(render.show_warranty())
+                    continue
+
+                if choice and choice.lower() == ":show-c":
+                    print(render.show_conditions())
+                    continue
+
                 target = choice
                 continue
 
