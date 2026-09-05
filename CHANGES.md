@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.3.1
+
+### Changed
+
+- Improved standalone CLI message rendering with `_render_message`, wrapping text to the
+  terminal width before applying ANSI styles and consistently handling line breaks and
+  optional vertical padding for notices.
+
 ## Version 0.3.0
 
 ### Added
