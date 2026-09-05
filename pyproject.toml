@@ -8,7 +8,8 @@ version = "0.2.4"
 description = "Minimalist Wikipedia CLI client for terminal dwellers."
 readme = "README.md"
 authors = [{ name="seto" }]
-license = { text="AGPL-3.0-or-later" }
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -17,7 +18,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Environment :: Console",
     "Operating System :: OS Independent",
     "Intended Audience :: End Users/Desktop",
