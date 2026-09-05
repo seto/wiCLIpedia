@@ -27,6 +27,7 @@ human-curated backbone that feeds those very models. Never forget the source._
 
 - Fetches and displays article summaries and table of contents
 - Navigates article sections interactively
+- Jumps to related pages linked within the article sections
 - Handles redirects and disambiguation pages automatically
 - Supports multiple Wikipedia languages
 - Caches responses locally to minimize API calls
@@ -52,8 +53,11 @@ To navigate, use the section numbers shown in the table of contents.
 If the query matches a disambiguation page, you will be prompted to select the intended
 article from a list of options.
 
-By default, it fetches the English Wikipedia.  
-To specify a different language, use the `-l` or `--lang` option:
+While reading an article, related pages found in list items (e.g. a "See also" see) are
+listed at the end of each section. Use `j1`, `j2`, etc. to jump directly to one of them.
+
+By default, it fetches the English Wikipedia. To specify a different language, use the
+`-l` or `--lang` option:
 
 ```bash
 wicli "La classe operaia va in paradiso" --lang it
