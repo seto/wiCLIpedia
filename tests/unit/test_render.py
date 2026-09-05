@@ -96,6 +96,30 @@ class TestRenderStyle:
         assert "hello" in result
 
 
+class TestRenderMessage:
+    def test_wraps_before_applying_styles(self, monkeypatch):
+        monkeypatch.setattr(render, "_get_width", lambda: 24)
+        monkeypatch.setattr(render, "_NO_COLOR", False)
+
+        result = render.render_toc_navigation_invalid_choice("x", has_links=True)
+        plain_result = result.replace(render._YELLOW, "").replace(render._RESET, "")
+
+        assert all(len(line) <= 24 for line in plain_result.splitlines())
+        assert render._YELLOW in result
+
+    def test_wraps_dynamic_values(self, monkeypatch):
+        monkeypatch.setattr(render, "_get_width", lambda: 20)
+
+        result = render.render_title_fallback("a very long title", "another long title")
+
+        assert all(len(line) <= 20 for line in result.splitlines())
+
+    def test_adds_requested_vertical_padding(self):
+        result = render._render_message("hello", padding_lines=1)
+
+        assert result == "\nhello\n"
+
+
 class TestRenderContentBannerCached:
     def test_cached_at_shows_timestamp(self):
         result = render._render_content_banner(cached_at=1700000000.0)
@@ -157,10 +181,14 @@ class TestShowNotices:
     def test_show_warranty_mentions_no_warranty(self):
         result = render.show_warranty()
         assert "NO WARRANTY" in result
+        assert result.startswith("\n")
+        assert result.endswith("\n")
 
     def test_show_conditions_mentions_license(self):
         result = render.show_conditions()
         assert "GNU Affero General Public License" in result
+        assert result.startswith("\n")
+        assert result.endswith("\n")
 
 
 class TestRenderTableBlock:

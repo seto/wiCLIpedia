@@ -76,7 +76,7 @@ def render_welcome() -> str:
     message = f"""
 {_style(f"{separator}{logo}{separator}", _PURPLE, _BOLD)}
 
-{_style("Welcome to wiCLIpedia! Your command-line gateway to Wikipedia content.", _BOLD)}
+{_render_message("Welcome to wiCLIpedia! Your command-line gateway to Wikipedia content.", _BOLD)}
 
 To get started, enter a Wikipedia page title when prompted.
 You can specify the language at startup using -l or --lang (e.g., wicli --lang it).
@@ -85,9 +85,9 @@ User navigation:
     :b - Go back to the start prompt
     :q - Quit the application
 
-{_style("Enjoy exploring Wikipedia from your terminal!", _ITALIC)}
+{_render_message("Enjoy exploring Wikipedia from your terminal!", _ITALIC)}
 
-{_style(_license_notice(), _DIM, _ITALIC)}
+{_render_message(_license_notice(), _DIM, _ITALIC)}
 
 {separator}
 """
@@ -97,35 +97,45 @@ User navigation:
 
 def render_cache_purged(rows: int) -> str:
     if rows == 0:
-        return _style("Cache is already empty. No entries to purge.", _BLUE, _BOLD)
+        return _render_message(
+            "Cache is already empty. No entries to purge.", _BLUE, _BOLD
+        )
     elif rows == 1:
-        return _style("Cache purged successfully. 1 entry removed.", _GREEN, _BOLD)
+        return _render_message(
+            "Cache purged successfully. 1 entry removed.", _GREEN, _BOLD
+        )
 
-    return _style(f"Cache purged successfully. {rows} entries removed.", _GREEN, _BOLD)
+    return _render_message(
+        f"Cache purged successfully. {rows} entries removed.", _GREEN, _BOLD
+    )
 
 
 def render_start_prompt() -> str:
-    return _style("Enter a page title:", _CYAN)
+    return _render_message("Enter a page title:", _CYAN)
 
 
 def render_redirect(page: str) -> str:
-    return _style(f"Redirected to '{page}'.", _BLUE, _BOLD)
+    return _render_message(f"Redirected to '{page}'.", _BLUE, _BOLD)
 
 
 def render_title_fallback(original: str, fallback: str) -> str:
-    return _style(f"Page '{original}' not found. Trying '{fallback}'.", _BLUE, _BOLD)
+    return _render_message(
+        f"Page '{original}' not found. Trying '{fallback}'.", _BLUE, _BOLD
+    )
 
 
 def render_not_found(page: str, lang: str) -> str:
-    return _style(f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD)
+    return _render_message(
+        f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD
+    )
 
 
 def render_user_cancelled() -> str:
-    return _style("wiCLIpedia stopped by user.", _YELLOW, _BOLD)
+    return _render_message("wiCLIpedia stopped by user.", _YELLOW, _BOLD)
 
 
 def render_exit() -> str:
-    return _style("Goodbye!", _GREEN, _BOLD)
+    return _render_message("Goodbye!", _GREEN, _BOLD)
 
 
 def render_summary(title: str, paragraphs: list[str], cached_at: float | None) -> str:
@@ -136,7 +146,7 @@ def render_summary(title: str, paragraphs: list[str], cached_at: float | None) -
     output = f"""
 {_render_content_banner(cached_at)}
 
-{_style(title, _BOLD)}
+{_render_message(title, _BOLD)}
 
 {summary}
 """
@@ -145,15 +155,17 @@ def render_summary(title: str, paragraphs: list[str], cached_at: float | None) -
 
 
 def render_summary_not_found(title: str) -> str:
-    return _style(f"Summary not found for page '{title}'.", _YELLOW)
+    return _render_message(f"Summary not found for page '{title}'.", _YELLOW)
 
 
 def render_toc_prompt() -> str:
-    return _style("Do you want to see the table of contents (Y/n)?", _CYAN)
+    return _render_message("Do you want to see the table of contents (Y/n)?", _CYAN)
 
 
 def render_toc_invalid_choice(choice: str) -> str:
-    return _style(f"'{choice}' is not a valid choice. Enter 'y' or 'n'.", _YELLOW)
+    return _render_message(
+        f"'{choice}' is not a valid choice. Enter 'y' or 'n'.", _YELLOW
+    )
 
 
 def render_toc(sections: list, cached_at: float | None) -> str:
@@ -185,7 +197,7 @@ def render_toc(sections: list, cached_at: float | None) -> str:
     output = f"""
 {_render_content_banner(cached_at)}
 
-{_style("Available content for this page:", _BOLD)}
+{_render_message("Available content for this page:", _BOLD)}
 
 {toc_str}
 """
@@ -195,28 +207,28 @@ def render_toc(sections: list, cached_at: float | None) -> str:
 
 def render_toc_navigation_prompt(has_links: bool = False) -> str:
     if has_links:
-        return _style(
+        return _render_message(
             "Enter the section number, 'jN' to open a related page, or ':m' to show the menu:",
             _CYAN,
         )
-    return _style("Enter the section number:", _CYAN)
+    return _render_message("Enter the section number:", _CYAN)
 
 
 def render_toc_navigation_invalid_choice(choice: str, has_links: bool = False) -> str:
     if has_links:
-        return _style(
+        return _render_message(
             f"'{choice}' is not a valid choice. Enter a valid section number, "
             "a related page number (e.g. 'j1'), or ':m' to show the menu.",
             _YELLOW,
         )
-    return _style(
+    return _render_message(
         f"'{choice}' is not a valid choice. Enter a valid section number or ':m' to show the menu.",
         _YELLOW,
     )
 
 
 def render_toc_not_found() -> str:
-    return _style("Table of contents not found for this page.", _YELLOW)
+    return _render_message("Table of contents not found for this page.", _YELLOW)
 
 
 def render_section(title: str, section: str, cached_at: float | None) -> str:
@@ -264,7 +276,7 @@ def render_section(title: str, section: str, cached_at: float | None) -> str:
     output = f"""
 {_render_content_banner(cached_at)}
 
-{_style(title, _BOLD)}
+{_render_message(title, _BOLD)}
 
 {content}
 """
@@ -273,7 +285,7 @@ def render_section(title: str, section: str, cached_at: float | None) -> str:
 
 
 def render_section_not_found(title: str) -> str:
-    return _style(f"Content not found for section '{title}'.", _YELLOW)
+    return _render_message(f"Content not found for section '{title}'.", _YELLOW)
 
 
 def render_section_links(links: list) -> str:
@@ -287,7 +299,7 @@ def render_section_links(links: list) -> str:
     entries_str = "\n".join(entries)
 
     return f"""
-{_style("Down the rabbit hole? Related pages you can jump to:", _BOLD)}
+{_render_message("Down the rabbit hole? Related pages you can jump to:", _BOLD)}
 
 {entries_str}
 """
@@ -314,7 +326,7 @@ def render_disambiguation(options: list, cached_at: float | None) -> str:
     output = f"""
 {_render_content_banner(cached_at)}
 
-{_style("This page is a disambiguation for the following options:", _BOLD)}
+{_render_message("This page is a disambiguation for the following options:", _BOLD)}
 
 {links_str}
 """
@@ -323,22 +335,26 @@ def render_disambiguation(options: list, cached_at: float | None) -> str:
 
 
 def render_disambiguation_redirect(page: str) -> str:
-    return _style(f"Redirected to '{page} (disambiguation page)'.", _BLUE, _BOLD)
+    return _render_message(
+        f"Redirected to '{page} (disambiguation page)'.", _BLUE, _BOLD
+    )
 
 
 def render_disambiguation_prompt() -> str:
-    return _style("Enter the page number:", _CYAN)
+    return _render_message("Enter the page number:", _CYAN)
 
 
 def render_disambiguation_invalid_choice(choice: str) -> str:
-    return _style(
+    return _render_message(
         f"'{choice}' is not a valid choice. Enter a valid page number.",
         _YELLOW,
     )
 
 
 def render_disambiguation_not_found(page: str) -> str:
-    return _style(f"Disambiguation options not found for page '{page}'.", _YELLOW)
+    return _render_message(
+        f"Disambiguation options not found for page '{page}'.", _YELLOW
+    )
 
 
 def show_warranty() -> str:
@@ -351,7 +367,7 @@ FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMA
 OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
 COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 """
-    return _style(text, _DIM, _ITALIC)
+    return _render_message(text, _DIM, _ITALIC, padding_lines=1)
 
 
 def show_conditions() -> str:
@@ -363,7 +379,7 @@ License, or (at your option) any later version.
 
 See https://www.gnu.org/licenses/agpl-3.0.html for the full text.
 """
-    return _style(text, _DIM, _ITALIC)
+    return _render_message(text, _DIM, _ITALIC, padding_lines=1)
 
 
 def _get_width() -> int:
@@ -384,6 +400,17 @@ def _style(text: str, *styles) -> str:
         return f"{prefix}{text}{_RESET}"
 
     return text
+
+
+def _render_message(text: str, *styles, padding_lines: int = 0) -> str:
+    """Wrap a standalone CLI message and optionally add vertical padding."""
+
+    message = "\n".join(
+        textwrap.fill(line, width=_get_width()) if line else ""
+        for line in text.strip("\n").splitlines()
+    )
+    padding = "\n" * padding_lines
+    return _style(f"{padding}{message}{padding}", *styles)
 
 
 def _license_notice() -> str:
@@ -430,7 +457,7 @@ def _render_table(table) -> str:
 
     lines = []
     if table.caption:
-        lines.append(_style(table.caption, _BOLD))
+        lines.append(_render_message(table.caption, _BOLD))
     lines.append(outer_sep)
 
     for i, row in enumerate(table.rows):
