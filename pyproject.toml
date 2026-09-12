@@ -42,6 +42,7 @@ dev = [
 
 [project.urls]
 Source = "https://github.com/seto/wiCLIpedia"
+Changelog = "https://github.com/seto/wiCLIpedia/blob/master/CHANGES.md"
 
 [project.scripts]
 wicli = "wicli.cli:main"
