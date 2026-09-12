@@ -62,7 +62,7 @@ def render_welcome() -> str:
     | |/ |/ / / /___/ /____/ // /_/ /  __/ /_/ / / /_/ / 
     |__/|__/_/\____/_____/___/ .___/\___/\__,_/_/\__,_/  
                             /_/                          
-"""
+"""  # noqa: W291
         # Fallback to simple text if terminal is
         # narrower than the 58-char ASCII logo
         if width >= 58
@@ -372,7 +372,7 @@ COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 
 def show_conditions() -> str:
     text = """
-This program is free software: you can redistribute it and/or modify 
+This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.

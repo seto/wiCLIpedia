@@ -151,7 +151,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                 cleaned_lines = [
                     _clean_inline(line) for line in inner.split("\x00LINE\x00")
                 ]
-                cleaned_lines = [l for l in cleaned_lines if l]
+                cleaned_lines = [line for line in cleaned_lines if line]
                 if cleaned_lines:
                     blocks.append(
                         "\x00POEM\x00" + "\x00LINE\x00".join(cleaned_lines) + "\x00"
@@ -198,10 +198,7 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
 
             # Reverse order: after comes first to preserve natural
             # reading flow when the link appears mid-line or at the end
-            if before and after:
-                desc = f"{after}, {before}"
-            else:
-                desc = after or before
+            desc = f"{after}, {before}" if before and after else after or before
 
             links.append({"page": title, "desc": desc})
 
