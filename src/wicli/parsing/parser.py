@@ -81,7 +81,9 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
         return {"status": "missing"}
 
     tokens = tokenize(wikitext)
-    blocks, buffer, links = [], [], []
+    blocks: list[str] = []
+    buffer: list[str] = []
+    links: list[dict[str, str]] = []
     for token in tokens:
         if token.type == TokenType.TABLE:
             if buffer:
@@ -193,14 +195,15 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
 
         if title:
             match = re.search(r"\[\[[^\]]+\]\]", stripped)
-            before = _clean_inline(stripped[: match.start()]).strip(" –-,")
-            after = _clean_inline(stripped[match.end() :]).strip(" –-,")
+            if match:
+                before = _clean_inline(stripped[: match.start()]).strip(" –-,")
+                after = _clean_inline(stripped[match.end() :]).strip(" –-,")
 
-            # Reverse order: after comes first to preserve natural
-            # reading flow when the link appears mid-line or at the end
-            desc = f"{after}, {before}" if before and after else after or before
+                # Reverse order: after comes first to preserve natural
+                # reading flow when the link appears mid-line or at the end
+                desc = f"{after}, {before}" if before and after else after or before
 
-            links.append({"page": title, "desc": desc})
+                links.append({"page": title, "desc": desc})
 
     return {
         "status": "found",

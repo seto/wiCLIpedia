@@ -38,7 +38,7 @@ from .core.exceptions import WicliAPIError, WicliNetworkError
 from .parsing import parser
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
 
     ap = argparse.ArgumentParser(prog="wicli", description="wiCLIpedia CLI")
@@ -102,7 +102,7 @@ def main(argv=None):
             target, props = resolved
 
             if props["status"] == "redirect":
-                target = props.get("target")
+                target = props["target"]
                 print(render.render_redirect(target))
                 continue
 
@@ -118,7 +118,7 @@ def main(argv=None):
                 print(
                     render.render_summary(
                         target,
-                        summary.get("paragraphs"),
+                        summary["paragraphs"],
                         cached_at=summary.get("_cached_at"),
                     )
                 )
@@ -146,7 +146,7 @@ def main(argv=None):
 
                         print(
                             render.render_toc(
-                                parsed_tocdata.get("sections"),
+                                parsed_tocdata["sections"],
                                 cached_at=parsed_tocdata.get("_cached_at"),
                             )
                         )
@@ -159,7 +159,7 @@ def main(argv=None):
                         # Number-to-page mapping of related links found in the last
                         # rendered section (e.g. a "See also"-style list); repopulated
                         # on every section view and cleared when it has none
-                        related_map = {}
+                        related_map: dict[str, str] = {}
 
                         # Section navigation loop: Allows the user to repeatedly
                         # view different sections of the current page until exiting
@@ -174,7 +174,7 @@ def main(argv=None):
                             if choice.lower() == ":m":
                                 print(
                                     render.render_toc(
-                                        parsed_tocdata.get("sections"),
+                                        parsed_tocdata["sections"],
                                         cached_at=parsed_tocdata.get("_cached_at"),
                                     )
                                 )
@@ -196,7 +196,7 @@ def main(argv=None):
                                 print(
                                     render.render_section(
                                         title,
-                                        section.get("section"),
+                                        section["section"],
                                         cached_at=section.get("_cached_at"),
                                     )
                                 )
@@ -246,7 +246,7 @@ def main(argv=None):
 
                 print(
                     render.render_disambiguation(
-                        disambiguation.get("options"),
+                        disambiguation["options"],
                         cached_at=disambiguation.get("_cached_at"),
                     )
                 )

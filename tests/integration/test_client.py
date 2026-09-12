@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from unittest.mock import MagicMock, patch
 from urllib.error import HTTPError, URLError
 
@@ -184,7 +185,7 @@ class TestFetchFunctions:
         client_module._USE_CACHE = True
 
     def test_fetch_props_makes_http_call(self):
-        api_data = {"query": {"pages": [{"pageprops": {}}]}}
+        api_data: dict[str, Any] = {"query": {"pages": [{"pageprops": {}}]}}
         with patch("wicli.core.client.urlopen", return_value=_mock_response(api_data)):
             result = client_module.fetch_props("Python", lang="en")
         assert result == api_data
@@ -200,7 +201,7 @@ class TestFetchFunctions:
         assert result == api_data
 
     def test_fetch_toc_cache_miss_makes_http_call(self):
-        api_data = {"parse": {"tocdata": {"sections": []}}}
+        api_data: dict[str, Any] = {"parse": {"tocdata": {"sections": []}}}
         with (
             patch("wicli.core.client.cache.load", return_value=None),
             patch("wicli.core.client.cache.save"),

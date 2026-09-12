@@ -29,7 +29,7 @@ import sys
 import textwrap
 import time
 
-from ..parsing.table import decode_table
+from ..parsing.table import ParsedTable, decode_table
 
 _NO_COLOR = (
     os.environ.get("NO_COLOR") is not None
@@ -171,14 +171,14 @@ def render_toc_invalid_choice(choice: str) -> str:
 def render_toc(sections: list, cached_at: float | None) -> str:
     # Map each tocLevel to the maximum number width at that level,
     # used to align section numbers consistently within each level
-    widths = {}
+    widths: dict[int, int] = {}
     for section in sections:
         lvl = section["tocLevel"]
         widths[lvl] = max(widths.get(lvl, 0), len(str(section["number"])))
 
     # Compute the cumulative indentation for each tocLevel by summing
     # the number widths (plus 2 separator spaces) of all preceding levels
-    indents = {}
+    indents: dict[int, int] = {}
     offset = 0
     for lvl, width in sorted(widths.items()):
         indents[lvl] = offset
@@ -392,7 +392,7 @@ def _get_width() -> int:
     return width
 
 
-def _style(text: str, *styles) -> str:
+def _style(text: str, *styles: str) -> str:
     """Apply ANSI style codes to text, unless NO_COLOR is set."""
 
     if not _NO_COLOR:
@@ -402,7 +402,7 @@ def _style(text: str, *styles) -> str:
     return text
 
 
-def _render_message(text: str, *styles, padding_lines: int = 0) -> str:
+def _render_message(text: str, *styles: str, padding_lines: int = 0) -> str:
     """Wrap a standalone CLI message and optionally add vertical padding."""
 
     message = "\n".join(
@@ -419,7 +419,7 @@ This is free software, and you are welcome to redistribute it
 under certain conditions; type ':show-c' for details."""
 
 
-def _render_content_banner(cached_at: float) -> str:
+def _render_content_banner(cached_at: float | None) -> str:
     width = _get_width()
     separator = _style("─" * width, _DIM)
 
@@ -440,7 +440,7 @@ def _render_content_banner(cached_at: float) -> str:
     return banner
 
 
-def _render_table(table) -> str:
+def _render_table(table: ParsedTable) -> str:
     if not table.rows or not table.rows[0]:
         return ""
 

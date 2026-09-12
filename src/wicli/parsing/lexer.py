@@ -181,7 +181,8 @@ def _strip_templates(text: str) -> str:
     """
 
     i, depth = 0, 0
-    result, current = [], []
+    result: list[str] = []
+    current: list[str] = []
     while i < len(text):
         if text[i : i + 2] == "{{":
             depth += 1

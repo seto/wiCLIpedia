@@ -28,6 +28,7 @@ def test_save_and_load():
 def test_load_injects_cached_at():
     cache.save("Python", "en", "summary", {"key": "value"})
     result = cache.load("Python", "en", "summary")
+    assert result is not None
     assert "_cached_at" in result
     assert isinstance(result["_cached_at"], float)
 
@@ -55,6 +56,7 @@ def test_save_overwrites():
     cache.save("Python", "en", "summary", {"v": 1})
     cache.save("Python", "en", "summary", {"v": 2})
     result = cache.load("Python", "en", "summary")
+    assert result is not None
     assert result["v"] == 2
 
 

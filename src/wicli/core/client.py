@@ -31,6 +31,7 @@ found at the following docs page:
 import functools
 import json
 import time
+from collections.abc import Callable
 from importlib.metadata import version
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -46,17 +47,17 @@ _USE_CACHE = True
 _MAX_RETRIES = 3
 
 
-def disable_cache():
+def disable_cache() -> None:
     global _USE_CACHE
     _USE_CACHE = False
 
 
-def _cached(resource: str):
+def _cached(resource: str) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator that loads from cache before calling fn, and saves the result after."""
 
-    def decorator(fn):
+    def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(fn)
-        def wrapper(page: str, lang: str = "en", **kwargs):
+        def wrapper(page: str, lang: str = "en", **kwargs: Any) -> Any:
             if not _USE_CACHE:
                 return fn(page, lang=lang, **kwargs)
 
@@ -157,7 +158,8 @@ def _get(url: str) -> dict[str, Any]:
 
     req = Request(url, headers={"User-Agent": _USER_AGENT})
 
-    for attempt in range(_MAX_RETRIES + 1):
+    attempt = 0
+    while True:
         try:
             with urlopen(req, timeout=10) as response:
                 try:
@@ -174,6 +176,7 @@ def _get(url: str) -> dict[str, Any]:
                 except ValueError:
                     wait = 3 ** (attempt + 1)
 
+                attempt += 1
                 time.sleep(wait)
                 continue
 

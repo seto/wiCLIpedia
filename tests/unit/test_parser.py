@@ -1,3 +1,5 @@
+from typing import Any
+
 from wicli.parsing.parser import (
     parse_disambiguation,
     parse_props,
@@ -20,7 +22,7 @@ class TestParseProps:
         assert result["status"] == "missing"
 
     def test_empty_pages(self):
-        response = {"query": {"pages": []}}
+        response: dict[str, Any] = {"query": {"pages": []}}
         result = parse_props(response)
         assert result["status"] == "missing"
 
@@ -102,7 +104,7 @@ class TestParseToc:
         assert result["sections"][0]["number"] == "1"
 
     def test_missing_empty_sections(self):
-        response = {"parse": {"tocdata": {"sections": []}}}
+        response: dict[str, Any] = {"parse": {"tocdata": {"sections": []}}}
         result = parse_toc(response)
         assert result["status"] == "missing"
 
