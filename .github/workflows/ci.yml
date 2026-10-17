@@ -30,7 +30,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: pip install -r requirements-dev.txt
 
       - name: Run Ruff
         run: ruff check src tests
@@ -48,7 +48,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: pip install -r requirements-dev.txt
 
       - name: Run Mypy
         run: mypy src tests
@@ -77,7 +77,7 @@ jobs:
           allow-prereleases: ${{ matrix.experimental }}
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: pip install -r requirements-dev.txt
 
       - name: Run tests
         run: pytest --cov=wicli --cov-report=term-missing
