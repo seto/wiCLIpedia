@@ -77,7 +77,9 @@ jobs:
           allow-prereleases: ${{ matrix.experimental }}
 
       - name: Install dependencies
-        run: pip install -r requirements-dev.txt
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -e .
 
       - name: Run tests
         run: pytest --cov=wicli --cov-report=term-missing
