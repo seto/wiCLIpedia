@@ -29,6 +29,7 @@ import html
 import re
 
 from .languages.templates import (
+    ALBUM_TEMPLATES,
     BLOCKQUOTE_TEMPLATES,
     CITATION_TEMPLATES,
     FILE_NAMESPACES,
@@ -230,6 +231,24 @@ def _strip_templates(text: str) -> str:
                     year = params.get(CITATION_TEMPLATES[name]["year"], "").strip()
                     if title:
                         result.append(f"{title} - {year}." if year else title)
+
+                elif name in ALBUM_TEMPLATES:
+                    params = _parse_named_params(parts[1:])
+                    title = params.get("titre", "").strip()
+                    year = params.get("année", "").strip()
+                    content = params.get("contenu", "").strip()
+
+                    header_parts = [title] if title else []
+                    if year:
+                        header_parts.append(f"({year})")
+
+                    album_text = []
+                    if header_parts:
+                        album_text.append(f"'''{' '.join(header_parts)}'''")
+                    if content:
+                        album_text.append(content)
+                    if album_text:
+                        result.append("\n" + "\n".join(album_text) + "\n")
 
                 elif name in TEMPLATES_STATIC:
                     result.append(TEMPLATES_STATIC[name])

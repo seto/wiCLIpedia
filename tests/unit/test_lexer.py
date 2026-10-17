@@ -136,6 +136,26 @@ def test_citation_template_without_title_discarded():
     assert tokens == []
 
 
+def test_album_template_keeps_title_year_and_track_list():
+    wikitext = """{{Album|titre = The Soft Moon
+|label = Captured Tracks
+|année = 2010
+|contenu =
+#''Breathe The Fire''
+#''Circles''
+}}"""
+
+    tokens = tokenize(wikitext)
+
+    assert len(tokens) == 3
+    assert tokens[0].type == TokenType.TEXT
+    assert tokens[0].value == "'''The Soft Moon (2010)'''"
+    assert tokens[1].type == TokenType.LIST_ITEM
+    assert tokens[1].value == "#''Breathe The Fire''"
+    assert tokens[2].type == TokenType.LIST_ITEM
+    assert tokens[2].value == "#''Circles''"
+
+
 def test_table_consumed_as_single_token():
     wikitext = "{|\n! Header\n|-\n| Cell\n|}"
     tokens = tokenize(wikitext)

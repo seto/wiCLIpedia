@@ -94,3 +94,8 @@ CITATION_TEMPLATES = {
     "internetquelle": {"title": "titel", "year": "datum"},
     "lien web": {"title": "titre", "year": "année"},
 }
+
+# Templates for album-related blocks; found in discography sections on French Wikipedia
+ALBUM_TEMPLATES = {
+    "album",
+}
