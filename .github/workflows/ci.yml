@@ -55,6 +55,7 @@ jobs:
 
   test:
     name: Python ${{ matrix.python-version }}
+    needs: [lint, typecheck]
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
     strategy:
