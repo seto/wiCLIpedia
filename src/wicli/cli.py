@@ -160,12 +160,16 @@ def main(argv: list[str] | None = None) -> int:
                         # rendered section (e.g. a "See also"-style list); repopulated
                         # on every section view and cleared when it has none
                         related_map: dict[str, str] = {}
+                        related_links: list[dict[str, str]] = []
+                        related_links_shown = False
 
                         # Section navigation loop: Allows the user to repeatedly
                         # view different sections of the current page until exiting
                         while True:
                             choice = _prompt(
-                                render.render_toc_navigation_prompt(bool(related_map))
+                                render.render_toc_navigation_prompt(
+                                    bool(related_map), related_links_shown
+                                )
                             )
 
                             if choice.lower() in (":b", ":q"):
@@ -191,6 +195,8 @@ def main(argv: list[str] | None = None) -> int:
                                 if not section.get("section"):
                                     print(render.render_section_not_found(title))
                                     related_map = {}
+                                    related_links = []
+                                    related_links_shown = False
                                     continue
 
                                 print(
@@ -205,19 +211,26 @@ def main(argv: list[str] | None = None) -> int:
                                     f"j{i + 1}": link["page"]
                                     for i, link in enumerate(section.get("links", []))
                                 }
+                                related_links = section.get("links", [])
+                                related_links_shown = False
                                 if related_map:
-                                    print(render.render_section_links(section["links"]))
+                                    print(render.render_rabbit_hole_prompt())
 
                                 continue
 
-                            if choice.lower() in related_map:
+                            if choice.lower() == "j" and related_map:
+                                print(render.render_section_links(related_links))
+                                related_links_shown = True
+                                continue
+
+                            if related_links_shown and choice.lower() in related_map:
                                 target = related_map[choice.lower()]
                                 jumped = True
                                 break
 
                             print(
                                 render.render_toc_navigation_invalid_choice(
-                                    choice, bool(related_map)
+                                    choice, bool(related_map), related_links_shown
                                 )
                             )
 

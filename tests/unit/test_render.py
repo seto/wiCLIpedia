@@ -145,6 +145,13 @@ class TestRenderInvalidChoice:
     def test_toc_navigation_invalid_choice_with_links(self):
         result = render.render_toc_navigation_invalid_choice("99", has_links=True)
         assert "'99'" in result
+        assert "'j' to show related pages" in result
+
+    def test_toc_navigation_invalid_choice_with_shown_links(self):
+        result = render.render_toc_navigation_invalid_choice(
+            "99", has_links=True, links_shown=True
+        )
+        assert "'99'" in result
         assert "'j1'" in result
 
     def test_disambiguation_invalid_choice(self):
@@ -157,9 +164,11 @@ class TestRenderTocNavigationPrompt:
         result = render.render_toc_navigation_prompt()
         assert "related page" not in result
 
-    def test_with_links(self):
-        result = render.render_toc_navigation_prompt(has_links=True)
-        assert "related page" in result
+
+
+    def test_with_shown_links(self):
+        result = render.render_toc_navigation_prompt(has_links=True, links_shown=True)
+        assert "'jN' to open a related page" in result
 
 
 class TestRenderSectionLinks:
@@ -175,6 +184,10 @@ class TestRenderSectionLinks:
         assert "Neuromancer" in result
         assert "Count Zero" in result
         assert "Mona Lisa Overdrive" in result
+
+    def test_related_pages_prompt_suggests_j(self):
+        result = render.render_rabbit_hole_prompt()
+        assert "Down the rabbit hole?" in result
 
 
 class TestShowNotices:

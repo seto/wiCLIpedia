@@ -205,8 +205,15 @@ def render_toc(sections: list, cached_at: float | None) -> str:
     return output
 
 
-def render_toc_navigation_prompt(has_links: bool = False) -> str:
+def render_toc_navigation_prompt(
+    has_links: bool = False, links_shown: bool = False
+) -> str:
     if has_links:
+        if not links_shown:
+            return _render_message(
+                "Enter the section number, or ':m' to show the menu:",
+                _CYAN,
+            )
         return _render_message(
             "Enter the section number, 'jN' to open a related page, or ':m' to show the menu:",
             _CYAN,
@@ -214,8 +221,16 @@ def render_toc_navigation_prompt(has_links: bool = False) -> str:
     return _render_message("Enter the section number:", _CYAN)
 
 
-def render_toc_navigation_invalid_choice(choice: str, has_links: bool = False) -> str:
+def render_toc_navigation_invalid_choice(
+    choice: str, has_links: bool = False, links_shown: bool = False
+) -> str:
     if has_links:
+        if not links_shown:
+            return _render_message(
+                f"'{choice}' is not a valid choice. Enter a valid section number, "
+                "'j' to show related pages, or ':m' to show the menu.",
+                _YELLOW,
+            )
         return _render_message(
             f"'{choice}' is not a valid choice. Enter a valid section number, "
             "a related page number (e.g. 'j1'), or ':m' to show the menu.",
@@ -288,7 +303,7 @@ def render_section_not_found(title: str) -> str:
     return _render_message(f"Content not found for section '{title}'.", _YELLOW)
 
 
-def render_section_links(links: list) -> str:
+def render_section_links(links: list[dict[str, str]]) -> str:
     pad = len(str(len(links)))
 
     entries = []
@@ -299,10 +314,14 @@ def render_section_links(links: list) -> str:
     entries_str = "\n".join(entries)
 
     return f"""
-{_render_message("Down the rabbit hole? Related pages you can jump to:", _BOLD)}
+{_render_message("Related pages you can jump to:", _BOLD)}
 
 {entries_str}
 """
+
+
+def render_rabbit_hole_prompt() -> str:
+    return _render_message("Down the rabbit hole? Enter 'j' to show related pages.", _CYAN, _BOLD)
 
 
 def render_disambiguation(options: list, cached_at: float | None) -> str:

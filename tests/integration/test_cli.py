@@ -145,7 +145,7 @@ class TestFoundPage:
 
 
 class TestRelatedPageNavigation:
-    def test_invalid_choice_then_jump_to_related_page(self):
+    def test_related_pages_are_shown_on_request_then_opened(self, capsys):
         with (
             patch(
                 "wicli.cli.client.fetch_props",
@@ -154,12 +154,15 @@ class TestRelatedPageNavigation:
             patch("wicli.cli.client.fetch_summary", return_value=_summary()),
             patch("wicli.cli.client.fetch_toc", return_value=_toc()),
             patch("wicli.cli.client.fetch_section", return_value=_section_with_links()),
-            # y -> show TOC | 1 -> section with related links | zz -> invalid |
-            # j1 -> jump to "Related Page" | n -> skip TOC | :q -> quit
-            patch("builtins.input", side_effect=["y", "1", "zz", "j1", "n", ":q"]),
+            # y -> show TOC | 1 -> section | j -> show links | j1 -> open page |
+            # n -> skip TOC | :q -> quit
+            patch("builtins.input", side_effect=["y", "1", "j", "j1", "n", ":q"]),
         ):
             result = main(["Test Page"])
         assert result == 0
+        output = capsys.readouterr().out
+        assert "Enter 'j' to show related pages." in output
+        assert "Related pages you can jump to:" in output
 
 
 class TestDisambiguation:
