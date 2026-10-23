@@ -164,8 +164,6 @@ class TestRenderTocNavigationPrompt:
         result = render.render_toc_navigation_prompt()
         assert "related page" not in result
 
-
-
     def test_with_shown_links(self):
         result = render.render_toc_navigation_prompt(has_links=True, links_shown=True)
         assert "'jN' to open a related page" in result

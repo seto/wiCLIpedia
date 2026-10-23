@@ -321,7 +321,9 @@ def render_section_links(links: list[dict[str, str]]) -> str:
 
 
 def render_rabbit_hole_prompt() -> str:
-    return _render_message("Down the rabbit hole? Enter 'j' to show related pages.", _CYAN, _BOLD)
+    return _render_message(
+        "Down the rabbit hole? Enter 'j' to show related pages.", _CYAN, _BOLD
+    )
 
 
 def render_disambiguation(options: list, cached_at: float | None) -> str:
