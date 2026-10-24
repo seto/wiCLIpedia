@@ -84,8 +84,14 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     blocks: list[str] = []
     buffer: list[str] = []
     links: list[dict[str, str]] = []
+    main_page: str | None = None
     for token in tokens:
-        if token.type == TokenType.TABLE:
+        if token.type == TokenType.MAIN_ARTICLE:
+            # Only a hatnote placed before any content points to the section's page
+            if main_page is None and not blocks and not buffer:
+                main_page = token.value.replace("\x00MAIN\x00", "").strip("\x00 ")
+
+        elif token.type == TokenType.TABLE:
             if buffer:
                 blocks.append("\n".join(buffer))
                 buffer = []
@@ -171,6 +177,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
         "status": "found",
         "section": "\n\n".join(blocks),
         "links": links,
+        "main_page": main_page,
         "_cached_at": response.get("_cached_at"),
     }
 

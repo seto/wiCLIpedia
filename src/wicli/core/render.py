@@ -206,39 +206,44 @@ def render_toc(sections: list, cached_at: float | None) -> str:
 
 
 def render_toc_navigation_prompt(
-    has_links: bool = False, links_shown: bool = False
+    has_links: bool = False, links_shown: bool = False, has_main: bool = False
 ) -> str:
-    if has_links:
-        if not links_shown:
-            return _render_message(
-                "Enter the section number, or ':m' to show the menu:",
-                _CYAN,
-            )
-        return _render_message(
-            "Enter the section number, 'jN' to open a related page, or ':m' to show the menu:",
-            _CYAN,
-        )
-    return _render_message("Enter the section number:", _CYAN)
+    if not (has_links or has_main):
+        return _render_message("Enter the section number:", _CYAN)
+
+    options = ["Enter the section number"]
+    if has_main:
+        options.append("'0' to open the section's page")
+    if links_shown:
+        options.append("'jN' to open a related page")
+    options.append("or ':m' to show the menu:")
+
+    return _render_message(", ".join(options), _CYAN)
 
 
 def render_toc_navigation_invalid_choice(
-    choice: str, has_links: bool = False, links_shown: bool = False
+    choice: str,
+    has_links: bool = False,
+    links_shown: bool = False,
+    has_main: bool = False,
 ) -> str:
-    if has_links:
-        if not links_shown:
-            return _render_message(
-                f"'{choice}' is not a valid choice. Enter a valid section number, "
-                "'j' to show related pages, or ':m' to show the menu.",
-                _YELLOW,
-            )
+    if not (has_links or has_main):
         return _render_message(
-            f"'{choice}' is not a valid choice. Enter a valid section number, "
-            "a related page number (e.g. 'j1'), or ':m' to show the menu.",
+            f"'{choice}' is not a valid choice. Enter a valid section number or ':m' to show the menu.",
             _YELLOW,
         )
+
+    options = ["Enter a valid section number"]
+    if has_main:
+        options.append("'0' to open the section's page")
+    if links_shown:
+        options.append("a related page number (e.g. 'j1')")
+    elif has_links:
+        options.append("'j' to show related pages")
+    options.append("or ':m' to show the menu.")
+
     return _render_message(
-        f"'{choice}' is not a valid choice. Enter a valid section number or ':m' to show the menu.",
-        _YELLOW,
+        f"'{choice}' is not a valid choice. " + ", ".join(options), _YELLOW
     )
 
 
@@ -318,6 +323,14 @@ def render_section_links(links: list[dict[str, str]]) -> str:
 
 {entries_str}
 """
+
+
+def render_main_article_prompt(page: str) -> str:
+    return _render_message(
+        f"This section has its own page: {page}. Enter '0' to open it.",
+        _CYAN,
+        _BOLD,
+    )
 
 
 def render_rabbit_hole_prompt() -> str:

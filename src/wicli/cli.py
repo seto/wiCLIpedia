@@ -163,12 +163,18 @@ def main(argv: list[str] | None = None) -> int:
                         related_links: list[dict[str, str]] = []
                         related_links_shown = False
 
+                        # Page dedicated to the last rendered section, taken from a
+                        # leading hatnote template (e.g. "See also"); reachable with "0"
+                        main_page: str | None = None
+
                         # Section navigation loop: Allows the user to repeatedly
                         # view different sections of the current page until exiting
                         while True:
                             choice = _prompt(
                                 render.render_toc_navigation_prompt(
-                                    bool(related_map), related_links_shown
+                                    bool(related_map),
+                                    related_links_shown,
+                                    bool(main_page),
                                 )
                             )
 
@@ -191,12 +197,15 @@ def main(argv: list[str] | None = None) -> int:
                                     target, section=index, lang=args.lang
                                 )
                                 section = parser.parse_section(api_section)
+                                main_page = section.get("main_page")
 
                                 if not section.get("section"):
                                     print(render.render_section_not_found(title))
                                     related_map = {}
                                     related_links = []
                                     related_links_shown = False
+                                    if main_page:
+                                        print(render.render_main_article_prompt(main_page))
                                     continue
 
                                 print(
@@ -213,10 +222,17 @@ def main(argv: list[str] | None = None) -> int:
                                 }
                                 related_links = section.get("links", [])
                                 related_links_shown = False
+                                if main_page:
+                                    print(render.render_main_article_prompt(main_page))
                                 if related_map:
                                     print(render.render_rabbit_hole_prompt())
 
                                 continue
+
+                            if choice == "0" and main_page:
+                                target = main_page
+                                jumped = True
+                                break
 
                             if choice.lower() == "j" and related_map:
                                 print(render.render_section_links(related_links))
@@ -230,7 +246,10 @@ def main(argv: list[str] | None = None) -> int:
 
                             print(
                                 render.render_toc_navigation_invalid_choice(
-                                    choice, bool(related_map), related_links_shown
+                                    choice,
+                                    bool(related_map),
+                                    related_links_shown,
+                                    bool(main_page),
                                 )
                             )
 

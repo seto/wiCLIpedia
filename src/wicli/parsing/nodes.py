@@ -32,6 +32,7 @@ class TokenType(Enum):
     HEADING = auto()
     LINK = auto()
     LIST_ITEM = auto()
+    MAIN_ARTICLE = auto()
     NEWLINE = auto()
     REF = auto()
     SUBHEADING = auto()

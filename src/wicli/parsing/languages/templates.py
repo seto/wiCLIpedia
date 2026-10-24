@@ -99,3 +99,14 @@ CITATION_TEMPLATES = {
 ALBUM_TEMPLATES = {
     "album",
 }
+
+# Hatnote templates pointing to the dedicated page of a section; when one of them
+# precedes the section text, its first positional parameter is the page title
+MAIN_ARTICLE_TEMPLATES = {
+    "ap",
+    "article détaillé",
+    "main",
+    "main article",
+    "see also",
+    "vedi anche",
+}

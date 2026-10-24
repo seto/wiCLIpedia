@@ -33,6 +33,7 @@ from .languages.templates import (
     BLOCKQUOTE_TEMPLATES,
     CITATION_TEMPLATES,
     FILE_NAMESPACES,
+    MAIN_ARTICLE_TEMPLATES,
     POEMQUOTE_TEMPLATES,
     TEMPLATES_KEEP_FIRST,
     TEMPLATES_KEEP_LAST,
@@ -168,6 +169,17 @@ def _split_pipe(text: str) -> list[str]:
     return parts
 
 
+def _main_article_page(params: list[str]) -> str | None:
+    for param in params:
+        param = param.strip().removeprefix("[[").removesuffix("]]")
+        if param and "=" not in param:
+            title = param.split("|")[0].split("#")[0].strip()
+            if title:
+                return title
+
+    return None
+
+
 def _strip_templates(text: str) -> str:
     """Remove all templates from the full wikitext string.
 
@@ -250,6 +262,13 @@ def _strip_templates(text: str) -> str:
                     if album_text:
                         result.append("\n" + "\n".join(album_text) + "\n")
 
+                elif name in MAIN_ARTICLE_TEMPLATES:
+                    # Kept as a marker on its own line: the parser decides whether
+                    # it is a hatnote (before the text) or must be ignored
+                    page = _main_article_page(parts[1:])
+                    if page:
+                        result.append(f"\n\x00MAIN\x00{page}\x00\n")
+
                 elif name in TEMPLATES_STATIC:
                     result.append(TEMPLATES_STATIC[name])
 
@@ -312,6 +331,9 @@ def _classify_line(line: str) -> TokenType:
 
     if stripped.startswith("\x00POEM\x00"):
         return TokenType.POEM
+
+    if stripped.startswith("\x00MAIN\x00"):
+        return TokenType.MAIN_ARTICLE
 
     if not stripped:
         return TokenType.NEWLINE
