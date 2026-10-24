@@ -393,3 +393,15 @@ class TestParseSectionMainArticle:
         wikitext = "== T ==\n<!-- c -->\n{{Redirect|X}}\n{{Main|Page}}\nText."
         result = parse_section({"parse": {"wikitext": wikitext}})
         assert result["main_page"] == "Page"
+
+
+class TestParseSectionChartTable:
+    def test_chart_table_rendered_as_table(self):
+        wikitext = (
+            "=== Livealben ===\n{{Charttabelle\n|DE\n| INHALT =\n"
+            "{{Charteintrag\n|DE\n| Jahr = 2002\n| Titel = Live\n"
+            "| POS_DE = 45 | WO_DE = 3\n}}\n}}"
+        )
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert "\x00TABLE\x00" in result["section"]
+        assert "45 (3)" in result["section"]

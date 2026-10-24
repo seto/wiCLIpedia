@@ -275,3 +275,50 @@ class TestMainArticleTemplate:
 
     def test_classify_line(self):
         assert _classify_line("\x00MAIN\x00Page\x00") == TokenType.MAIN_ARTICLE
+
+
+class TestChartTable:
+    WIKITEXT = (
+        "{{Charttabelle\n|DE|AT\n| Art = Alben\n| INHALT =\n"
+        "{{Charteintrag\n|DE|AT\n| Jahr = 2002\n| Titel = Live\n"
+        "| POS_DE = 45 | WO_DE = 3\n"
+        "| Anmerkung = Erstveröffentlichung: 2002<br />„Halo 17“\n}}\n"
+        "{{Charteintrag\n|DE|AT\n| Jahr = 2026\n| Titel = [[Nine|Noize]]\n"
+        "| POS_AT = 7 | WO_AT = 1\n}}\n}}"
+    )
+
+    def test_expanded_into_table_token(self):
+        tokens = tokenize(self.WIKITEXT)
+        assert [t.type for t in tokens] == [TokenType.TABLE]
+        lines = tokens[0].value.splitlines()
+        assert lines[0] == "{|"
+        assert lines[-1] == "|}"
+        assert "! Jahr !! Titel !! DE !! AT !! Anmerkungen" in lines
+        assert (
+            "| 2002 || Live || 45 (3) ||  || Erstveröffentlichung: 2002<br />„Halo 17“"
+            in lines
+        )
+        assert "| 2026 || [[Nine|Noize]] ||  || 7 (1) || " in lines
+
+    def test_countries_taken_from_entries_when_header_has_none(self):
+        wikitext = (
+            "{{Charttabelle\n| INHALT =\n"
+            "{{Charteintrag\n|US\n| Jahr = 1999\n| Titel = X\n| POS_US = 3\n}}\n}}"
+        )
+        table = tokenize(wikitext)[0].value
+        assert "! Jahr !! Titel !! US !! Anmerkungen" in table
+        assert "| 1999 || X || 3 || " in table
+
+    def test_text_around_table_is_kept(self):
+        tokens = tokenize("Before.\n" + self.WIKITEXT + "\nAfter.")
+        assert [t.type for t in tokens] == [
+            TokenType.TEXT,
+            TokenType.TABLE,
+            TokenType.TEXT,
+        ]
+
+    def test_without_entries_is_discarded(self):
+        assert tokenize("{{Charttabelle\n|DE\n| INHALT =\n}}") == []
+
+    def test_unterminated_template_is_ignored(self):
+        assert tokenize("{{Charttabelle\n|DE\n| INHALT = x") == []

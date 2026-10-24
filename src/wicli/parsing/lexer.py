@@ -31,6 +31,10 @@ import re
 from .languages.templates import (
     ALBUM_TEMPLATES,
     BLOCKQUOTE_TEMPLATES,
+    CHART_CAPTION,
+    CHART_ENTRY_TEMPLATE,
+    CHART_TABLE_HEADERS,
+    CHART_TABLE_TEMPLATE,
     CITATION_TEMPLATES,
     FILE_NAMESPACES,
     MAIN_ARTICLE_TEMPLATES,
@@ -57,6 +61,7 @@ def tokenize(wikitext: str) -> list[Token]:
     normalized = _strip_html_comments(normalized)
     normalized = _strip_galleries(normalized)
     normalized = _strip_refs(normalized)
+    normalized = _expand_chart_tables(normalized)
     normalized = _strip_templates(normalized)
 
     lines = normalized.splitlines()
@@ -144,18 +149,18 @@ def _parse_named_params(parts: list[str]) -> dict[str, str]:
 
 
 def _split_pipe(text: str) -> list[str]:
-    """Split on | while ignoring pipes inside [[ ]] wikilinks."""
+    """Split on | while ignoring pipes inside [[ ]] wikilinks and {{ }} templates."""
 
     parts, current, depth = [], [], 0
     i = 0
     while i < len(text):
-        if text[i : i + 2] == "[[":
+        if text[i : i + 2] in ("[[", "{{"):
             depth += 1
-            current.append("[[")
+            current.append(text[i : i + 2])
             i += 2
-        elif text[i : i + 2] == "]]":
+        elif text[i : i + 2] in ("]]", "}}"):
             depth = max(0, depth - 1)
-            current.append("]]")
+            current.append(text[i : i + 2])
             i += 2
         elif text[i] == "|" and depth == 0:
             parts.append("".join(current))
@@ -167,6 +172,111 @@ def _split_pipe(text: str) -> list[str]:
 
     parts.append("".join(current))
     return parts
+
+
+def _find_templates(text: str, name: str) -> list[tuple[int, int]]:
+    """Return the (start, end) spans of the outermost `{{name ...}}` templates.
+
+    Nested braces are balanced, so templates containing other templates are
+    returned whole. An unterminated template is ignored.
+    """
+
+    opener = re.compile(r"\{\{\s*" + re.escape(name) + r"\s*(?=[|}])", re.IGNORECASE)
+
+    spans = []
+    pos = 0
+    while match := opener.search(text, pos):
+        depth, i = 0, match.start()
+        while i < len(text):
+            if text[i : i + 2] == "{{":
+                depth += 1
+                i += 2
+            elif text[i : i + 2] == "}}":
+                depth -= 1
+                i += 2
+                if depth == 0:
+                    break
+            else:
+                i += 1
+
+        if depth != 0:
+            break
+
+        spans.append((match.start(), i))
+        pos = i
+
+    return spans
+
+
+def _split_params(inner: str) -> tuple[list[str], dict[str, str]]:
+    """Split template content into positional values and lowercased named params."""
+
+    positional, named = [], {}
+    for part in _split_pipe(inner)[1:]:
+        key, sep, value = part.partition("=")
+        if sep and re.fullmatch(r"\s*\w+\s*", key):
+            named[key.strip().lower()] = value.strip()
+        elif part.strip():
+            positional.append(part.strip())
+
+    return positional, named
+
+
+def _expand_chart_tables(text: str) -> str:
+    """Replace German `{{Charttabelle}}` templates with an equivalent wikitable.
+
+    The template has no table markup in the wikitext: its rows are nested
+    `{{Charteintrag}}` templates, which would otherwise be discarded as unknown.
+    Each country listed in the header becomes a column showing the peak
+    position and, when available, the weeks in the chart.
+    """
+
+    result = []
+    pos = 0
+    for start, end in _find_templates(text, CHART_TABLE_TEMPLATE):
+        result.append(text[pos:start])
+        result.append(_chart_table_to_wikitable(text[start + 2 : end - 2]))
+        pos = end
+
+    result.append(text[pos:])
+    return "".join(result)
+
+
+def _chart_table_to_wikitable(inner: str) -> str:
+    codes, named = _split_params(inner)
+    content = named.get("inhalt", "")
+
+    entries = []
+    for start, end in _find_templates(content, CHART_ENTRY_TEMPLATE):
+        entry_codes, entry = _split_params(content[start + 2 : end - 2])
+        entries.append((entry_codes, entry))
+
+    if not entries:
+        return ""
+
+    if not codes:
+        for entry_codes, _ in entries:
+            codes.extend(c for c in entry_codes if c not in codes)
+
+    headers = [CHART_TABLE_HEADERS["year"], CHART_TABLE_HEADERS["title"]]
+    headers += codes + [CHART_TABLE_HEADERS["notes"]]
+
+    lines = ["", "{|", f"|+ {CHART_CAPTION}", "! " + " !! ".join(headers)]
+    for _, entry in entries:
+        cells = [entry.get("jahr", ""), entry.get("titel", "")]
+        for code in codes:
+            position = entry.get(f"pos_{code.lower()}", "")
+            weeks = entry.get(f"wo_{code.lower()}", "")
+            if position and weeks:
+                position = f"{position} ({weeks})"
+            cells.append(position)
+        cells.append(entry.get("anmerkung", ""))
+
+        lines.append("|-")
+        lines.append("| " + " || ".join(" ".join(c.split()) for c in cells))
+
+    lines += ["|}", ""]
+    return "\n".join(lines)
 
 
 def _main_article_page(params: list[str]) -> str | None:

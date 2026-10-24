@@ -23,6 +23,10 @@ including template names and namespace prefixes for various languages.
 
 from .templates import (
     BLOCKQUOTE_TEMPLATES,
+    CHART_CAPTION,
+    CHART_ENTRY_TEMPLATE,
+    CHART_TABLE_HEADERS,
+    CHART_TABLE_TEMPLATE,
     CITATION_TEMPLATES,
     FILE_NAMESPACES,
     MAIN_ARTICLE_TEMPLATES,
@@ -33,6 +37,10 @@ from .templates import (
 )
 
 __all__ = [
+    "CHART_CAPTION",
+    "CHART_ENTRY_TEMPLATE",
+    "CHART_TABLE_HEADERS",
+    "CHART_TABLE_TEMPLATE",
     "BLOCKQUOTE_TEMPLATES",
     "CITATION_TEMPLATES",
     "FILE_NAMESPACES",

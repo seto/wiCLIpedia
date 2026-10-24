@@ -109,4 +109,12 @@ MAIN_ARTICLE_TEMPLATES = {
     "main article",
     "see also",
     "vedi anche",
+    "eingebundene diskografie",
 }
+
+# German Wikipedia chart tables: a header template wrapping one entry template per
+# row (see "Vorlage:Charttabelle"). They are expanded into a wikitable by the lexer
+CHART_TABLE_TEMPLATE = "charttabelle"
+CHART_ENTRY_TEMPLATE = "charteintrag"
+CHART_TABLE_HEADERS = {"year": "Jahr", "title": "Titel", "notes": "Anmerkungen"}
+CHART_CAPTION = "Höchstposition (Wochen in den Charts)"
