@@ -100,6 +100,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(render.render_not_found(target, args.lang))
                 target = None
                 continue
+
             target, props = resolved
 
             if props["status"] == "redirect":
