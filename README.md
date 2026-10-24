@@ -29,6 +29,7 @@ human-curated backbone that feeds those very models. Never forget the source._
 
 - Fetches and displays article summaries and table of contents
 - Navigates article sections interactively
+- Opens a section's main article when a dedicated page exists
 - Jumps to related pages linked within the article sections
 - Handles redirects and disambiguation pages automatically
 - Supports multiple Wikipedia languages
@@ -55,8 +56,12 @@ To navigate, use the section numbers shown in the table of contents.
 If the query matches a disambiguation page, you will be prompted to select the intended
 article from a list of options.
 
-While reading an article, related pages found in list items (e.g. a "See also" see) are
-listed at the end of each section. Use `j1`, `j2`, etc. to jump directly to one of them.
+When a section opens with a main-article hatnote (e.g. `{{Main}}`, `{{See also}}`), you
+are told that a dedicated page exists: enter `0` to open it.
+
+While reading an article, related pages found in list items (e.g. a "See also" section)
+are not shown automatically. If any are found, enter `j` to display them, then use `j1`,
+`j2`, etc. to jump directly to one of them.
 
 By default, it fetches the English Wikipedia. To specify a different language, use the
 `-l` or `--lang` option:
@@ -70,6 +75,14 @@ Available commands during navigation:
 - `:b` — Go back to the start prompt
 - `:q` — Exit the program
 - `:m` — Show the table of contents menu (only available when navigating sections)
+- `0` — Open the main article of the current section
+- `j` — Show the related pages found in the current section
+- `j1`, `j2`, … — Jump to a related page (after entering `j`)
+
+At the start prompt, you can also use:
+
+- `:show-w` — Show the warranty disclaimer
+- `:show-c` — Show the redistribution conditions
 
 ## Options
 
