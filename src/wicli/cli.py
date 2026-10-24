@@ -26,6 +26,7 @@ CLI arguments:
 - `page`: The Wikipedia page title to retrieve (optional, prompted if not provided).
 - `-l` or `--lang`: The language code of the Wikipedia to query (defaults to "en").
 - `--no-cache`: Disable local cache storage for the session (force fresh API calls).
+- `--purge`: Purge local cache and exit.
 
 For more details, run with `-h` or `--help`.
 """
