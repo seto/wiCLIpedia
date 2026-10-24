@@ -1,5 +1,25 @@
 # Changelog
 
+## Version 0.4.0
+
+### Added
+
+- Sections opening with a main-article hatnote (e.g. `{{See also}}`, `{{vedi anche}}`)
+  now tell the user that a dedicated page exists; entering `0` opens it.
+- Support for German Wikipedia's `{{Charttabelle}}` / `{{Charteintrag}}` chart tables,
+  rendered as other tables.
+- Support for French Wikipedia's `{{Album}}` discography template, preserving album
+  titles, release years, and track lists.
+
+### Changed
+
+- Related pages are no longer shown automatically; when found, users can enter `j` to
+  display them before choosing a page to open.
+
+### Python Support
+
+- Added support for Python 3.15.
+
 ## Version 0.3.1
 
 ### Changed
