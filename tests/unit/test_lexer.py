@@ -260,3 +260,18 @@ class TestClassifyLine:
 
     def test_newline_whitespace_only(self):
         assert _classify_line("   ") == TokenType.NEWLINE
+
+
+class TestMainArticleTemplate:
+    def test_emits_main_article_token(self):
+        tokens = tokenize("{{See also|Page#Sec|l1=Label}}\nText.")
+        assert tokens[0].type == TokenType.MAIN_ARTICLE
+        assert tokens[0].value == "\x00MAIN\x00Page\x00"
+        assert tokens[1].type == TokenType.TEXT
+
+    def test_without_positional_param_is_discarded(self):
+        tokens = tokenize("{{Main|l1=Label}}\nText.")
+        assert [t.type for t in tokens] == [TokenType.TEXT]
+
+    def test_classify_line(self):
+        assert _classify_line("\x00MAIN\x00Page\x00") == TokenType.MAIN_ARTICLE

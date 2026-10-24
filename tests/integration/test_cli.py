@@ -165,6 +165,51 @@ class TestRelatedPageNavigation:
         assert "Related pages you can jump to:" in output
 
 
+class TestMainArticleNavigation:
+    def _run(self, wikitext, inputs, capsys):
+        with (
+            patch(
+                "wicli.cli.client.fetch_props",
+                side_effect=[_props_found(), _props_found()],
+            ),
+            patch("wicli.cli.client.fetch_summary", return_value=_summary()),
+            patch("wicli.cli.client.fetch_toc", return_value=_toc()),
+            patch(
+                "wicli.cli.client.fetch_section",
+                return_value={"parse": {"wikitext": wikitext}},
+            ),
+            patch("builtins.input", side_effect=inputs),
+        ):
+            result = main(["Test Page"])
+        assert result == 0
+        return capsys.readouterr().out
+
+    def test_zero_opens_main_article(self, capsys):
+        # y -> TOC | 1 -> section | 0 -> open main page | n -> skip TOC | :q
+        output = self._run(
+            "{{See also|Main Page}}\nSome text.", ["y", "1", "0", "n", ":q"], capsys
+        )
+        assert "This section has its own page: Main Page." in output
+        assert "'0' to open the section's page" in output
+
+    def test_zero_ignored_without_main_article(self, capsys):
+        output = self._run("Some text.", ["y", "1", "0", ":b", ":q"], capsys)
+        assert "This section has its own page" not in output
+        assert "'0' is not a valid choice" in output
+
+    def test_main_article_notice_on_empty_section(self, capsys):
+        output = self._run("{{Main|Main Page}}", ["y", "1", ":b", ":q"], capsys)
+        assert "This section has its own page: Main Page." in output
+
+    def test_invalid_choice_mentions_zero(self, capsys):
+        output = self._run(
+            "{{Main|Main Page}}\n* [[Related]]", ["y", "1", "x", ":b", ":q"], capsys
+        )
+        assert "'x' is not a valid choice" in output
+        assert "'0' to open the section's page" in output
+        assert "'j' to show related pages" in output
+
+
 class TestDisambiguation:
     def test_select_option_navigates_to_page(self):
         with (

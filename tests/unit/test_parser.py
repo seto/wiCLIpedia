@@ -1,5 +1,7 @@
 from typing import Any
 
+import pytest
+
 from wicli.parsing.parser import (
     parse_disambiguation,
     parse_props,
@@ -350,3 +352,44 @@ class TestParseSectionTokenTypes:
         result = parse_section(response)
         assert "• List item" in result["section"]
         assert "\x00TABLE\x00" in result["section"]
+
+
+class TestParseSectionMainArticle:
+    @pytest.mark.parametrize(
+        "template, expected",
+        [
+            ("{{See also|Pretty Hate Machine}}", "Pretty Hate Machine"),
+            (
+                "{{vedi anche|Discografia dei Nine Inch Nails}}",
+                "Discografia dei Nine Inch Nails",
+            ),
+            (
+                "{{AP|Anexo:Discografía de Nine Inch Nails}}",
+                "Anexo:Discografía de Nine Inch Nails",
+            ),
+            (
+                "{{Article détaillé|Discographie de Nine Inch Nails}}",
+                "Discographie de Nine Inch Nails",
+            ),
+            ("{{Main|Page#Section|l1=Label}}", "Page"),
+        ],
+    )
+    def test_detected_before_text(self, template, expected):
+        wikitext = f"== Title ==\n{template}\nSome text."
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_page"] == expected
+        assert result["section"] == "Some text."
+
+    def test_ignored_after_text(self):
+        wikitext = "== Title ==\nSome text.\n{{See also|Page}}"
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_page"] is None
+
+    def test_absent(self):
+        result = parse_section({"parse": {"wikitext": "== Title ==\nSome text."}})
+        assert result["main_page"] is None
+
+    def test_skips_comments_and_other_hatnotes(self):
+        wikitext = "== T ==\n<!-- c -->\n{{Redirect|X}}\n{{Main|Page}}\nText."
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_page"] == "Page"
