@@ -164,6 +164,66 @@ class TestRelatedPageNavigation:
         assert "Enter 'j' to show related pages." in output
         assert "Related pages you can jump to:" in output
 
+    def test_other_language_link_switches_language(self, capsys):
+        section = {"parse": {"wikitext": "* [[:fr:Page française]]"}}
+        with (
+            patch(
+                "wicli.cli.client.fetch_props",
+                side_effect=[_props_found(), _props_found(), _props_found()],
+            ) as mock_props,
+            patch(
+                "wicli.cli.client.fetch_summary", return_value=_summary()
+            ) as mock_summary,
+            patch("wicli.cli.client.fetch_toc", return_value=_toc()),
+            patch("wicli.cli.client.fetch_section", return_value=section),
+            # ... j1 -> jump to the fr page | n -> skip TOC | Other -> new search
+            # (back to the session language) | n -> skip TOC | :q -> quit
+            patch(
+                "builtins.input",
+                side_effect=["y", "1", "j", "j1", "n", "Other", "n", ":q"],
+            ),
+        ):
+            result = main(["Test Page", "-l", "en"])
+        assert result == 0
+        output = capsys.readouterr().out
+        assert "[fr]" in output
+        assert "Switching to 'fr' Wikipedia." in output
+        assert [c.args[0] for c in mock_props.call_args_list] == [
+            "Test Page",
+            "Page française",
+            "Other",
+        ]
+        assert [c.kwargs["lang"] for c in mock_props.call_args_list] == [
+            "en",
+            "fr",
+            "en",
+        ]
+        assert [c.kwargs["lang"] for c in mock_summary.call_args_list] == [
+            "en",
+            "fr",
+            "en",
+        ]
+
+    def test_current_language_prefix_does_not_switch(self, capsys):
+        section = {"parse": {"wikitext": "* [[en:Local Page]]"}}
+        with (
+            patch(
+                "wicli.cli.client.fetch_props",
+                side_effect=[_props_found(), _props_found()],
+            ) as mock_props,
+            patch("wicli.cli.client.fetch_summary", return_value=_summary()),
+            patch("wicli.cli.client.fetch_toc", return_value=_toc()),
+            patch("wicli.cli.client.fetch_section", return_value=section),
+            patch("builtins.input", side_effect=["y", "1", "j", "j1", "n", ":q"]),
+        ):
+            result = main(["Test Page", "-l", "en"])
+        assert result == 0
+        output = capsys.readouterr().out
+        assert "[en]" not in output
+        assert "Switching to" not in output
+        assert mock_props.call_args_list[1].args[0] == "Local Page"
+        assert mock_props.call_args_list[1].kwargs["lang"] == "en"
+
 
 class TestMainArticleNavigation:
     def _run(self, wikitext, inputs, capsys):
@@ -226,6 +286,22 @@ class TestDisambiguation:
         ):
             result = main(["Blade Runner"])
         assert result == 0
+
+    def test_select_other_language_option_switches_language(self):
+        disambiguation = {"parse": {"wikitext": "* [[fr:Page française]] – desc"}}
+        with (
+            patch(
+                "wicli.cli.client.fetch_props",
+                side_effect=[_props_disambiguation(), _props_found()],
+            ) as mock_props,
+            patch("wicli.cli.client.fetch_disambiguation", return_value=disambiguation),
+            patch("wicli.cli.client.fetch_summary", return_value=_summary()),
+            patch("builtins.input", side_effect=["1", "n", ":q"]),
+        ):
+            result = main(["Blade Runner"])
+        assert result == 0
+        assert mock_props.call_args_list[1].args[0] == "Page française"
+        assert mock_props.call_args_list[1].kwargs["lang"] == "fr"
 
     def test_back_from_disambiguation(self):
         with (

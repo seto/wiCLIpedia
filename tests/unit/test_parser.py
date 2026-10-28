@@ -221,6 +221,20 @@ class TestParseSection:
         result = parse_section(response)
         assert result["links"] == []
 
+    @pytest.mark.parametrize("prefix", [":fr:", "fr:"])
+    def test_list_item_other_language_link_has_lang(self, prefix):
+        response = {"parse": {"wikitext": f"* [[{prefix}Page française]]"}}
+        result = parse_section(response)
+        assert len(result["links"]) == 1
+        assert result["links"][0]["page"] == "Page française"
+        assert result["links"][0]["lang"] == "fr"
+
+    @pytest.mark.parametrize("title", ["Re:Zero", "Category:Cyberpunk"])
+    def test_list_item_colon_title_is_not_a_language(self, title):
+        response = {"parse": {"wikitext": f"* [[{title}]]"}}
+        result = parse_section(response)
+        assert result["links"] == [{"page": title, "desc": title}]
+
 
 class TestParseDisambiguation:
     def test_found_with_descriptions(self):
@@ -263,6 +277,13 @@ class TestParseDisambiguation:
         assert result["options"][0]["page"] == "Bar"
         assert "Foo" in result["options"][0]["desc"]
         assert "in Baz" in result["options"][0]["desc"]
+
+    def test_other_language_option_has_lang(self):
+        response = {"parse": {"wikitext": "* [[de:Pythonschlange]] – eine Schlange"}}
+        result = parse_disambiguation(response)
+        assert result["options"] == [
+            {"page": "Pythonschlange", "desc": "eine Schlange", "lang": "de"}
+        ]
 
 
 class TestParseSectionTokenTypes:
