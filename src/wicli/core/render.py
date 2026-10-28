@@ -97,15 +97,24 @@ User navigation:
 def render_cache_purged(rows: int) -> str:
     if rows == 0:
         return _render_message(
-            "wiCLIpedia cache is already empty. No entries to purge.", _BLUE, _BOLD, padding_lines=1
+            "wiCLIpedia cache is already empty. No entries to purge.",
+            _BLUE,
+            _BOLD,
+            padding_lines=1,
         )
     elif rows == 1:
         return _render_message(
-            "wiCLIpedia cache purged successfully. 1 entry removed.", _GREEN, _BOLD, padding_lines=1
+            "wiCLIpedia cache purged successfully. 1 entry removed.",
+            _GREEN,
+            _BOLD,
+            padding_lines=1,
         )
 
     return _render_message(
-        f"wiCLIpedia cache purged successfully. {rows} entries removed.", _GREEN, _BOLD, padding_lines=1
+        f"wiCLIpedia cache purged successfully. {rows} entries removed.",
+        _GREEN,
+        _BOLD,
+        padding_lines=1,
     )
 
 
@@ -128,11 +137,15 @@ def render_language_switch(lang: str) -> str:
 
 
 def render_not_found(page: str, lang: str) -> str:
-    return _render_message(f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD)
+    return _render_message(
+        f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD
+    )
 
 
 def render_user_cancelled() -> str:
-    return _render_message("wiCLIpedia stopped by user.", _YELLOW, _BOLD, padding_before=1)
+    return _render_message(
+        "wiCLIpedia stopped by user.", _YELLOW, _BOLD, padding_before=1
+    )
 
 
 def render_exit() -> str:
@@ -409,6 +422,7 @@ FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMA
 OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
 COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 """
+
     return _render_message(text, _DIM, _ITALIC, padding_before=1)
 
 
@@ -421,6 +435,7 @@ License, or (at your option) any later version.
 
 See https://www.gnu.org/licenses/agpl-3.0.html for the full text.
 """
+
     return _render_message(text, _DIM, _ITALIC, padding_before=1)
 
 
@@ -435,8 +450,6 @@ def _get_width() -> int:
 
 
 def _style(text: str, *styles: str) -> str:
-    """Apply ANSI style codes to text, unless NO_COLOR is set."""
-
     if not _NO_COLOR:
         prefix = "".join(styles)
         return f"{prefix}{text}{_RESET}"
@@ -445,10 +458,9 @@ def _style(text: str, *styles: str) -> str:
 
 
 def _render_link_title(link: dict[str, str]) -> str:
-    """Bold page title, prefixed with its language tag when it is a foreign link."""
-
     title = _style(link["page"], _BOLD)
     lang = link.get("lang")
+
     return f"{_style(f'[{lang}]', _DIM, _BOLD)} {title}" if lang else title
 
 
@@ -471,6 +483,7 @@ def _render_message(
     )
     before = "\n" * (padding_lines if padding_before is None else padding_before)
     after = "\n" * (padding_lines if padding_after is None else padding_after)
+
     return _style(f"{before}{message}{after}", *styles)
 
 

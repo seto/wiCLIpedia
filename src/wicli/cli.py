@@ -211,6 +211,7 @@ def main(argv: list[str] | None = None) -> int:
                                     )
                                     if hints:
                                         print(hints)
+
                                     continue
 
                                 print(
@@ -229,7 +230,9 @@ def main(argv: list[str] | None = None) -> int:
                                     for i, link in enumerate(related_links)
                                 }
                                 related_links_shown = False
-                                hints = render.render_section_hints(main_page, bool(related_map))
+                                hints = render.render_section_hints(
+                                    main_page, bool(related_map)
+                                )
                                 if hints:
                                     print(hints)
 
@@ -250,6 +253,7 @@ def main(argv: list[str] | None = None) -> int:
                                 if target_lang != lang:
                                     print(render.render_language_switch(target_lang))
                                     lang = target_lang
+
                                 jumped = True
                                 break
 
@@ -313,6 +317,7 @@ def main(argv: list[str] | None = None) -> int:
                         if target_lang != lang:
                             print(render.render_language_switch(target_lang))
                             lang = target_lang
+
                         break
 
                     print(render.render_disambiguation_invalid_choice(choice))
