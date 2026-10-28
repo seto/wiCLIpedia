@@ -41,7 +41,7 @@ from urllib.request import Request, urlopen
 from . import cache
 from .exceptions import WicliAPIError, WicliNetworkError
 
-_USER_AGENT = f"wiclipedia/{version('wiclipedia')} (https://pypi.org/project/wiclipedia/; wicli@adversum.net)"
+_USER_AGENT = f"wiclipedia/{version('wiclipedia')} (https://pypi.org/project/wiclipedia/; dev@seto.codes)"
 _BASE_URL = "https://{lang}.wikipedia.org/w/api.php"
 _USE_CACHE = True
 _MAX_RETRIES = 3
