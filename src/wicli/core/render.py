@@ -89,8 +89,7 @@ User navigation:
 
 {_render_message(_license_notice(), _DIM, _ITALIC)}
 
-{separator}
-"""
+{separator}"""
 
     return message
 
@@ -98,20 +97,20 @@ User navigation:
 def render_cache_purged(rows: int) -> str:
     if rows == 0:
         return _render_message(
-            "Cache is already empty. No entries to purge.", _BLUE, _BOLD
+            "wiCLIpedia cache is already empty. No entries to purge.", _BLUE, _BOLD, padding_lines=1
         )
     elif rows == 1:
         return _render_message(
-            "Cache purged successfully. 1 entry removed.", _GREEN, _BOLD
+            "wiCLIpedia cache purged successfully. 1 entry removed.", _GREEN, _BOLD, padding_lines=1
         )
 
     return _render_message(
-        f"Cache purged successfully. {rows} entries removed.", _GREEN, _BOLD
+        f"wiCLIpedia cache purged successfully. {rows} entries removed.", _GREEN, _BOLD, padding_lines=1
     )
 
 
 def render_start_prompt() -> str:
-    return _render_message("Enter a page title:", _CYAN)
+    return _render_message("Enter a page title:", _CYAN, padding_before=1)
 
 
 def render_redirect(page: str) -> str:
@@ -129,17 +128,19 @@ def render_language_switch(lang: str) -> str:
 
 
 def render_not_found(page: str, lang: str) -> str:
-    return _render_message(
-        f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD
-    )
+    return _render_message(f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD)
 
 
 def render_user_cancelled() -> str:
-    return _render_message("wiCLIpedia stopped by user.", _YELLOW, _BOLD)
+    return _render_message("wiCLIpedia stopped by user.", _YELLOW, _BOLD, padding_before=1)
 
 
 def render_exit() -> str:
-    return _render_message("Goodbye!", _GREEN, _BOLD)
+    return _render_message("Goodbye!", _GREEN, _BOLD, padding_lines=1)
+
+
+def render_error(label: str, error: object) -> str:
+    return _render_message(f"{label}: {error}", _RED, _BOLD, padding_lines=1)
 
 
 def render_summary(title: str, paragraphs: list[str], cached_at: float | None) -> str:
@@ -210,14 +211,12 @@ def render_toc(sections: list, cached_at: float | None) -> str:
 
 
 def render_toc_navigation_prompt(
-    has_links: bool = False, links_shown: bool = False, has_main: bool = False
+    has_links: bool = False, links_shown: bool = False
 ) -> str:
-    if not (has_links or has_main):
-        return _render_message("Enter the section number:", _CYAN)
+    if not has_links:
+        return _render_message("Enter a section number:", _CYAN)
 
-    options = ["Enter the section number"]
-    if has_main:
-        options.append("'0' to open the section's page")
+    options = ["Enter a section number"]
     if links_shown:
         options.append("'jN' to open a related page")
     options.append("or ':m' to show the menu:")
@@ -329,17 +328,25 @@ def render_section_links(links: list[dict[str, str]]) -> str:
 """
 
 
+def render_section_hints(main_page: str | None, has_links: bool) -> str:
+    hints = []
+    if main_page:
+        hints.append(render_main_article_prompt(main_page))
+    if has_links:
+        hints.append(render_rabbit_hole_prompt())
+
+    return "\n".join(hints) + "\n" if hints else ""
+
+
 def render_main_article_prompt(page: str) -> str:
     return _render_message(
-        f"This section has its own page: {page}. Enter '0' to open it.",
-        _CYAN,
-        _BOLD,
+        f"This section has its own page: {page}. Enter '0' to open it.", _CYAN, _DIM
     )
 
 
 def render_rabbit_hole_prompt() -> str:
     return _render_message(
-        "Down the rabbit hole? Enter 'j' to show related pages.", _CYAN, _BOLD
+        "Down the rabbit hole? Enter 'j' to show related pages.", _CYAN, _DIM
     )
 
 
@@ -402,7 +409,7 @@ FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMA
 OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
 COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 """
-    return _render_message(text, _DIM, _ITALIC, padding_lines=1)
+    return _render_message(text, _DIM, _ITALIC, padding_before=1)
 
 
 def show_conditions() -> str:
@@ -414,16 +421,16 @@ License, or (at your option) any later version.
 
 See https://www.gnu.org/licenses/agpl-3.0.html for the full text.
 """
-    return _render_message(text, _DIM, _ITALIC, padding_lines=1)
+    return _render_message(text, _DIM, _ITALIC, padding_before=1)
 
 
 def _get_width() -> int:
     try:
         column = os.get_terminal_size().columns
     except OSError:
-        column = 88
+        column = 100
 
-    width = min(column, 88)
+    width = min(column, 100)
     return width
 
 
@@ -445,15 +452,26 @@ def _render_link_title(link: dict[str, str]) -> str:
     return f"{_style(f'[{lang}]', _DIM, _BOLD)} {title}" if lang else title
 
 
-def _render_message(text: str, *styles: str, padding_lines: int = 0) -> str:
-    """Wrap a standalone CLI message and optionally add vertical padding."""
+def _render_message(
+    text: str,
+    *styles: str,
+    padding_lines: int = 0,
+    padding_before: int | None = None,
+    padding_after: int | None = None,
+) -> str:
+    """Wrap a standalone CLI message and optionally add vertical padding.
+
+    `padding_lines` applies to both sides unless overridden by
+    `padding_before` or `padding_after`.
+    """
 
     message = "\n".join(
         textwrap.fill(line, width=_get_width()) if line else ""
         for line in text.strip("\n").splitlines()
     )
-    padding = "\n" * padding_lines
-    return _style(f"{padding}{message}{padding}", *styles)
+    before = "\n" * (padding_lines if padding_before is None else padding_before)
+    after = "\n" * (padding_lines if padding_after is None else padding_after)
+    return _style(f"{before}{message}{after}", *styles)
 
 
 def _license_notice() -> str:
@@ -487,37 +505,89 @@ def _render_table(table: ParsedTable) -> str:
     if not table.rows or not table.rows[0]:
         return ""
 
-    width = _get_width()
     num_cols = len(table.rows[0])
 
-    # 3 characters of overhead per column boundary (" │ "), plus the two
-    # outer borders, subtracted from the terminal width before dividing
-    # evenly across columns.
-    col_width = max(6, (width - (num_cols + 1) * 3) // num_cols)
-    outer_sep = _style("─" * width, _BOLD)
-    inner_sep = _style("─" * width, _BOLD, _DIM)
-    divider = _style(" │ ", _DIM)
+    # Each row is "│ " + cells joined by " │ " + " │": 3 * num_cols + 1 characters
+    # of overhead on top of the column contents
+    available = _get_width() - (3 * num_cols + 1)
+    natural = [
+        max(1, max(len(row[c].text) for row in table.rows)) for c in range(num_cols)
+    ]
+    col_widths = _fit_column_widths(natural, available)
+
+    def rule(left: str, mid: str, right: str, fill: str) -> str:
+        segments = [fill * (w + 2) for w in col_widths]
+        return _style(f"{left}{mid.join(segments)}{right}", _DIM)
+
+    top = rule("┌", "┬", "┐", "─")
+    inner = rule("├", "┼", "┤", "─")
+    header_rule = rule("╞", "╪", "╡", "═")
+    bottom = rule("└", "┴", "┘", "─")
+    edge = _style("│", _DIM)
+
+    # A heavier rule separates the leading all-header rows from the body
+    header_rows = 0
+    for row in table.rows:
+        if not all(cell.is_header for cell in row):
+            break
+        header_rows += 1
 
     lines = []
     if table.caption:
         lines.append(_render_message(table.caption, _BOLD))
-    lines.append(outer_sep)
+    lines.append(top)
 
     for i, row in enumerate(table.rows):
-        wrapped = [textwrap.wrap(cell.text, width=col_width) or [""] for cell in row]
+        wrapped = [
+            textwrap.wrap(cell.text, width=col_widths[c]) or [""]
+            for c, cell in enumerate(row)
+        ]
         height = max(len(w) for w in wrapped)
-        for w in wrapped:
-            w.extend([""] * (height - len(w)))
 
         for line_idx in range(height):
             cells = []
             for c, cell in enumerate(row):
-                text = wrapped[c][line_idx].ljust(col_width)
+                part = wrapped[c][line_idx] if line_idx < len(wrapped[c]) else ""
+                text = part.ljust(col_widths[c])
                 cells.append(_style(text, _BOLD) if cell.is_header else text)
-            lines.append(divider.join(cells))
+            lines.append(f"{edge} {f' {edge} '.join(cells)} {edge}")
 
         if i < len(table.rows) - 1:
-            lines.append(inner_sep)
+            lines.append(header_rule if i + 1 == header_rows else inner)
 
-    lines.append(outer_sep)
+    lines.append(bottom)
     return "\n".join(lines)
+
+
+def _fit_column_widths(
+    natural: list[int], available: int, min_width: int = 6
+) -> list[int]:
+    """Shrink column widths to fit `available` characters.
+
+    Columns that already fit within their fair share keep their natural width;
+    the space they leave over is redistributed to the wider columns.
+    """
+
+    if sum(natural) <= available:
+        return natural
+
+    widths = [0] * len(natural)
+    pending = list(range(len(natural)))
+    remaining = available
+
+    while pending:
+        fair = remaining // len(pending)
+        settled = [c for c in pending if natural[c] <= fair]
+        if not settled:
+            break
+        for c in settled:
+            widths[c] = natural[c]
+            remaining -= natural[c]
+            pending.remove(c)
+
+    if pending:
+        share, extra = divmod(remaining, len(pending))
+        for n, c in enumerate(pending):
+            widths[c] = share + (1 if n < extra else 0)
+
+    return [max(min(min_width, n), w) for n, w in zip(natural, widths, strict=False)]

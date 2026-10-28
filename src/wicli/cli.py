@@ -176,9 +176,7 @@ def main(argv: list[str] | None = None) -> int:
                         while True:
                             choice = _prompt(
                                 render.render_toc_navigation_prompt(
-                                    bool(related_map),
-                                    related_links_shown,
-                                    bool(main_page),
+                                    bool(related_map), related_links_shown
                                 )
                             )
 
@@ -208,8 +206,11 @@ def main(argv: list[str] | None = None) -> int:
                                     related_map = {}
                                     related_links = []
                                     related_links_shown = False
-                                    if main_page:
-                                        print(render.render_main_article_prompt(main_page))
+                                    hints = render.render_section_hints(
+                                        main_page, False
+                                    )
+                                    if hints:
+                                        print(hints)
                                     continue
 
                                 print(
@@ -228,10 +229,9 @@ def main(argv: list[str] | None = None) -> int:
                                     for i, link in enumerate(related_links)
                                 }
                                 related_links_shown = False
-                                if main_page:
-                                    print(render.render_main_article_prompt(main_page))
-                                if related_map:
-                                    print(render.render_rabbit_hole_prompt())
+                                hints = render.render_section_hints(main_page, bool(related_map))
+                                if hints:
+                                    print(hints)
 
                                 continue
 
@@ -323,15 +323,15 @@ def main(argv: list[str] | None = None) -> int:
                 raise RuntimeError(f"Unexpected page status: {props['status']}")
 
     except WicliAPIError as e:
-        print(f"API error: {e}", file=sys.stderr)
+        print(render.render_error("API error", e), file=sys.stderr)
         return 1
 
     except WicliNetworkError as e:
-        print(f"Network error: {e}", file=sys.stderr)
+        print(render.render_error("Network error", e), file=sys.stderr)
         return 1
 
     except RuntimeError as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        print(render.render_error("Unexpected error", e), file=sys.stderr)
         return 2
 
     except EOFError:

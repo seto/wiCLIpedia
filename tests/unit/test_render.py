@@ -1,3 +1,5 @@
+import pytest
+
 from wicli.core import render
 
 
@@ -193,13 +195,13 @@ class TestShowNotices:
         result = render.show_warranty()
         assert "NO WARRANTY" in result
         assert result.startswith("\n")
-        assert result.endswith("\n")
+        assert not result.endswith("\n")
 
     def test_show_conditions_mentions_license(self):
         result = render.show_conditions()
         assert "GNU Affero General Public License" in result
         assert result.startswith("\n")
-        assert result.endswith("\n")
+        assert not result.endswith("\n")
 
 
 class TestRenderTableBlock:
@@ -242,3 +244,94 @@ class TestRenderTableBlock:
         section = f"\x00TABLE\x00{encode_table(table)}\x00"
         result = render.render_section("Data", section, cached_at=None)
         assert "H1" in result and "H2" in result and "d" in result
+
+
+class TestFitColumnWidths:
+    def test_returns_natural_widths_when_they_fit(self):
+        assert render._fit_column_widths([4, 10], available=20) == [4, 10]
+
+    def test_narrow_columns_keep_natural_width_when_shrinking(self):
+        assert render._fit_column_widths([4, 100], available=30) == [4, 26]
+
+    def test_equal_wide_columns_split_space_evenly(self):
+        assert render._fit_column_widths([50, 50], available=40) == [20, 20]
+
+    def test_remainder_goes_to_first_columns(self):
+        assert render._fit_column_widths([50, 50, 50], available=31) == [11, 10, 10]
+
+    def test_minimum_width_enforced_but_capped_to_natural(self):
+        assert render._fit_column_widths([2, 100, 100], available=10) == [2, 6, 6]
+
+
+class TestRenderTableLayout:
+    @staticmethod
+    def _table(rows, caption=None):
+        from wicli.parsing.table import ParsedTable, TableCell
+
+        return ParsedTable(
+            rows=[[TableCell(text, header) for text, header in row] for row in rows],
+            caption=caption,
+        )
+
+    @pytest.fixture(autouse=True)
+    def _plain_output(self, monkeypatch):
+        monkeypatch.setattr(render, "_NO_COLOR", True)
+        monkeypatch.setattr(render, "_get_width", lambda: 40)
+
+    def test_borders_and_header_rule(self):
+        table = self._table(
+            [
+                [("Title", True), ("Year", True)],
+                [("...I Care Because You Do", False), ("1995", False)],
+                [("Drukqs", False), ("2001", False)],
+            ]
+        )
+        assert render._render_table(table).splitlines() == [
+            "┌──────────────────────────┬──────┐",
+            "│ Title                    │ Year │",
+            "╞══════════════════════════╪══════╡",
+            "│ ...I Care Because You Do │ 1995 │",
+            "├──────────────────────────┼──────┤",
+            "│ Drukqs                   │ 2001 │",
+            "└──────────────────────────┴──────┘",
+        ]
+
+    def test_no_header_rule_without_header_rows(self):
+        table = self._table([[("a", False)], [("b", False)]])
+        assert "═" not in render._render_table(table)
+
+    def test_no_header_rule_when_only_header_rows(self):
+        table = self._table([[("a", True)], [("b", True)]])
+        lines = render._render_table(table).splitlines()
+        assert lines[2] == "├───┤"
+
+    def test_all_lines_have_equal_width_and_fit_terminal(self):
+        table = self._table(
+            [
+                [("Name", True), ("Description", True)],
+                [("x", False), ("Lorem ipsum dolor sit amet " * 6, False)],
+            ]
+        )
+        lines = render._render_table(table).splitlines()
+        assert len({len(line) for line in lines}) == 1
+        assert len(lines[0]) <= 40
+
+    def test_long_cell_wraps_onto_multiple_lines(self):
+        table = self._table([[("short", False), ("word " * 20, False)]])
+        lines = render._render_table(table).splitlines()
+        assert len(lines) > 3
+        assert lines[1].startswith("│ short ")
+        assert lines[2].startswith("│       ")
+
+    def test_caption_rendered_above_table(self):
+        table = self._table([[("x", False)]], caption="Cap")
+        lines = render._render_table(table).splitlines()
+        assert lines[0] == "Cap"
+        assert lines[1].startswith("┌")
+
+    def test_styled_output_keeps_text_and_borders(self, monkeypatch):
+        monkeypatch.setattr(render, "_NO_COLOR", False)
+        table = self._table([[("H", True)], [("v", False)]])
+        result = render._render_table(table)
+        assert "\033[1mH" in result
+        assert "┌" in result and "╞" in result and "└" in result

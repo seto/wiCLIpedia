@@ -250,7 +250,7 @@ class TestMainArticleNavigation:
             "{{See also|Main Page}}\nSome text.", ["y", "1", "0", "n", ":q"], capsys
         )
         assert "This section has its own page: Main Page." in output
-        assert "'0' to open the section's page" in output
+        assert "'0' to open the section's page" not in output
 
     def test_zero_ignored_without_main_article(self, capsys):
         output = self._run("Some text.", ["y", "1", "0", ":b", ":q"], capsys)
