@@ -124,6 +124,10 @@ def render_title_fallback(original: str, fallback: str) -> str:
     )
 
 
+def render_language_switch(lang: str) -> str:
+    return _render_message(f"Switching to '{lang}' Wikipedia.", _BLUE, _BOLD)
+
+
 def render_not_found(page: str, lang: str) -> str:
     return _render_message(
         f"Page '{page}' not found in '{lang}' Wikipedia.", _YELLOW, _BOLD
@@ -314,7 +318,7 @@ def render_section_links(links: list[dict[str, str]]) -> str:
     entries = []
     for i, link in enumerate(links, start=1):
         num = _style(f"{f'j{i}':<{pad + 1}}", _DIM)
-        entries.append(f"{num}  {_style(link['page'], _BOLD)}")
+        entries.append(f"{num}  {_render_link_title(link)}")
 
     entries_str = "\n".join(entries)
 
@@ -346,11 +350,8 @@ def render_disambiguation(options: list, cached_at: float | None) -> str:
 
     links = []
     for i, option in enumerate(options, start=1):
-        page = (
-            f"{_style(option['page'], _BOLD)} - {option['desc']}"
-            if option["desc"]
-            else _style(option["page"], _BOLD)
-        )
+        title = _render_link_title(option)
+        page = f"{title} - {option['desc']}" if option["desc"] else title
         wrapped = textwrap.fill(page, width=width, subsequent_indent=indent)
         num = _style(str(f"{i:<{pad}}"), _DIM)
         links.append(f"{num}  {wrapped}")
@@ -434,6 +435,14 @@ def _style(text: str, *styles: str) -> str:
         return f"{prefix}{text}{_RESET}"
 
     return text
+
+
+def _render_link_title(link: dict[str, str]) -> str:
+    """Bold page title, prefixed with its language tag when it is a foreign link."""
+
+    title = _style(link["page"], _BOLD)
+    lang = link.get("lang")
+    return f"{_style(f'[{lang}]', _DIM, _BOLD)} {title}" if lang else title
 
 
 def _render_message(text: str, *styles: str, padding_lines: int = 0) -> str:

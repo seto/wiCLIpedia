@@ -32,6 +32,10 @@ from .lexer import tokenize
 from .nodes import TokenType
 from .table import encode_table, parse_table
 
+# Interlanguage prefix such as "fr:", ":de:" or "zh-yue:"; lowercase only, so that
+# titles like "Re:Zero" or namespaces like "Category:" are not mistaken for it
+_LANG_PREFIX = re.compile(r"^:?([a-z]{2,3}(?:-[a-z0-9]+)*):")
+
 
 def parse_props(response: dict[str, Any]) -> dict[str, Any]:
     redirects = response.get("query", {}).get("redirects", [])
@@ -119,7 +123,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                 # "Voci correlate") is also tracked to offer direct navigation
                 target = _extract_link_target(token.value)
                 if target:
-                    links.append({"page": target, "desc": cleaned})
+                    links.append(_make_link(target, cleaned))
 
         elif token.type == TokenType.TEXT:
             if buffer:
@@ -210,7 +214,7 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
                 # reading flow when the link appears mid-line or at the end
                 desc = f"{after}, {before}" if before and after else after or before
 
-                links.append({"page": title, "desc": desc})
+                links.append(_make_link(title, desc))
 
     return {
         "status": "found",
@@ -254,6 +258,16 @@ def _extract_link_target(text: str) -> str | None:
         r"\[\[([^\]]+)\]\]", text
     )
     return match.group(1).split("#")[0].strip() if match else None
+
+
+def _make_link(title: str, desc: str) -> dict[str, str]:
+    """Build a link entry, splitting an interlanguage prefix into a `lang` key."""
+
+    match = _LANG_PREFIX.match(title)
+    if match is None:
+        return {"page": title, "desc": desc}
+
+    return {"page": title[match.end() :].strip(), "desc": desc, "lang": match.group(1)}
 
 
 def _clean_inline(text: str) -> str:

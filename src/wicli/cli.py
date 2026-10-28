@@ -60,6 +60,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         cache.prune()
 
+    lang = args.lang
     target = args.page
     choice = None
 
@@ -92,12 +93,13 @@ def main(argv: list[str] | None = None) -> int:
                     print(render.show_conditions())
                     continue
 
+                lang = args.lang
                 target = choice
                 continue
 
-            resolved = _resolve_page(target, args.lang)
+            resolved = _resolve_page(target, lang)
             if resolved is None:
-                print(render.render_not_found(target, args.lang))
+                print(render.render_not_found(target, lang))
                 target = None
                 continue
 
@@ -109,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
                 continue
 
             if props["status"] == "found":
-                api_summary = client.fetch_summary(target, lang=args.lang)
+                api_summary = client.fetch_summary(target, lang=lang)
                 summary = parser.parse_summary(api_summary)
 
                 if not summary.get("paragraphs"):
@@ -138,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
                         break
 
                     if choice.lower() in ("", "y"):
-                        raw_toc = client.fetch_toc(target, lang=args.lang)
+                        raw_toc = client.fetch_toc(target, lang=lang)
                         parsed_tocdata = parser.parse_toc(raw_toc)
 
                         if not parsed_tocdata.get("sections"):
@@ -161,7 +163,7 @@ def main(argv: list[str] | None = None) -> int:
                         # Number-to-page mapping of related links found in the last
                         # rendered section (e.g. a "See also"-style list); repopulated
                         # on every section view and cleared when it has none
-                        related_map: dict[str, str] = {}
+                        related_map: dict[str, tuple[str, str]] = {}
                         related_links: list[dict[str, str]] = []
                         related_links_shown = False
 
@@ -196,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
                                 index = toc_map[choice]["index"]
                                 title = toc_map[choice]["line"]
                                 api_section = client.fetch_section(
-                                    target, section=index, lang=args.lang
+                                    target, section=index, lang=lang
                                 )
                                 section = parser.parse_section(api_section)
                                 main_page = section.get("main_page")
@@ -218,11 +220,13 @@ def main(argv: list[str] | None = None) -> int:
                                     )
                                 )
 
+                                related_links = _localize_links(
+                                    section.get("links", []), lang
+                                )
                                 related_map = {
-                                    f"j{i + 1}": link["page"]
-                                    for i, link in enumerate(section.get("links", []))
+                                    f"j{i + 1}": (link["page"], _link_lang(link, lang))
+                                    for i, link in enumerate(related_links)
                                 }
-                                related_links = section.get("links", [])
                                 related_links_shown = False
                                 if main_page:
                                     print(render.render_main_article_prompt(main_page))
@@ -242,7 +246,10 @@ def main(argv: list[str] | None = None) -> int:
                                 continue
 
                             if related_links_shown and choice.lower() in related_map:
-                                target = related_map[choice.lower()]
+                                target, target_lang = related_map[choice.lower()]
+                                if target_lang != lang:
+                                    print(render.render_language_switch(target_lang))
+                                    lang = target_lang
                                 jumped = True
                                 break
 
@@ -268,7 +275,7 @@ def main(argv: list[str] | None = None) -> int:
                 continue
 
             if props["status"] == "disambiguation":
-                api_disambiguation = client.fetch_disambiguation(target, lang=args.lang)
+                api_disambiguation = client.fetch_disambiguation(target, lang=lang)
                 disambiguation = parser.parse_disambiguation(api_disambiguation)
 
                 print(render.render_disambiguation_redirect(target))
@@ -278,16 +285,18 @@ def main(argv: list[str] | None = None) -> int:
                     target = None
                     continue
 
+                options = _localize_links(disambiguation["options"], lang)
+
                 print(
                     render.render_disambiguation(
-                        disambiguation["options"],
+                        options,
                         cached_at=disambiguation.get("_cached_at"),
                     )
                 )
 
                 disambiguation_map = {
-                    str(i + 1): option["page"]
-                    for i, option in enumerate(disambiguation["options"])
+                    str(i + 1): (option["page"], _link_lang(option, lang))
+                    for i, option in enumerate(options)
                 }
                 while True:
                     choice = _prompt(render.render_disambiguation_prompt())
@@ -300,7 +309,10 @@ def main(argv: list[str] | None = None) -> int:
                         break
 
                     if choice in disambiguation_map:
-                        target = disambiguation_map[choice]
+                        target, target_lang = disambiguation_map[choice]
+                        if target_lang != lang:
+                            print(render.render_language_switch(target_lang))
+                            lang = target_lang
                         break
 
                     print(render.render_disambiguation_invalid_choice(choice))
@@ -362,6 +374,23 @@ def _candidates(page: str) -> list[str]:
             result.append(normalized)
 
     return result
+
+
+def _link_lang(link: dict[str, str], lang: str) -> str:
+    return link.get("lang", lang)
+
+
+def _localize_links(links: list[dict[str, str]], lang: str) -> list[dict[str, str]]:
+    """Drop the `lang` key from links already in the current language."""
+
+    return [
+        (
+            {k: v for k, v in link.items() if k != "lang"}
+            if link.get("lang", "").lower() == lang.lower()
+            else link
+        )
+        for link in links
+    ]
 
 
 if __name__ == "__main__":
