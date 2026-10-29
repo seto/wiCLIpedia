@@ -110,6 +110,7 @@ MAIN_ARTICLE_TEMPLATES = {
     "see also",
     "vedi anche",
     "eingebundene diskografie",
+    "κύριο",
 }
 
 # German Wikipedia chart tables: a header template wrapping one entry template per

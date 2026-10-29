@@ -89,13 +89,15 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     buffer: list[str] = []
     links: list[dict[str, str]] = []
     main_page: str | None = None
+    has_content = False
     for token in tokens:
         if token.type == TokenType.MAIN_ARTICLE:
             # Only a hatnote placed before any content points to the section's page
-            if main_page is None and not blocks and not buffer:
+            if main_page is None and not has_content:
                 main_page = token.value.replace("\x00MAIN\x00", "").strip("\x00 ")
 
         elif token.type == TokenType.TABLE:
+            has_content = True
             if buffer:
                 blocks.append("\n".join(buffer))
                 buffer = []
@@ -117,6 +119,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
             cleaned = _clean_inline(token.value).lstrip("*#").strip()
 
             if cleaned:
+                has_content = True
                 buffer.append("• " + cleaned)
 
                 # A list item that links to another page (e.g. section "See also" /
@@ -132,6 +135,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
 
             cleaned = _clean_inline(token.value)
             if cleaned:
+                has_content = True
                 blocks.append(cleaned)
 
         elif token.type == TokenType.DEFINITION_TERM:
@@ -141,6 +145,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
 
             cleaned = _clean_inline(token.value.lstrip(";").strip())
             if cleaned:
+                has_content = True
                 blocks.append(f"\x00SUBHEADING\x00{cleaned}\x00")
 
         elif token.type == TokenType.SUBHEADING:
@@ -165,6 +170,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                 ]
                 cleaned_lines = [line for line in cleaned_lines if line]
                 if cleaned_lines:
+                    has_content = True
                     blocks.append(
                         "\x00POEM\x00" + "\x00LINE\x00".join(cleaned_lines) + "\x00"
                     )
@@ -172,6 +178,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                 text = raw.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
                 cleaned = _clean_inline(text)
                 if cleaned:
+                    has_content = True
                     blocks.append(f"\x00BLOCKQUOTE\x00{cleaned}\x00")
 
     if buffer:

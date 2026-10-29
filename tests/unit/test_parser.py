@@ -392,6 +392,7 @@ class TestParseSectionMainArticle:
                 "{{Article détaillé|Discographie de Nine Inch Nails}}",
                 "Discographie de Nine Inch Nails",
             ),
+            ("{{κύριο|Αναρχοκολεκτιβισμός}}", "Αναρχοκολεκτιβισμός"),
             ("{{Main|Page#Section|l1=Label}}", "Page"),
         ],
     )
@@ -400,6 +401,11 @@ class TestParseSectionMainArticle:
         result = parse_section({"parse": {"wikitext": wikitext}})
         assert result["main_page"] == expected
         assert result["section"] == "Some text."
+
+    def test_detected_after_subheading(self):
+        wikitext = "=== Αναρχοκολεκτιβισμός ===\n{{κύριο|Αναρχοκολεκτιβισμός}}\nSome text."
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_page"] == "Αναρχοκολεκτιβισμός"
 
     def test_ignored_after_text(self):
         wikitext = "== Title ==\nSome text.\n{{See also|Page}}"
