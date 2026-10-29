@@ -224,12 +224,16 @@ def render_toc(sections: list, cached_at: float | None) -> str:
 
 
 def render_toc_navigation_prompt(
-    has_links: bool = False, links_shown: bool = False
+    has_links: bool = False,
+    links_shown: bool = False,
+    main_pages_shown: bool = False,
 ) -> str:
-    if not has_links:
+    if not (has_links or main_pages_shown):
         return _render_message("Enter a section number:", _CYAN)
 
     options = ["Enter a section number"]
+    if main_pages_shown:
+        options.append("'0N' to open one of the section's pages")
     if links_shown:
         options.append("'jN' to open a related page")
     options.append("or ':m' to show the menu:")
@@ -241,17 +245,22 @@ def render_toc_navigation_invalid_choice(
     choice: str,
     has_links: bool = False,
     links_shown: bool = False,
-    has_main: bool = False,
+    main_pages: int = 0,
+    main_pages_shown: bool = False,
 ) -> str:
-    if not (has_links or has_main):
+    if not (has_links or main_pages):
         return _render_message(
             f"'{choice}' is not a valid choice. Enter a valid section number or ':m' to show the menu.",
             _YELLOW,
         )
 
     options = ["Enter a valid section number"]
-    if has_main:
+    if main_pages == 1:
         options.append("'0' to open the section's page")
+    elif main_pages_shown:
+        options.append("'0N' to open one of the section's pages")
+    elif main_pages > 1:
+        options.append("'0' to show the section's pages")
     if links_shown:
         options.append("a related page number (e.g. 'j1')")
     elif has_links:
@@ -341,20 +350,44 @@ def render_section_links(links: list[dict[str, str]]) -> str:
 """
 
 
-def render_section_hints(main_page: str | None, has_links: bool) -> str:
+def render_section_hints(main_pages: list[str], has_links: bool) -> str:
     hints = []
-    if main_page:
-        hints.append(render_main_article_prompt(main_page))
+    if main_pages:
+        hints.append(render_main_article_prompt(main_pages))
     if has_links:
         hints.append(render_rabbit_hole_prompt())
 
     return "\n".join(hints) + "\n" if hints else ""
 
 
-def render_main_article_prompt(page: str) -> str:
+def render_main_article_prompt(pages: list[str]) -> str:
+    if len(pages) == 1:
+        return _render_message(
+            f"This section has its own page: {pages[0]}. Enter '0' to open it.",
+            _CYAN,
+            _DIM,
+        )
+
     return _render_message(
-        f"This section has its own page: {page}. Enter '0' to open it.", _CYAN, _DIM
+        "This section has its own pages. Enter '0' to show them.", _CYAN, _DIM
     )
+
+
+def render_main_articles(pages: list[str]) -> str:
+    pad = len(str(len(pages)))
+
+    entries = []
+    for i, page in enumerate(pages, start=1):
+        num = _style(f"{f'0{i}':<{pad + 1}}", _DIM)
+        entries.append(f"{num}  {_style(page, _BOLD)}")
+
+    entries_str = "\n".join(entries)
+
+    return f"""
+{_render_message("Pages dedicated to this section you can open:", _BOLD)}
+
+{entries_str}
+"""
 
 
 def render_rabbit_hole_prompt() -> str:

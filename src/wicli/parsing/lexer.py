@@ -279,15 +279,16 @@ def _chart_table_to_wikitable(inner: str) -> str:
     return "\n".join(lines)
 
 
-def _main_article_page(params: list[str]) -> str | None:
+def _main_article_pages(params: list[str]) -> list[str]:
+    pages = []
     for param in params:
         param = param.strip().removeprefix("[[").removesuffix("]]")
         if param and "=" not in param:
             title = param.split("|")[0].split("#")[0].strip()
             if title:
-                return title
+                pages.append(title)
 
-    return None
+    return pages
 
 
 def _strip_templates(text: str) -> str:
@@ -375,8 +376,7 @@ def _strip_templates(text: str) -> str:
                 elif name in MAIN_ARTICLE_TEMPLATES:
                     # Kept as a marker on its own line: the parser decides whether
                     # it is a hatnote (before the text) or must be ignored
-                    page = _main_article_page(parts[1:])
-                    if page:
+                    for page in _main_article_pages(parts[1:]):
                         result.append(f"\n\x00MAIN\x00{page}\x00\n")
 
                 elif name in TEMPLATES_STATIC:

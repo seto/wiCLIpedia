@@ -269,6 +269,18 @@ class TestMainArticleTemplate:
         assert tokens[0].value == "\x00MAIN\x00Page\x00"
         assert tokens[1].type == TokenType.TEXT
 
+    def test_emits_one_token_per_page(self):
+        tokens = tokenize("{{See also|Spam|Eggs|l1=Label}}\nText.")
+        assert [t.type for t in tokens] == [
+            TokenType.MAIN_ARTICLE,
+            TokenType.MAIN_ARTICLE,
+            TokenType.TEXT,
+        ]
+        assert [t.value for t in tokens[:2]] == [
+            "\x00MAIN\x00Spam\x00",
+            "\x00MAIN\x00Eggs\x00",
+        ]
+
     def test_without_positional_param_is_discarded(self):
         tokens = tokenize("{{Main|l1=Label}}\nText.")
         assert [t.type for t in tokens] == [TokenType.TEXT]

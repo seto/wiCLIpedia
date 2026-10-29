@@ -167,16 +167,21 @@ def main(argv: list[str] | None = None) -> int:
                         related_links: list[dict[str, str]] = []
                         related_links_shown = False
 
-                        # Page dedicated to the last rendered section, taken from a
-                        # leading hatnote template (e.g. "See also"); reachable with "0"
-                        main_page: str | None = None
+                        # Pages dedicated to the last rendered section, taken from
+                        # leading hatnote templates (e.g. "See also"): "0" opens the
+                        # only page or, with several, shows them so that "01", "02",
+                        # ... open one of them
+                        main_pages: list[str] = []
+                        main_pages_shown = False
 
                         # Section navigation loop: Allows the user to repeatedly
                         # view different sections of the current page until exiting
                         while True:
                             choice = _prompt(
                                 render.render_toc_navigation_prompt(
-                                    bool(related_map), related_links_shown
+                                    bool(related_map),
+                                    related_links_shown,
+                                    main_pages_shown,
                                 )
                             )
 
@@ -199,7 +204,8 @@ def main(argv: list[str] | None = None) -> int:
                                     target, section=index, lang=lang
                                 )
                                 section = parser.parse_section(api_section)
-                                main_page = section.get("main_page")
+                                main_pages = section.get("main_pages", [])
+                                main_pages_shown = False
 
                                 if not section.get("section"):
                                     print(render.render_section_not_found(title))
@@ -207,7 +213,7 @@ def main(argv: list[str] | None = None) -> int:
                                     related_links = []
                                     related_links_shown = False
                                     hints = render.render_section_hints(
-                                        main_page, False
+                                        main_pages, False
                                     )
                                     if hints:
                                         print(hints)
@@ -231,15 +237,27 @@ def main(argv: list[str] | None = None) -> int:
                                 }
                                 related_links_shown = False
                                 hints = render.render_section_hints(
-                                    main_page, bool(related_map)
+                                    main_pages, bool(related_map)
                                 )
                                 if hints:
                                     print(hints)
 
                                 continue
 
-                            if choice == "0" and main_page:
-                                target = main_page
+                            if choice == "0" and len(main_pages) == 1:
+                                target = main_pages[0]
+                                jumped = True
+                                break
+
+                            if choice == "0" and main_pages:
+                                print(render.render_main_articles(main_pages))
+                                main_pages_shown = True
+                                continue
+
+                            if main_pages_shown and choice in (
+                                f"0{i}" for i in range(1, len(main_pages) + 1)
+                            ):
+                                target = main_pages[int(choice) - 1]
                                 jumped = True
                                 break
 
@@ -262,7 +280,8 @@ def main(argv: list[str] | None = None) -> int:
                                     choice,
                                     bool(related_map),
                                     related_links_shown,
-                                    bool(main_page),
+                                    len(main_pages),
+                                    main_pages_shown,
                                 )
                             )
 

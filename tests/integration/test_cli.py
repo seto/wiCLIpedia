@@ -261,6 +261,47 @@ class TestMainArticleNavigation:
         output = self._run("{{Main|Main Page}}", ["y", "1", ":b", ":q"], capsys)
         assert "This section has its own page: Main Page." in output
 
+    def test_multiple_pages_are_shown_on_request_then_opened(self, capsys):
+        # y -> TOC | 1 -> section | 0 -> show pages | 02 -> open the second page |
+        # n -> skip TOC | :q
+        with (
+            patch(
+                "wicli.cli.client.fetch_props",
+                side_effect=[_props_found(), _props_found()],
+            ) as mock_props,
+            patch("wicli.cli.client.fetch_summary", return_value=_summary()),
+            patch("wicli.cli.client.fetch_toc", return_value=_toc()),
+            patch(
+                "wicli.cli.client.fetch_section",
+                return_value={
+                    "parse": {"wikitext": "{{See also|Pippo|Pluto|Paperino}}\nText."}
+                },
+            ),
+            patch("builtins.input", side_effect=["y", "1", "0", "03", "n", ":q"]),
+        ):
+            result = main(["Test Page"])
+        assert result == 0
+        output = capsys.readouterr().out
+        assert "This section has its own pages. Enter '0' to show them." in output
+        assert "01  Pippo" in output
+        assert "02  Pluto" in output
+        assert "03  Paperino" in output
+        assert "'0N' to open one of the section's pages" in output
+        assert mock_props.call_args_list[1].args[0] == "Paperino"
+
+    def test_page_number_is_invalid_until_pages_are_shown(self, capsys):
+        output = self._run("{{Main|A|B}}\nText.", ["y", "1", "01", ":b", ":q"], capsys)
+        assert "'01' is not a valid choice" in output
+        assert "'0' to show the section's pages" in output
+        assert "Pages dedicated to this section" not in output
+
+    def test_out_of_range_page_number_is_invalid(self, capsys):
+        output = self._run(
+            "{{Main|A|B}}\nText.", ["y", "1", "0", "03", ":b", ":q"], capsys
+        )
+        assert "'03' is not a valid choice" in output
+        assert "'0N' to open one of the section's pages" in output
+
     def test_invalid_choice_mentions_zero(self, capsys):
         output = self._run(
             "{{Main|Main Page}}\n* [[Related]]", ["y", "1", "x", ":b", ":q"], capsys

@@ -156,6 +156,33 @@ class TestRenderInvalidChoice:
         assert "'99'" in result
         assert "'j1'" in result
 
+    def test_toc_navigation_invalid_choice_with_main_pages(self):
+        one = render.render_toc_navigation_invalid_choice("x", main_pages=1)
+        assert "'0' to open the section's page" in one
+        many = render.render_toc_navigation_invalid_choice("x", main_pages=3)
+        assert "'0' to show the section's pages" in many
+        shown = render.render_toc_navigation_invalid_choice(
+            "x", main_pages=3, main_pages_shown=True
+        )
+        assert "'0N' to open one of the section's pages" in shown
+
+    def test_toc_navigation_prompt_with_main_pages_shown(self):
+        result = render.render_toc_navigation_prompt(main_pages_shown=True)
+        assert "'0N'" in result
+
+    def test_section_hints(self):
+        assert render.render_section_hints([], False) == ""
+        single = render.render_section_hints(["A"], True)
+        assert "its own page: A" in single
+        assert "'j'" in single
+        many = render.render_section_hints(["A", "B"], False)
+        assert "Enter '0' to show them" in many
+
+    def test_main_articles(self):
+        result = render.render_main_articles(["A", "B"])
+        assert "01" in result and "02" in result
+        assert "A" in result and "B" in result
+
     def test_disambiguation_invalid_choice(self):
         result = render.render_disambiguation_invalid_choice("99")
         assert "'99'" in result

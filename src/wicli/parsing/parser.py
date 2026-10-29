@@ -88,13 +88,14 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     blocks: list[str] = []
     buffer: list[str] = []
     links: list[dict[str, str]] = []
-    main_page: str | None = None
+    main_pages: list[str] = []
     has_content = False
     for token in tokens:
         if token.type == TokenType.MAIN_ARTICLE:
-            # Only a hatnote placed before any content points to the section's page
-            if main_page is None and not has_content:
-                main_page = token.value.replace("\x00MAIN\x00", "").strip("\x00 ")
+            # Only hatnotes placed before any content point to the section's pages
+            page = token.value.replace("\x00MAIN\x00", "").strip("\x00 ")
+            if not has_content and page not in main_pages:
+                main_pages.append(page)
 
         elif token.type == TokenType.TABLE:
             has_content = True
@@ -188,7 +189,7 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
         "status": "found",
         "section": "\n\n".join(blocks),
         "links": links,
-        "main_page": main_page,
+        "main_pages": main_pages,
         "_cached_at": response.get("_cached_at"),
     }
 

@@ -399,27 +399,54 @@ class TestParseSectionMainArticle:
     def test_detected_before_text(self, template, expected):
         wikitext = f"== Title ==\n{template}\nSome text."
         result = parse_section({"parse": {"wikitext": wikitext}})
-        assert result["main_page"] == expected
+        assert result["main_pages"] == [expected]
         assert result["section"] == "Some text."
 
     def test_detected_after_subheading(self):
         wikitext = "=== Αναρχοκολεκτιβισμός ===\n{{κύριο|Αναρχοκολεκτιβισμός}}\nSome text."
         result = parse_section({"parse": {"wikitext": wikitext}})
-        assert result["main_page"] == "Αναρχοκολεκτιβισμός"
+        assert result["main_pages"] == ["Αναρχοκολεκτιβισμός"]
 
     def test_ignored_after_text(self):
         wikitext = "== Title ==\nSome text.\n{{See also|Page}}"
         result = parse_section({"parse": {"wikitext": wikitext}})
-        assert result["main_page"] is None
+        assert result["main_pages"] == []
 
     def test_absent(self):
         result = parse_section({"parse": {"wikitext": "== Title ==\nSome text."}})
-        assert result["main_page"] is None
+        assert result["main_pages"] == []
 
     def test_skips_comments_and_other_hatnotes(self):
         wikitext = "== T ==\n<!-- c -->\n{{Redirect|X}}\n{{Main|Page}}\nText."
         result = parse_section({"parse": {"wikitext": wikitext}})
-        assert result["main_page"] == "Page"
+        assert result["main_pages"] == ["Page"]
+
+
+class TestParseSectionMultipleMainArticles:
+    def test_template_with_several_pages(self):
+        wikitext = "== T ==\n{{See also|Pretty Hate Machine|Down in It|Head Like a Hole}}\nText."
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_pages"] == [
+            "Pretty Hate Machine",
+            "Down in It",
+            "Head Like a Hole",
+        ]
+        assert result["section"] == "Text."
+
+    def test_named_params_skipped_between_pages(self):
+        wikitext = "== T ==\n{{Main|A|l1=Label|B#Sec}}\nText."
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_pages"] == ["A", "B"]
+
+    def test_several_templates_are_merged_without_duplicates(self):
+        wikitext = "== T ==\n{{Main|A|B}}\n{{See also|B|C}}\nText."
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_pages"] == ["A", "B", "C"]
+
+    def test_templates_after_text_are_ignored(self):
+        wikitext = "== T ==\n{{Main|A}}\nText.\n{{Main|B}}"
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert result["main_pages"] == ["A"]
 
 
 class TestParseSectionChartTable:
