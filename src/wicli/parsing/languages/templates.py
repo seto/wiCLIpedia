@@ -17,31 +17,9 @@
 
 """Multilingual template and namespace constants for Wikipedia wikitext parsing."""
 
-# Templates where the last parameter contains the content to keep
-TEMPLATES_KEEP_LAST = {
-    "abbr",
-    "as of",
-    "cast listing",
-    "citation",
-    "date",
-    "lang",
-    "langx",
-    "langue",
-    "nowrap",
-    "portal inline",
-    "transl",
-    "unité",
-}
-
-# Templates where the first parameter contains the content to keep
-TEMPLATES_KEEP_FIRST = {
-    "citation nécessaire",
-    "citation needed",
-    "cn",
-    "cr",
-    "cita requerida",
-    "référence nécessaire",
-    "senza fonte",
+# Templates for album-related blocks; found in discography sections on French Wikipedia
+ALBUM_TEMPLATES = {
+    "album",
 }
 
 # Templates for blockquotes with language-specific names
@@ -49,35 +27,17 @@ BLOCKQUOTE_TEMPLATES = {
     "blockquote",
     "cita",
     "citazione",
-    "quote",
     "cquote",
+    "quote",
     "zitat",
 }
 
-# Templates for poem/poetry blocks
-POEMQUOTE_TEMPLATES = {
-    "poem quote",
-    "poemquote",
-}
-
-# Templates with static replacement text
-TEMPLATES_STATIC = {
-    "nom": "Nominated",
-    "nominated": "Nominated",
-    "win": "Won",
-    "won": "Won",
-}
-
-# File namespace prefixes for various language Wikipedias
-FILE_NAMESPACES = (
-    "[[Archivo:",
-    "[[Bild:",
-    "[[Datei:",
-    "[[Fichier:",
-    "[[File:",
-    "[[Image:",
-    "[[Immagine:",
-)
+# German Wikipedia chart tables: a header template wrapping one entry template per
+# row (see "Vorlage:Charttabelle"). They are expanded into a wikitable by the lexer
+CHART_CAPTION = "Höchstposition (Wochen in den Charts)"
+CHART_ENTRY_TEMPLATE = "charteintrag"
+CHART_TABLE_HEADERS = {"year": "Jahr", "title": "Titel", "notes": "Anmerkungen"}
+CHART_TABLE_TEMPLATE = "charttabelle"
 
 # Citation templates with parameter name mappings for each language
 # Maps template name to a dict with parameter aliases for "title" and "year"
@@ -95,27 +55,67 @@ CITATION_TEMPLATES = {
     "lien web": {"title": "titre", "year": "année"},
 }
 
-# Templates for album-related blocks; found in discography sections on French Wikipedia
-ALBUM_TEMPLATES = {
-    "album",
-}
+# File namespace prefixes for various language Wikipedias
+FILE_NAMESPACES = (
+    "[[Archivo:",
+    "[[Bild:",
+    "[[Datei:",
+    "[[Fichier:",
+    "[[File:",
+    "[[Image:",
+    "[[Immagine:",
+)
 
 # Hatnote templates pointing to the dedicated page of a section; when one of them
 # precedes the section text, its first positional parameter is the page title
 MAIN_ARTICLE_TEMPLATES = {
     "ap",
     "article détaillé",
+    "eingebundene diskografie",
     "main",
     "main article",
     "see also",
     "vedi anche",
-    "eingebundene diskografie",
     "κύριο",
 }
 
-# German Wikipedia chart tables: a header template wrapping one entry template per
-# row (see "Vorlage:Charttabelle"). They are expanded into a wikitable by the lexer
-CHART_TABLE_TEMPLATE = "charttabelle"
-CHART_ENTRY_TEMPLATE = "charteintrag"
-CHART_TABLE_HEADERS = {"year": "Jahr", "title": "Titel", "notes": "Anmerkungen"}
-CHART_CAPTION = "Höchstposition (Wochen in den Charts)"
+# Templates for poem/poetry blocks
+POEMQUOTE_TEMPLATES = {
+    "poem quote",
+    "poemquote",
+}
+
+# Templates where the first parameter contains the content to keep
+TEMPLATES_KEEP_FIRST = {
+    "citation nécessaire",
+    "citation needed",
+    "cita requerida",
+    "cn",
+    "cr",
+    "référence nécessaire",
+    "senza fonte",
+}
+
+# Templates where the last parameter contains the content to keep
+TEMPLATES_KEEP_LAST = {
+    "abbr",
+    "as of",
+    "cast listing",
+    "citation",
+    "date",
+    "lang",
+    "langue",
+    "langx",
+    "nowrap",
+    "portal inline",
+    "transl",
+    "unité",
+}
+
+# Templates with static replacement text
+TEMPLATES_STATIC = {
+    "nom": "Nominated",
+    "nominated": "Nominated",
+    "win": "Won",
+    "won": "Won",
+}

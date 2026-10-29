@@ -79,6 +79,30 @@ def parse_summary(response: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def parse_toc(response: dict[str, Any]) -> dict[str, Any]:
+    sections_data = response.get("parse", {}).get("tocdata", {}).get("sections", [])
+
+    if not sections_data:
+        return {"status": "missing"}
+
+    sections = []
+    for section in sections_data:
+        sections.append(
+            {
+                "index": section.get("index", 0),
+                "line": re.sub(r"<.*?>", "", section.get("line", "")),
+                "number": section.get("number", ""),
+                "tocLevel": section.get("tocLevel", ""),
+            }
+        )
+
+    return {
+        "status": "found",
+        "sections": sections,
+        "_cached_at": response.get("_cached_at"),
+    }
+
+
 def parse_section(response: dict[str, Any]) -> dict[str, Any]:
     wikitext = response.get("parse", {}).get("wikitext", "")
     if not wikitext:
@@ -231,53 +255,6 @@ def parse_disambiguation(response: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def parse_toc(response: dict[str, Any]) -> dict[str, Any]:
-    sections_data = response.get("parse", {}).get("tocdata", {}).get("sections", [])
-
-    if not sections_data:
-        return {"status": "missing"}
-
-    sections = []
-    for section in sections_data:
-        sections.append(
-            {
-                "index": section.get("index", 0),
-                "line": re.sub(r"<.*?>", "", section.get("line", "")),
-                "number": section.get("number", ""),
-                "tocLevel": section.get("tocLevel", ""),
-            }
-        )
-
-    return {
-        "status": "found",
-        "sections": sections,
-        "_cached_at": response.get("_cached_at"),
-    }
-
-
-def _extract_link_target(text: str) -> str | None:
-    """Return the target page title of the first internal wikilink in text.
-
-    Prefers [[Page|alias]] over [[Page]] so that links with display text
-    don't return the alias in place of the actual page title.
-    """
-
-    match = re.search(r"\[\[([^\]|]+)\|[^\]]*\]\]", text) or re.search(
-        r"\[\[([^\]]+)\]\]", text
-    )
-    return match.group(1).split("#")[0].strip() if match else None
-
-
-def _make_link(title: str, desc: str) -> dict[str, str]:
-    """Build a link entry, splitting an interlanguage prefix into a `lang` key."""
-
-    match = _LANG_PREFIX.match(title)
-    if match is None:
-        return {"page": title, "desc": desc}
-
-    return {"page": title[match.end() :].strip(), "desc": desc, "lang": match.group(1)}
-
-
 def _clean_inline(text: str) -> str:
     """Clean residual wikitext inline markup from a single token value.
 
@@ -306,3 +283,26 @@ def _clean_inline(text: str) -> str:
     text = " ".join(text.split())
 
     return text.strip()
+
+
+def _extract_link_target(text: str) -> str | None:
+    """Return the target page title of the first internal wikilink in text.
+
+    Prefers [[Page|alias]] over [[Page]] so that links with display text
+    don't return the alias in place of the actual page title.
+    """
+
+    match = re.search(r"\[\[([^\]|]+)\|[^\]]*\]\]", text) or re.search(
+        r"\[\[([^\]]+)\]\]", text
+    )
+    return match.group(1).split("#")[0].strip() if match else None
+
+
+def _make_link(title: str, desc: str) -> dict[str, str]:
+    """Build a link entry, splitting an interlanguage prefix into a `lang` key."""
+
+    match = _LANG_PREFIX.match(title)
+    if match is None:
+        return {"page": title, "desc": desc}
+
+    return {"page": title[match.end() :].strip(), "desc": desc, "lang": match.group(1)}

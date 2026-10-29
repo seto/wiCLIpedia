@@ -122,6 +122,33 @@ def render_start_prompt() -> str:
     return _render_message("Enter a page title:", _CYAN, padding_before=1)
 
 
+def show_warranty() -> str:
+    text = """
+THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
+EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE
+OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
+COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+"""
+
+    return _render_message(text, _DIM, _ITALIC, padding_before=1)
+
+
+def show_conditions() -> str:
+    text = """
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+See https://www.gnu.org/licenses/agpl-3.0.html for the full text.
+"""
+
+    return _render_message(text, _DIM, _ITALIC, padding_before=1)
+
+
 def render_redirect(page: str) -> str:
     return _render_message(f"Redirected to '{page}'.", _BLUE, _BOLD)
 
@@ -443,33 +470,6 @@ def render_disambiguation_not_found(page: str) -> str:
     return _render_message(
         f"Disambiguation options not found for page '{page}'.", _YELLOW
     )
-
-
-def show_warranty() -> str:
-    text = """
-THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
-EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
-PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
-IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE
-OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
-COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
-"""
-
-    return _render_message(text, _DIM, _ITALIC, padding_before=1)
-
-
-def show_conditions() -> str:
-    text = """
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-See https://www.gnu.org/licenses/agpl-3.0.html for the full text.
-"""
-
-    return _render_message(text, _DIM, _ITALIC, padding_before=1)
 
 
 def _get_width() -> int:

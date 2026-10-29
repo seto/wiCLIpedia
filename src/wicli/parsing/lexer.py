@@ -106,19 +106,6 @@ def _normalize_entities(text: str) -> str:
     return html.unescape(text).replace("\xa0", " ")
 
 
-def _strip_refs(text: str) -> str:
-    """Remove all ref tags and their content from the full wikitext string.
-
-    Done on the full string before line splitting because refs can open
-    inline mid-sentence and close several lines later.
-    """
-
-    text = re.sub(r"<ref[^>]*(?<!/)>.*?</ref>", "", text, flags=re.DOTALL)
-    text = re.sub(r"<ref[^>]*/?>", "", text)
-
-    return text
-
-
 def _strip_html_comments(text: str) -> str:
     """Remove all HTML comments from the wikitext string.
 
@@ -138,14 +125,17 @@ def _strip_galleries(text: str) -> str:
     return text
 
 
-def _parse_named_params(parts: list[str]) -> dict[str, str]:
-    params = {}
-    for p in parts:
-        if "=" in p:
-            key, value = p.split("=", 1)
-            params[key.strip().lower()] = value.strip()
+def _strip_refs(text: str) -> str:
+    """Remove all ref tags and their content from the full wikitext string.
 
-    return params
+    Done on the full string before line splitting because refs can open
+    inline mid-sentence and close several lines later.
+    """
+
+    text = re.sub(r"<ref[^>]*(?<!/)>.*?</ref>", "", text, flags=re.DOTALL)
+    text = re.sub(r"<ref[^>]*/?>", "", text)
+
+    return text
 
 
 def _split_pipe(text: str) -> list[str]:
@@ -220,6 +210,16 @@ def _split_params(inner: str) -> tuple[list[str], dict[str, str]]:
             positional.append(part.strip())
 
     return positional, named
+
+
+def _parse_named_params(parts: list[str]) -> dict[str, str]:
+    params = {}
+    for p in parts:
+        if "=" in p:
+            key, value = p.split("=", 1)
+            params[key.strip().lower()] = value.strip()
+
+    return params
 
 
 def _expand_chart_tables(text: str) -> str:
