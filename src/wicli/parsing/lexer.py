@@ -331,7 +331,8 @@ def _strip_templates(text: str) -> str:
                         parts[1].strip() if len(parts) > 1 else "",
                     )
                     if quote:
-                        result.append(f"\x00BLOCKQUOTE\x00{quote}\x00")
+                        quote = " ".join(quote.split())
+                        result.append(f"\n\x00BLOCKQUOTE\x00{quote}\x00\n")
 
                 elif name in TEMPLATES_KEEP_LAST and len(parts) > 1:
                     result.append(parts[-1].strip())
