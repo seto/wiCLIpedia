@@ -91,6 +91,32 @@ def test_blockquote_with_wikilink_pipe():
     assert "[[Max Stirner|Stirner]]" in tokens[0].value
 
 
+def test_blockquote_mid_line_on_own_line():
+    tokens = tokenize("He whispered:{{quote|Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.}}\nAfter.")
+    assert [t.type for t in tokens] == [
+        TokenType.TEXT,
+        TokenType.BLOCKQUOTE,
+        TokenType.TEXT,
+    ]
+    assert "Cthulhu R'lyeh" in tokens[1].value
+
+
+def test_blockquote_localized_named_parameter():
+    tokens = tokenize("{{Cytat\n |treść = Władza rewolucyjna\n |autor = \n |styl = środek\n}}")
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.BLOCKQUOTE
+    assert "Władza rewolucyjna" in tokens[0].value
+    assert "treść" not in tokens[0].value
+
+
+def test_blockquote_with_nested_template():
+    tokens = tokenize("{{Cytat\n |treść ={{J|en|\n: Hello,<br>\n: World}}<ref>x</ref>.\n |autor = S\n}}")
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.BLOCKQUOTE
+    assert "Hello, World" in tokens[0].value
+    assert "<" not in tokens[0].value
+
+
 def test_poem_quote_preserves_line_breaks():
     tokens = tokenize("{{poem quote|First line.\nSecond line.\nThird line.}}")
     assert len(tokens) == 1
