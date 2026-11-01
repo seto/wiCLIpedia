@@ -251,29 +251,27 @@ def render_toc(sections: list, cached_at: float | None) -> str:
 
 
 def render_toc_navigation_prompt(
-    has_links: bool = False,
-    links_shown: bool = False,
     main_pages_shown: bool = False,
+    links_shown: bool = False,
 ) -> str:
-    if not (has_links or main_pages_shown):
+    if not (main_pages_shown or links_shown):
         return _render_message("Enter a section number:", _CYAN)
 
     options = ["Enter a section number"]
     if main_pages_shown:
-        options.append("'0N' to open one of the section's pages")
+        options.append("or '0N' to open one of the section's pages")
     if links_shown:
-        options.append("'jN' to open a related page")
-    options.append("or ':m' to show the menu:")
+        options.append("or 'jN' to open a related page")
 
-    return _render_message(", ".join(options), _CYAN)
+    return _render_message(f"{', '.join(options)}:", _CYAN)
 
 
 def render_toc_navigation_invalid_choice(
     choice: str,
-    has_links: bool = False,
-    links_shown: bool = False,
     main_pages: int = 0,
     main_pages_shown: bool = False,
+    has_links: bool = False,
+    links_shown: bool = False,
 ) -> str:
     if not (has_links or main_pages):
         return _render_message(

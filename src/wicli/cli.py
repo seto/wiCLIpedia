@@ -160,28 +160,25 @@ def main(argv: list[str] | None = None) -> int:
                             for s in parsed_tocdata["sections"]
                         }
 
-                        # Number-to-page mapping of related links found in the last
-                        # rendered section (e.g. a "See also"-style list); repopulated
-                        # on every section view and cleared when it has none
-                        related_map: dict[str, tuple[str, str]] = {}
-                        related_links: list[dict[str, str]] = []
-                        related_links_shown = False
-
                         # Pages dedicated to the last rendered section, taken from
-                        # leading hatnote templates (e.g. "See also"): "0" opens the
-                        # only page or, with several, shows them so that "01", "02",
-                        # ... open one of them
+                        # leading hatnote templates (e.g. "Main article"): "0" opens the
+                        # only page or, if several, shows them
                         main_pages: list[str] = []
                         main_pages_shown = False
+
+                        # Related links found in the last rendered section (e.g. a
+                        # "See also"-style list); repopulated on every section view
+                        # and cleared when it changes
+                        related_links: list[dict[str, str]] = []
+                        related_links_shown = False
 
                         # Section navigation loop: Allows the user to repeatedly
                         # view different sections of the current page until exiting
                         while True:
                             choice = _prompt(
                                 render.render_toc_navigation_prompt(
-                                    bool(related_map),
-                                    related_links_shown,
                                     main_pages_shown,
+                                    related_links_shown,
                                 )
                             )
 
@@ -189,6 +186,8 @@ def main(argv: list[str] | None = None) -> int:
                                 break
 
                             if choice.lower() == ":m":
+                                related_links, main_pages = [], []
+                                related_links_shown, main_pages_shown = False, False
                                 print(
                                     render.render_toc(
                                         parsed_tocdata["sections"],
@@ -209,7 +208,6 @@ def main(argv: list[str] | None = None) -> int:
 
                                 if not section.get("section"):
                                     print(render.render_section_not_found(title))
-                                    related_map = {}
                                     related_links = []
                                     related_links_shown = False
                                     hints = render.render_section_hints(
@@ -231,13 +229,9 @@ def main(argv: list[str] | None = None) -> int:
                                 related_links = _localize_links(
                                     section.get("links", []), lang
                                 )
-                                related_map = {
-                                    f"j{i + 1}": (link["page"], _link_lang(link, lang))
-                                    for i, link in enumerate(related_links)
-                                }
                                 related_links_shown = False
                                 hints = render.render_section_hints(
-                                    main_pages, bool(related_map)
+                                    main_pages, bool(related_links)
                                 )
                                 if hints:
                                     print(hints)
@@ -261,13 +255,17 @@ def main(argv: list[str] | None = None) -> int:
                                 jumped = True
                                 break
 
-                            if choice.lower() == "j" and related_map:
+                            if choice.lower() == "j" and related_links:
                                 print(render.render_section_links(related_links))
                                 related_links_shown = True
                                 continue
 
-                            if related_links_shown and choice.lower() in related_map:
-                                target, target_lang = related_map[choice.lower()]
+                            if related_links_shown and choice.lower() in (
+                                f"j{i}" for i in range(1, len(related_links) + 1)
+                            ):
+                                link = related_links[int(choice[1:]) - 1]
+                                target = link["page"]
+                                target_lang = _link_lang(link, lang)
                                 if target_lang != lang:
                                     print(render.render_language_switch(target_lang))
                                     lang = target_lang
@@ -278,10 +276,10 @@ def main(argv: list[str] | None = None) -> int:
                             print(
                                 render.render_toc_navigation_invalid_choice(
                                     choice,
-                                    bool(related_map),
-                                    related_links_shown,
                                     len(main_pages),
                                     main_pages_shown,
+                                    bool(related_links),
+                                    related_links_shown,
                                 )
                             )
 
