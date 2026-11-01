@@ -326,7 +326,11 @@ def _strip_templates(text: str) -> str:
                         (
                             p.split("=", 1)[1].strip()
                             for p in parts[1:]
-                            if p.strip().lower().startswith("text=")
+                            if re.match(
+                                r"\s*(quote|tekst|testo|text|texte|texto|treść)\s*=",
+                                p,
+                                re.IGNORECASE,
+                            )
                         ),
                         parts[1].strip() if len(parts) > 1 else "",
                     )
