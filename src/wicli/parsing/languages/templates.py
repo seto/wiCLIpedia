@@ -26,10 +26,17 @@ ALBUM_TEMPLATES = {
 BLOCKQUOTE_TEMPLATES = {
     "blockquote",
     "cita",
+    "citaat",
     "citazione",
     "cquote",
+    "cytat",
+    "quotation",
     "quote",
+    "quote1",
+    "quote2",
     "zitat",
+    "цитата",
+    "απόσπασμα",
 }
 
 # German Wikipedia chart tables: a header template wrapping one entry template per
@@ -58,24 +65,40 @@ CITATION_TEMPLATES = {
 # File namespace prefixes for various language Wikipedias
 FILE_NAMESPACES = (
     "[[Archivo:",
+    "[[Bestand:",
     "[[Bild:",
     "[[Datei:",
     "[[Fichier:",
+    "[[Ficheiro:",
     "[[File:",
+    "[[Fitxer:",
     "[[Image:",
+    "[[Imagem:",
     "[[Immagine:",
+    "[[Plik:",
+    "[[Файл:",
+    "[[Αρχείο:",
 )
 
 # Hatnote templates pointing to the dedicated page of a section; when one of them
 # precedes the section text, its first positional parameter is the page title
 MAIN_ARTICLE_TEMPLATES = {
-    "ap",
+    "ap",  # Artículo principal (Spanish Wikipedia)
     "article détaillé",
+    "article principal",
+    "artigo principal",
     "eingebundene diskografie",
     "main",
     "main article",
+    "osobny artykuł",
     "see also",
     "vedi anche",
+    "vt",  # Vegeu també (Catalan Wikipedia)
+    "zie hoofdartikel",
+    "zie ook",
+    "zobacz też",
+    "основна стаття",
+    "основная статья",
     "κύριο",
 }
 
@@ -92,8 +115,11 @@ TEMPLATES_KEEP_FIRST = {
     "cita requerida",
     "cn",
     "cr",
+    "iw",
     "référence nécessaire",
     "senza fonte",
+    "не перекладено",
+    "нп1",
 }
 
 # Templates where the last parameter contains the content to keep
@@ -104,12 +130,17 @@ TEMPLATES_KEEP_LAST = {
     "citation",
     "date",
     "lang",
+    "lang-en",
+    "lang-de",
+    "lang-de2",
+    "lang-fr",
     "langue",
     "langx",
     "nowrap",
     "portal inline",
     "transl",
     "unité",
+    "tr-de",
 }
 
 # Templates with static replacement text
