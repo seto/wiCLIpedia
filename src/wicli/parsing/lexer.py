@@ -301,7 +301,8 @@ def _strip_templates(text: str) -> str:
     For templates in `_TEMPLATES_KEEP_FIRST`, the first parameter is kept instead.
 
     Only the outermost template name is checked against either set;
-    nested templates are always discarded regardless of their name.
+    nested templates are expanded on their own inside the parameters of the
+    outer one, so they are kept or discarded according to their own name.
     """
 
     i, depth = 0, 0
@@ -309,14 +310,23 @@ def _strip_templates(text: str) -> str:
     current: list[str] = []
     while i < len(text):
         if text[i : i + 2] == "{{":
+            if depth > 0:
+                current.append("{{")
+            else:
+                current = []
             depth += 1
-            current = []
             i += 2
 
         elif text[i : i + 2] == "}}":
+            if depth > 1:
+                current.append("}}")
             if depth == 1:
                 inner = "".join(current)
                 parts = _split_pipe(inner)
+                # Nested templates (e.g. {{J|en|...}} inside a quote) are expanded first
+                parts = [parts[0]] + [
+                    _strip_templates(p) if "{{" in p else p for p in parts[1:]
+                ]
                 name = parts[0].strip().lower()
 
                 if name in BLOCKQUOTE_TEMPLATES and len(parts) > 1:
@@ -335,6 +345,9 @@ def _strip_templates(text: str) -> str:
                         parts[1].strip() if len(parts) > 1 else "",
                     )
                     if quote:
+                        quote = re.sub(r"<ref[^>]*?/>|<ref.*?</ref>", "", quote, flags=re.DOTALL)
+                        quote = re.sub(r"<br\s*/?>", " ", quote, flags=re.IGNORECASE)
+                        quote = re.sub(r"^\s*:+\s*", "", quote, flags=re.MULTILINE)
                         quote = " ".join(quote.split())
                         result.append(f"\n\x00BLOCKQUOTE\x00{quote}\x00\n")
 
@@ -388,7 +401,8 @@ def _strip_templates(text: str) -> str:
                     result.append(TEMPLATES_STATIC[name])
 
             depth = max(0, depth - 1)
-            current = []
+            if depth == 0:
+                current = []
             i += 2
 
         elif depth > 0:

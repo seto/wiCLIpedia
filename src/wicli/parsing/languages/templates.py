@@ -129,6 +129,7 @@ TEMPLATES_KEEP_LAST = {
     "cast listing",
     "citation",
     "date",
+    "j",
     "lang",
     "lang-en",
     "lang-de",
