@@ -92,7 +92,9 @@ def test_blockquote_with_wikilink_pipe():
 
 
 def test_blockquote_mid_line_on_own_line():
-    tokens = tokenize("He whispered:{{quote|Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.}}\nAfter.")
+    tokens = tokenize(
+        "He whispered:{{quote|Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.}}\nAfter."
+    )
     assert [t.type for t in tokens] == [
         TokenType.TEXT,
         TokenType.BLOCKQUOTE,
@@ -102,7 +104,9 @@ def test_blockquote_mid_line_on_own_line():
 
 
 def test_blockquote_localized_named_parameter():
-    tokens = tokenize("{{Cytat\n |treść = Władza rewolucyjna\n |autor = \n |styl = środek\n}}")
+    tokens = tokenize(
+        "{{Cytat\n |treść = Władza rewolucyjna\n |autor = \n |styl = środek\n}}"
+    )
     assert len(tokens) == 1
     assert tokens[0].type == TokenType.BLOCKQUOTE
     assert "Władza rewolucyjna" in tokens[0].value
@@ -110,7 +114,9 @@ def test_blockquote_localized_named_parameter():
 
 
 def test_blockquote_with_nested_template():
-    tokens = tokenize("{{Cytat\n |treść ={{J|en|\n: Hello,<br>\n: World}}<ref>x</ref>.\n |autor = S\n}}")
+    tokens = tokenize(
+        "{{Cytat\n |treść ={{J|en|\n: Hello,<br>\n: World}}<ref>x</ref>.\n |autor = S\n}}"
+    )
     assert len(tokens) == 1
     assert tokens[0].type == TokenType.BLOCKQUOTE
     assert "Hello, World" in tokens[0].value

@@ -345,7 +345,9 @@ def _strip_templates(text: str) -> str:
                         parts[1].strip() if len(parts) > 1 else "",
                     )
                     if quote:
-                        quote = re.sub(r"<ref[^>]*?/>|<ref.*?</ref>", "", quote, flags=re.DOTALL)
+                        quote = re.sub(
+                            r"<ref[^>]*?/>|<ref.*?</ref>", "", quote, flags=re.DOTALL
+                        )
                         quote = re.sub(r"<br\s*/?>", " ", quote, flags=re.IGNORECASE)
                         quote = re.sub(r"^\s*:+\s*", "", quote, flags=re.MULTILINE)
                         quote = " ".join(quote.split())

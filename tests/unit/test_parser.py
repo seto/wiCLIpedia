@@ -403,7 +403,9 @@ class TestParseSectionMainArticle:
         assert result["section"] == "Some text."
 
     def test_detected_after_subheading(self):
-        wikitext = "=== Αναρχοκολεκτιβισμός ===\n{{κύριο|Αναρχοκολεκτιβισμός}}\nSome text."
+        wikitext = (
+            "=== Αναρχοκολεκτιβισμός ===\n{{κύριο|Αναρχοκολεκτιβισμός}}\nSome text."
+        )
         result = parse_section({"parse": {"wikitext": wikitext}})
         assert result["main_pages"] == ["Αναρχοκολεκτιβισμός"]
 
