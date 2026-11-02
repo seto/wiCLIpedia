@@ -77,6 +77,9 @@ def main(argv: list[str] | None = None) -> int:
                 break
 
             if not target:
+                if lang != args.lang:
+                    print(render.render_language_return(args.lang))
+
                 choice = _prompt(render.render_start_prompt())
 
                 if choice.lower() == ":q":

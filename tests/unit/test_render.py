@@ -24,6 +24,12 @@ class TestRenderTitleFallback:
         assert "Python" in result
 
 
+class TestRenderLanguageReturn:
+    def test_contains_language(self):
+        result = render.render_language_return("en")
+        assert "Returned to 'en' Wikipedia." in result
+
+
 class TestRenderSummaryNotFound:
     def test_contains_title(self):
         result = render.render_summary_not_found("Foobar")

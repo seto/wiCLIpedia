@@ -160,7 +160,11 @@ def render_title_fallback(original: str, fallback: str) -> str:
 
 
 def render_language_switch(lang: str) -> str:
-    return _render_message(f"Switching to '{lang}' Wikipedia.", _BLUE, _BOLD)
+    return _render_message(f"Switched to '{lang}' Wikipedia.", _BLUE, _BOLD)
+
+
+def render_language_return(lang: str) -> str:
+    return _render_message(f"Returned to '{lang}' Wikipedia.", _BLUE, _BOLD)
 
 
 def render_not_found(page: str, lang: str) -> str:
@@ -171,7 +175,7 @@ def render_not_found(page: str, lang: str) -> str:
 
 def render_user_cancelled() -> str:
     return _render_message(
-        "wiCLIpedia stopped by user.", _YELLOW, _BOLD, padding_before=1
+        "wiCLIpedia stopped by user.", _YELLOW, _BOLD, padding_before=2
     )
 
 

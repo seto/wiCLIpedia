@@ -187,7 +187,8 @@ class TestRelatedPageNavigation:
         assert result == 0
         output = capsys.readouterr().out
         assert "[fr]" in output
-        assert "Switching to 'fr' Wikipedia." in output
+        assert "Switched to 'fr' Wikipedia." in output
+        assert "Returned to 'en' Wikipedia." in output
         assert [c.args[0] for c in mock_props.call_args_list] == [
             "Test Page",
             "Page française",
@@ -220,7 +221,8 @@ class TestRelatedPageNavigation:
         assert result == 0
         output = capsys.readouterr().out
         assert "[en]" not in output
-        assert "Switching to" not in output
+        assert "Switched to" not in output
+        assert "Returned to" not in output
         assert mock_props.call_args_list[1].args[0] == "Local Page"
         assert mock_props.call_args_list[1].kwargs["lang"] == "en"
 
