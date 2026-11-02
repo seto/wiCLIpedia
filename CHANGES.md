@@ -1,5 +1,35 @@
 # Changelog
 
+## Version 0.5.0
+
+### Added
+
+- Related pages and disambiguation options pointing to a Wikipedia in a different
+  language (e.g. `[[:en:Page]]`) are now tagged with their language (e.g. `[en]`);
+  opening one switches to that Wikipedia. The language resets to the language selected
+  by the user on the next search.
+- Main-article hatnotes listing several pages (e.g. `{{See also|Foo|Bar|Baz}}`) are now
+  fully supported: the pages are listed and opened with `01`, `02`, and so on.
+- Expanded support for wikitext templates and file links across several language
+  editions, including Catalan, Dutch, French, German, Greek, Polish, Portuguese,
+  Russian, Spanish, and Ukrainian.
+
+### Changed
+
+- Enhanced overall CLI rendering for a better user experience: improved table layouts
+  and formatting for navigation messages and prompts.
+
+### Fixed
+
+- Fixed main-article hatnotes such as the Greek `{{κύριο}}` template not being detected
+  when they follow a subsection heading.
+- Fixed blockquote templates (e.g. `{{quote|...}}`) placed in the middle of a line not
+  being rendered as a quote, leaving a stray `BLOCKQUOTE` marker in the output.
+- Fixed blockquote templates using localized named parameters (e.g. the Polish
+  `{{Cytat|treść=...}}`) showing the parameter name along with the quote text.
+- Fixed blockquote templates containing nested templates (e.g. `{{J|en|...}}`) being
+  dropped from the output.
+
 ## Version 0.4.0
 
 ### Added

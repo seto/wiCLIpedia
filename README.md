@@ -70,6 +70,10 @@ By default, it fetches the English Wikipedia. To specify a different language, u
 wicli "La classe operaia va in paradiso" --lang it
 ```
 
+Related pages and disambiguation options that point to another language's Wikipedia are
+tagged with their language (e.g. `[en]`). Opening one switches to that Wikipedia; the
+next search goes back to the language set by the user.
+
 Available commands during navigation:
 
 - `:b` — Go back to the start prompt
