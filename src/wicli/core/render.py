@@ -316,9 +316,18 @@ def render_section(title: str, section: str, cached_at: float | None) -> str:
                 blocks.append(_style(subheading, _DIM))
 
         elif block.startswith("\x00BLOCKQUOTE\x00"):
-            quote = block.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
+            inner = block[len("\x00BLOCKQUOTE\x00") :].rstrip("\x00")
+            quote, source_sep, source = inner.partition("\x00SOURCE\x00")
             quote = textwrap.fill(f"« {quote} »", width=width - 16)
             quote = textwrap.indent(quote, "      ")
+            if source_sep and source:
+                attribution = textwrap.fill(
+                    source,
+                    width=width - 8,
+                    initial_indent="      ",
+                    subsequent_indent="        ",
+                )
+                quote = f"{quote}\n\n{attribution}"
             blocks.append(_style(quote, _ITALIC))
 
         elif block.startswith("\x00POEM\x00"):

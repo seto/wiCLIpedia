@@ -73,6 +73,12 @@ class TestRenderSectionBlocks:
         result = render.render_section("Hamlet", section, cached_at=None)
         assert "To be or not to be." in result
 
+    def test_blockquote_source_rendered_as_attribution(self):
+        section = "\x00BLOCKQUOTE\x00Abracadabra" "\x00SOURCE\x00—Author, Merlin\x00"
+        result = render.render_section("Quote", section, cached_at=None)
+        assert "« Abracadabra »" in result
+        assert "—Author, Merlin" in result
+
     def test_poemquote_block(self):
         section = (
             "\x00POEM\x00FOLLOW\x00LINE\x00THE\x00LINE\x00WHITE\x00LINE\x00RABBIT\x00"

@@ -39,6 +39,11 @@ BLOCKQUOTE_TEMPLATES = {
     "απόσπασμα",
 }
 
+# Quote-box templates with aliases for their quote and source parameters
+QUOTE_BOX_TEMPLATES = {
+    "quote box": {"quote": ("quote",), "source": ("source",)},
+}
+
 # German Wikipedia chart tables: a header template wrapping one entry template per
 # row (see "Vorlage:Charttabelle"). They are expanded into a wikitable by the lexer
 CHART_CAPTION = "Höchstposition (Wochen in den Charts)"

@@ -301,6 +301,19 @@ class TestParseSectionTokenTypes:
         assert result["status"] == "found"
         assert "To be or not to be." in result["section"]
 
+    def test_quote_box_source_reference_preserved(self):
+        response = {
+            "parse": {
+                "wikitext": (
+                    "{{quote box|quote=Abracadabra|" "source=—Author<ref>Merlin</ref>}}"
+                )
+            }
+        }
+        result = parse_section(response)
+        assert "Abracadabra" in result["section"]
+        assert "—Author" in result["section"]
+        assert "Merlin" in result["section"]
+
     def test_poemquote_template_preserved(self):
         # The lexer converts {{poem|text}} into a POEM token
         response = {"parse": {"wikitext": "{{poem quote|Foo.\nBar.\nBaz.}}"}}

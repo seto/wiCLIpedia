@@ -39,6 +39,7 @@ from .languages.templates import (
     FILE_NAMESPACES,
     MAIN_ARTICLE_TEMPLATES,
     POEMQUOTE_TEMPLATES,
+    QUOTE_BOX_TEMPLATES,
     TEMPLATES_KEEP_FIRST,
     TEMPLATES_KEEP_LAST,
     TEMPLATES_STATIC,
@@ -60,6 +61,7 @@ def tokenize(wikitext: str) -> list[Token]:
     normalized = _normalize_entities(wikitext)
     normalized = _strip_html_comments(normalized)
     normalized = _strip_galleries(normalized)
+    normalized = _expand_quote_boxes(normalized)
     normalized = _strip_refs(normalized)
     normalized = _expand_chart_tables(normalized)
     normalized = _strip_templates(normalized)
@@ -247,6 +249,40 @@ def _parse_named_params(parts: list[str]) -> dict[str, str]:
             params[key.strip().lower()] = value.strip()
 
     return params
+
+
+def _expand_quote_boxes(text: str) -> str:
+    """Convert quote-box templates into blockquotes, preserving source references."""
+
+    result = []
+    pos = 0
+    templates = sorted(
+        (start, end, aliases)
+        for name, aliases in QUOTE_BOX_TEMPLATES.items()
+        for start, end in _find_templates(text, name)
+    )
+    for start, end, aliases in templates:
+        result.append(text[pos:start])
+        _, params = _split_params(text[start + 2 : end - 2])
+        quote = _strip_templates(
+            next((params[name] for name in aliases["quote"] if name in params), "")
+        )
+        source = _strip_templates(
+            next((params[name] for name in aliases["source"] if name in params), "")
+        )
+        source = re.sub(r"<ref[^>]*>(.*?)</ref>", r" (\1)", source, flags=re.DOTALL)
+        source = re.sub(r"<ref[^>]*/?>", "", source)
+        quote = " ".join(quote.split())
+        source = " ".join(source.split())
+
+        block = f"\n\x00BLOCKQUOTE\x00{quote}"
+        if source:
+            block += f"\x00SOURCE\x00{source}"
+        result.append(f"{block}\x00\n")
+        pos = end
+
+    result.append(text[pos:])
+    return "".join(result)
 
 
 def _expand_chart_tables(text: str) -> str:

@@ -200,11 +200,16 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
                         "\x00POEM\x00" + "\x00LINE\x00".join(cleaned_lines) + "\x00"
                     )
             else:
-                text = raw.replace("\x00BLOCKQUOTE\x00", "").replace("\x00", "")
-                cleaned = _clean_inline(text)
-                if cleaned:
+                inner = raw[len("\x00BLOCKQUOTE\x00") :].rstrip("\x00")
+                quote, source_sep, source = inner.partition("\x00SOURCE\x00")
+                cleaned_quote = _clean_inline(quote)
+                cleaned_source = _clean_inline(source) if source_sep else ""
+                if cleaned_quote:
                     has_content = True
-                    blocks.append(f"\x00BLOCKQUOTE\x00{cleaned}\x00")
+                    block = f"\x00BLOCKQUOTE\x00{cleaned_quote}"
+                    if cleaned_source:
+                        block += f"\x00SOURCE\x00{cleaned_source}"
+                    blocks.append(f"{block}\x00")
 
     if buffer:
         blocks.append("\n".join(buffer))

@@ -104,6 +104,15 @@ def test_blockquote_template():
     assert "That is not dead which can eternal lie." in tokens[0].value
 
 
+def test_quote_box_preserves_source_reference():
+    tokens = tokenize("{{quote box|quote=Abracadabra|source=—Author<ref>Merlin</ref>}}")
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.BLOCKQUOTE
+    assert "Abracadabra" in tokens[0].value
+    assert "Merlin" in tokens[0].value
+    assert "<ref>" not in tokens[0].value
+
+
 def test_blockquote_with_wikilink_pipe():
     tokens = tokenize("{{blockquote|Text about [[Max Stirner|Stirner]] here.}}")
     assert len(tokens) == 1
