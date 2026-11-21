@@ -37,6 +37,26 @@ def test_file_link_discarded():
     assert tokens == []
 
 
+def test_unterminated_file_link_discarded():
+    assert tokenize("[[File:image.jpg|thumb|Caption") == []
+
+
+def test_text_after_file_link_preserved():
+    tokens = tokenize("[[File:image.jpg|thumb|Caption]]Text after the image.")
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.TEXT
+    assert tokens[0].value == "Text after the image."
+
+
+def test_text_after_file_link_with_nested_caption_link_preserved():
+    tokens = tokenize(
+        "[[File:image.jpg|thumb|Caption with [[Page|a link]]]]Text after the image."
+    )
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.TEXT
+    assert tokens[0].value == "Text after the image."
+
+
 def test_empty_line_discarded():
     tokens = tokenize("")
     assert tokens == []
@@ -286,6 +306,9 @@ class TestClassifyLine:
 
     def test_ref_line(self):
         assert _classify_line("<ref name='x'>citation</ref>") == TokenType.REF
+
+    def test_file_line(self):
+        assert _classify_line("[[File:image.jpg]]") == TokenType.FILE
 
     def test_newline_empty_string(self):
         assert _classify_line("") == TokenType.NEWLINE

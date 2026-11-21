@@ -70,6 +70,8 @@ def tokenize(wikitext: str) -> list[Token]:
     tokens = []
     while i < len(lines):
         line = lines[i]
+        if line.strip().startswith(FILE_NAMESPACES):
+            line = _strip_leading_file_links(line)
         token_type = _classify_line(line)
 
         if token_type == TokenType.TABLE:
@@ -104,6 +106,31 @@ def _normalize_entities(text: str) -> str:
     """Normalize HTML entities and non-breaking spaces to plain text."""
 
     return html.unescape(text).replace("\xa0", " ")
+
+
+def _strip_leading_file_links(line: str) -> str:
+    """Remove leading file links while preserving any text that follows them."""
+
+    remaining = line.strip()
+    while remaining.startswith(FILE_NAMESPACES):
+        depth = 0
+        i = 0
+        while i < len(remaining) - 1:
+            if remaining[i : i + 2] == "[[":
+                depth += 1
+                i += 2
+            elif remaining[i : i + 2] == "]]":
+                depth -= 1
+                i += 2
+                if depth == 0:
+                    remaining = remaining[i:].lstrip()
+                    break
+            else:
+                i += 1
+        else:
+            return ""
+
+    return remaining
 
 
 def _strip_html_comments(text: str) -> str:
