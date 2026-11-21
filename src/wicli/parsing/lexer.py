@@ -61,6 +61,7 @@ def tokenize(wikitext: str) -> list[Token]:
     normalized = _normalize_entities(wikitext)
     normalized = _strip_html_comments(normalized)
     normalized = _strip_galleries(normalized)
+    normalized = _expand_html_blockquotes(normalized)
     normalized = _expand_quote_boxes(normalized)
     normalized = _strip_refs(normalized)
     normalized = _expand_chart_tables(normalized)
@@ -152,6 +153,17 @@ def _strip_galleries(text: str) -> str:
         r"<gallery[^>]*>.*?</gallery>", "", text, flags=re.DOTALL | re.IGNORECASE
     )
     return text
+
+
+def _expand_html_blockquotes(text: str) -> str:
+    """Convert HTML blockquotes to the internal blockquote marker."""
+
+    return re.sub(
+        r"<blockquote\b[^>]*>(.*?)</blockquote>",
+        lambda match: f"\n\x00BLOCKQUOTE\x00{match.group(1).strip()}\x00\n",
+        text,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
 
 
 def _strip_refs(text: str) -> str:

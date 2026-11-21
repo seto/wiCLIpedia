@@ -104,6 +104,20 @@ def test_blockquote_template():
     assert "That is not dead which can eternal lie." in tokens[0].value
 
 
+def test_html_blockquote_mid_line_is_preserved_as_blockquote():
+    wikitext = "Before:<blockquote>''2 + 2 = 4''<ref>citation</ref></blockquote>After."
+    tokens = tokenize(wikitext)
+    assert [token.type for token in tokens] == [
+        TokenType.TEXT,
+        TokenType.BLOCKQUOTE,
+        TokenType.TEXT,
+    ]
+    assert tokens[0].value == "Before:"
+    assert "2 + 2 = 4" in tokens[1].value
+    assert "citation" not in tokens[1].value
+    assert tokens[2].value == "After."
+
+
 def test_quote_box_preserves_source_reference():
     tokens = tokenize("{{quote box|quote=Abracadabra|source=—Author<ref>Merlin</ref>}}")
     assert len(tokens) == 1
