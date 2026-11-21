@@ -118,6 +118,27 @@ def test_html_blockquote_mid_line_is_preserved_as_blockquote():
     assert tokens[2].value == "After."
 
 
+def test_html_blockquote_keeps_all_indented_lines_together():
+    wikitext = (
+        "Before:<blockquote>\n"
+        ": ''Ciao,''\n"
+        ": ''mondo!''\n"
+        ": original:\n"
+        ": ''Hello,''\n"
+        ": ''world!'')\n"
+        "</blockquote>After."
+    )
+    tokens = tokenize(wikitext)
+    assert [token.type for token in tokens] == [
+        TokenType.TEXT,
+        TokenType.BLOCKQUOTE,
+        TokenType.TEXT,
+    ]
+    assert tokens[1].value == (
+        "\x00BLOCKQUOTE\x00''Ciao,'' ''mondo!'' " "original: ''Hello,'' ''world!'')\x00"
+    )
+
+
 def test_quote_box_preserves_source_reference():
     tokens = tokenize("{{quote box|quote=Abracadabra|source=—Author<ref>Merlin</ref>}}")
     assert len(tokens) == 1

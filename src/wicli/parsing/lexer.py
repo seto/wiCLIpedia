@@ -158,9 +158,14 @@ def _strip_galleries(text: str) -> str:
 def _expand_html_blockquotes(text: str) -> str:
     """Convert HTML blockquotes to the internal blockquote marker."""
 
+    def replace(match: re.Match) -> str:
+        quote = re.sub(r"(?m)^[ \t]*:+[ \t]*", "", match.group(1))
+        quote = " ".join(quote.split())
+        return f"\n\x00BLOCKQUOTE\x00{quote}\x00\n"
+
     return re.sub(
         r"<blockquote\b[^>]*>(.*?)</blockquote>",
-        lambda match: f"\n\x00BLOCKQUOTE\x00{match.group(1).strip()}\x00\n",
+        replace,
         text,
         flags=re.DOTALL | re.IGNORECASE,
     )
