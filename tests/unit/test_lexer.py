@@ -57,6 +57,36 @@ def test_text_after_file_link_with_nested_caption_link_preserved():
     assert tokens[0].value == "Text after the image."
 
 
+def test_multiline_file_link_preserves_quote_template_in_caption():
+    wikitext = (
+        "[[Plik:Napoli.jpg|mały|700px|centruj|{{Cytat\n"
+        "|treść = Caption quote\n"
+        "|źródło = [[Page]]<ref>Caption reference</ref>\n"
+        "}}]]\n"
+        "Following paragraph."
+    )
+    tokens = tokenize(wikitext)
+    assert [token.type for token in tokens] == [
+        TokenType.BLOCKQUOTE,
+        TokenType.TEXT,
+    ]
+    assert "Caption quote" in tokens[0].value
+    assert "Caption reference" not in tokens[0].value
+    assert "]]" not in tokens[0].value
+    assert tokens[1].value == "Following paragraph."
+
+
+def test_nested_quote_template_in_file_caption_is_kept_once():
+    wikitext = (
+        "[[File:image.jpg|thumb|"
+        "{{Cytat|treść=Outer quote|źródło={{quote|Inner quote}}}}]]"
+    )
+    tokens = tokenize(wikitext)
+    assert len(tokens) == 1
+    assert tokens[0].type == TokenType.BLOCKQUOTE
+    assert tokens[0].value == "\x00BLOCKQUOTE\x00Outer quote\x00"
+
+
 def test_empty_line_discarded():
     tokens = tokenize("")
     assert tokens == []

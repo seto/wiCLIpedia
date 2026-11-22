@@ -61,6 +61,7 @@ def tokenize(wikitext: str) -> list[Token]:
     normalized = _normalize_entities(wikitext)
     normalized = _strip_html_comments(normalized)
     normalized = _strip_galleries(normalized)
+    normalized = _strip_file_links(normalized)
     normalized = _expand_html_blockquotes(normalized)
     normalized = _expand_quote_boxes(normalized)
     normalized = _strip_refs(normalized)
@@ -73,8 +74,6 @@ def tokenize(wikitext: str) -> list[Token]:
     tokens = []
     while i < len(lines):
         line = lines[i]
-        if line.strip().startswith(FILE_NAMESPACES):
-            line = _strip_leading_file_links(line)
         token_type = _classify_line(line)
 
         if token_type == TokenType.TABLE:
@@ -111,29 +110,56 @@ def _normalize_entities(text: str) -> str:
     return html.unescape(text).replace("\xa0", " ")
 
 
-def _strip_leading_file_links(line: str) -> str:
-    """Remove leading file links while preserving any text that follows them."""
+def _strip_file_links(text: str) -> str:
+    """Remove file links while preserving supported quote templates in captions."""
 
-    remaining = line.strip()
-    while remaining.startswith(FILE_NAMESPACES):
-        depth = 0
-        i = 0
-        while i < len(remaining) - 1:
-            if remaining[i : i + 2] == "[[":
-                depth += 1
-                i += 2
-            elif remaining[i : i + 2] == "]]":
-                depth -= 1
-                i += 2
-                if depth == 0:
-                    remaining = remaining[i:].lstrip()
-                    break
-            else:
-                i += 1
-        else:
-            return ""
+    result = []
+    i = 0
+    while i < len(text):
+        if text.startswith(FILE_NAMESPACES, i):
+            start = i
+            depth = 0
+            while i < len(text) - 1:
+                if text[i : i + 2] == "[[":
+                    depth += 1
+                    i += 2
+                elif text[i : i + 2] == "]]":
+                    depth -= 1
+                    i += 2
+                    if depth == 0:
+                        break
+                else:
+                    i += 1
 
-    return remaining
+            if depth == 0:
+                link = text[start:i]
+                result.append(_extract_blockquote_templates(link[2:-2]))
+                continue
+
+            result.append(text[start:])
+            break
+
+        result.append(text[i])
+        i += 1
+
+    return "".join(result)
+
+
+def _extract_blockquote_templates(text: str) -> str:
+    spans = []
+    for name in BLOCKQUOTE_TEMPLATES | set(QUOTE_BOX_TEMPLATES):
+        spans.extend(_find_templates(text, name))
+
+    spans.sort(key=lambda span: (span[0], -span[1]))
+    result = []
+    end = -1
+    for start, stop in spans:
+        if start < end:
+            continue
+        result.append(text[start:stop])
+        end = stop
+
+    return "".join(result)
 
 
 def _strip_html_comments(text: str) -> str:
