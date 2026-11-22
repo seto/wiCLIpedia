@@ -460,7 +460,18 @@ def _strip_templates(text: str) -> str:
                         result.append(f"\n\x00BLOCKQUOTE\x00{quote}\x00\n")
 
                 elif name in TEMPLATES_KEEP_LAST and len(parts) > 1:
-                    result.append(parts[-1].strip())
+                    value = parts[-1].strip()
+                    if name == "sort" and not value:
+                        value = next(
+                            (
+                                part.strip()
+                                for part in reversed(parts[2:])
+                                if part.strip()
+                            ),
+                            "",
+                        )
+                    if value:
+                        result.append(value)
 
                 elif name in POEMQUOTE_TEMPLATES and len(parts) > 1:
                     poem = parts[1].strip().replace("\n", "\x00LINE\x00")

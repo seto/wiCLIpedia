@@ -164,6 +164,19 @@ class TestParseSection:
         assert result["status"] == "found"
         assert "\x00TABLE\x00" in result["section"]
 
+    @pytest.mark.parametrize(
+        "sort_template",
+        [
+            "{{sort|1908-xx-xx|1908}}",
+            "{{sort|1908-xx-xx|1908|}}",
+        ],
+    )
+    def test_table_sort_template_keeps_display_value(self, sort_template):
+        wikitext = f"{{|\n! Date\n|-\n| {sort_template}\n|}}"
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert "1908" in result["section"]
+        assert "1908-xx-xx" not in result["section"]
+
     def test_table_replaced_when_empty(self):
         # A table block with no data rows at all falls back to the placeholder
         response = {"parse": {"wikitext": "{|\n|}"}}
