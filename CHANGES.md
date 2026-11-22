@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 0.6.0
+
+### Added
+
+- Support for `{{quote box}}` blocks, preserving citations in their `source`
+  attribution.
+- Support for HTML `<blockquote>` elements embedded in section text.
+- Expanded support for templates whose visible content is in their final parameter
+  (`TEMPLATES_KEEP_LAST`).
+
+### Fixed
+
+- Fixed text following the inline file link (e.g. `[[File:...]]Text`) being discarded
+  along with the image.
+- Fixed multiline image captions leaking closing `]]` markup into section text while
+  preserving embedded blockquote templates.
+- Fixed table cells with list items being rendered empty.
+
 ## Version 0.5.0
 
 ### Added
