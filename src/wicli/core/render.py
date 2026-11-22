@@ -568,7 +568,14 @@ def _render_table(table: ParsedTable) -> str:
     # of overhead on top of the column contents
     available = _get_width() - (3 * num_cols + 1)
     natural = [
-        max(1, max(len(row[c].text) for row in table.rows)) for c in range(num_cols)
+        max(
+            1,
+            max(
+                (len(line) for row in table.rows for line in row[c].text.splitlines()),
+                default=0,
+            ),
+        )
+        for c in range(num_cols)
     ]
     col_widths = _fit_column_widths(natural, available)
 
@@ -596,8 +603,7 @@ def _render_table(table: ParsedTable) -> str:
 
     for i, row in enumerate(table.rows):
         wrapped = [
-            textwrap.wrap(cell.text, width=col_widths[c]) or [""]
-            for c, cell in enumerate(row)
+            _wrap_table_cell(cell.text, col_widths[c]) for c, cell in enumerate(row)
         ]
         height = max(len(w) for w in wrapped)
 
@@ -614,6 +620,21 @@ def _render_table(table: ParsedTable) -> str:
 
     lines.append(bottom)
     return "\n".join(lines)
+
+
+def _wrap_table_cell(text: str, width: int) -> list[str]:
+    wrapped = []
+    for line in text.splitlines() or [""]:
+        subsequent_indent = "  " if line.startswith("• ") else ""
+        wrapped.extend(
+            textwrap.wrap(
+                line,
+                width=width,
+                subsequent_indent=subsequent_indent,
+            )
+            or [""]
+        )
+    return wrapped
 
 
 def _fit_column_widths(

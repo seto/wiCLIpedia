@@ -362,6 +362,23 @@ class TestRenderTableLayout:
         assert lines[1].startswith("│ short ")
         assert lines[2].startswith("│       ")
 
+    def test_list_items_render_on_separate_lines_with_hanging_indent(self):
+        table = self._table(
+            [
+                [
+                    (
+                        "• First item\n• Second item with enough words to wrap across "
+                        "the cell",
+                        False,
+                    )
+                ]
+            ]
+        )
+        lines = render._render_table(table).splitlines()
+        second_item = next(i for i, line in enumerate(lines) if "Second item" in line)
+        assert "• First item" in lines[1]
+        assert lines[second_item + 1].startswith("│   ")
+
     def test_caption_rendered_above_table(self):
         table = self._table([[("x", False)]], caption="Cap")
         lines = render._render_table(table).splitlines()

@@ -130,7 +130,9 @@ def parse_section(response: dict[str, Any]) -> dict[str, Any]:
             parsed = parse_table(token.value)
             for row in parsed.rows:
                 for cell in row:
-                    cell.text = _clean_inline(cell.text)
+                    cell.text = "\n".join(
+                        _clean_inline(line) for line in cell.text.splitlines()
+                    )
 
             if parsed.caption:
                 parsed.caption = _clean_inline(parsed.caption)

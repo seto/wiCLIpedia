@@ -164,6 +164,11 @@ class TestParseSection:
         assert result["status"] == "found"
         assert "\x00TABLE\x00" in result["section"]
 
+    def test_table_list_items_keep_line_breaks(self):
+        wikitext = "{|\n|valign=top|\n* First item\n* Second item\n|}"
+        result = parse_section({"parse": {"wikitext": wikitext}})
+        assert "• First item\n• Second item" in result["section"]
+
     @pytest.mark.parametrize(
         "sort_template",
         [
