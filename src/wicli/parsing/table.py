@@ -93,6 +93,14 @@ def parse_table(raw: str) -> ParsedTable:
         elif stripped.startswith("|"):
             current_cells.extend(_split_cells(stripped[1:], "||", is_header=False))
 
+        elif stripped and current_cells:
+            cell = current_cells[-1]
+            if stripped.startswith(("*", "#")):
+                content = f"• {stripped.lstrip('*#').strip()}"
+                cell.text = f"{cell.text}\n{content}".strip()
+            else:
+                cell.text = f"{cell.text} {stripped}".strip()
+
     # Flush any remaining cells after the loop
     row, _ = _finalize_row(current_cells, active_spans)
     if row:

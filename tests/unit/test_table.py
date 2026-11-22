@@ -26,6 +26,22 @@ class TestParseTable:
         result = parse_table(raw)
         assert [c.text for c in result.rows[0]] == ["Foo", "Bar", "Baz"]
 
+    def test_list_items_in_table_cells(self):
+        raw = (
+            "{|\n|valign=top|\n* First item\n* Second item\n"
+            "|valign=top|\n* Third item\n|}"
+        )
+        result = parse_table(raw)
+        assert [cell.text for cell in result.rows[0]] == [
+            "• First item\n• Second item",
+            "• Third item",
+        ]
+
+    def test_plain_continuation_in_table_cell(self):
+        raw = "{|\n|-\n| First line\ncontinued text\n|}"
+        result = parse_table(raw)
+        assert result.rows[0][0].text == "First line continued text"
+
     def test_caption_extracted(self):
         raw = "{|\n|+Hello World\n! H\n|-\n| cell\n|}"
         result = parse_table(raw)
